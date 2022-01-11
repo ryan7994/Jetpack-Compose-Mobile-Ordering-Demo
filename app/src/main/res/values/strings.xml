@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Jetpack Mobile Ordering</string>
+    <string name="bottom_nav_browse">Browse</string>
+    <string name="bottom_nav_order">Order</string>
+    <string name="bottom_nav_bag">Bag</string>
+    <string name="come_back_later">Come back later!</string>
+    <string name="no_menu_message">This restaurant hasn\'t added a menu yet</string>
+</resources>
