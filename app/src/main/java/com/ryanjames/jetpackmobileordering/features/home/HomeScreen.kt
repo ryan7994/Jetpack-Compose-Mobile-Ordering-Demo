@@ -1,18 +1,22 @@
 package com.ryanjames.jetpackmobileordering.ui.screens
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,7 +33,7 @@ import com.ryanjames.jetpackmobileordering.features.home.RestaurantCardState
 import com.ryanjames.jetpackmobileordering.ui.theme.*
 import com.ryanjames.jetpackmobileordering.ui.widget.EditAddress
 import com.ryanjames.jetpackmobileordering.ui.widget.FeaturedCard
-import com.ryanjames.jetpackmobileordering.ui.widget.ShimmerAnimation
+import com.ryanjames.jetpackmobileordering.ui.widget.ShimmerItem
 import com.ryanjames.jetpackmobileordering.ui.widget.featuredCard
 
 
@@ -62,7 +66,7 @@ fun HomeScreen(
         Crossfade(targetState = dataState, animationSpec = tween(durationMillis = 1000, easing = LinearEasing)) { dataState ->
             when (dataState) {
                 HomeScreenDataState.Loading -> {
-                    ShimmerAnimation()
+                    HomeScreenShimmer()
                 }
                 HomeScreenDataState.Error -> {
 
@@ -120,6 +124,104 @@ fun HomeScreen(
             }
         }
     }
+}
+
+@Composable
+fun HomeScreenShimmer() {
+
+    val transition = rememberInfiniteTransition()
+    val translateAnimX by transition.animateFloat(
+
+        initialValue = 0f,
+        targetValue = 3000f,
+        animationSpec = infiniteRepeatable(
+
+            // Tween Animates between values over specified [durationMillis]
+            tween(durationMillis = 1500, easing = LinearOutSlowInEasing),
+            RepeatMode.Restart
+        )
+    )
+
+    val translateAnimY by transition.animateFloat(
+
+        initialValue = 0f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+
+            tween(durationMillis = 1000, easing = LinearOutSlowInEasing),
+            RepeatMode.Reverse
+        )
+    )
+
+    val brush = Brush.linearGradient(
+        colors = if (isSystemInDarkTheme()) ShimmerColorShadesDarkMode else ShimmerColorShadesLightMode,
+        start = Offset(0f, 0f),
+        end = Offset(translateAnimX, translateAnimY)
+    )
+
+    Column {
+
+        Column(modifier = Modifier.padding(start = 32.dp, end = 32.dp, top = 16.dp)) {
+            ShimmerItem(
+                brush = brush,
+                modifier = Modifier
+                    .height(48.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.size(20.dp))
+
+            ShimmerItem(
+                brush = brush, modifier = Modifier
+                    .height(270.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.size(20.dp))
+
+            ShimmerItem(
+                brush = brush,
+                modifier = Modifier
+                    .height(30.dp)
+                    .fillMaxWidth()
+            )
+
+        }
+
+        Spacer(modifier = Modifier.size(20.dp))
+
+        Column(modifier = Modifier.padding(start = 16.dp)) {
+            ShimmerItem(
+                brush = brush,
+                modifier = Modifier
+                    .height(34.dp)
+                    .width(120.dp)
+            )
+            Spacer(modifier = Modifier.size(16.dp))
+
+            Row {
+                ShimmerItem(
+                    brush = brush,
+                    modifier = Modifier
+                        .height(248.dp)
+                        .width(284.dp)
+                )
+
+                Spacer(modifier = Modifier.size(8.dp))
+
+                ShimmerItem(
+                    brush = brush,
+                    modifier = Modifier
+                        .height(248.dp)
+                        .width(284.dp),
+                    shape = RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp)
+                )
+            }
+
+        }
+    }
+
+
 }
 
 @ExperimentalPagerApi

@@ -1,13 +1,12 @@
 package com.ryanjames.jetpackmobileordering.features.productdetail
 
-import android.widget.Space
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -17,29 +16,42 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.google.android.material.chip.Chip
 import com.ryanjames.jetpackmobileordering.R
+import com.ryanjames.jetpackmobileordering.ui.core.Dialog
 import com.ryanjames.jetpackmobileordering.ui.theme.*
+import com.ryanjames.jetpackmobileordering.ui.widget.LoadingSpinnerWithText
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
 fun ProductDetailScreen(
-    viewModel: ProductDetailViewModel
+    viewModel: ProductDetailViewModel,
+    onSuccessfulAddOrUpdate: () -> Unit
 ) {
     val product = viewModel.productDetailScreenState.collectAsState().value
+    LaunchedEffect(Unit) {
+        viewModel.onSuccessfulAddOrUpdate.collect { isSuccessful ->
+            if (isSuccessful) {
+                onSuccessfulAddOrUpdate.invoke()
+
+            }
+        }
+    }
+
     ProductDetailScreen(
         productDetailScreenState = product,
         onClickModifierSummary = viewModel::onClickModifierSummary,
         onClickModifier = viewModel::onClickModifierOption,
         onClickPlusQty = viewModel::onClickPlusQty,
-        onClickMinusQty = viewModel::onClickMinusQty
+        onClickMinusQty = viewModel::onClickMinusQty,
+        onClickAddToBag = viewModel::onClickAddToBag
     )
 }
 
@@ -50,7 +62,8 @@ fun ProductDetailScreen(
     onClickModifierSummary: (String) -> Unit,
     onClickModifier: (parentId: String, id: String) -> Unit,
     onClickPlusQty: () -> Unit,
-    onClickMinusQty: () -> Unit
+    onClickMinusQty: () -> Unit,
+    onClickAddToBag: () -> Unit
 ) {
 
     val modalBottomSheetState = rememberModalBottomSheetState(
@@ -82,29 +95,35 @@ fun ProductDetailScreen(
         sheetElevation = 8.dp,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            ProductDetailLayout(productDetailScreenState = productDetailScreenState) {
-                scope.launch {
-                    onClickModifierSummary.invoke(it)
-                    modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+            if (productDetailScreenState.loadingProductDetail) {
+                LoadingSpinnerWithText(text = stringResource(id = R.string.loading_product_details))
+            } else {
+                ProductDetailLayout(productDetailScreenState = productDetailScreenState) {
+                    scope.launch {
+                        onClickModifierSummary.invoke(it)
+                        modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                    }
                 }
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Bottom
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Bottom
                 ) {
-                    QtySelector(modifier = Modifier.weight(1f), onClickPlus = onClickPlusQty, onClickMinus = onClickMinusQty, qty = productDetailScreenState.quantity)
-                    Spacer(modifier = Modifier.size(8.dp))
-                    AddToBagBtn(modifier = Modifier.weight(2f), price = productDetailScreenState.price)
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp)
+                    ) {
+                        QtySelector(modifier = Modifier.weight(1f), onClickPlus = onClickPlusQty, onClickMinus = onClickMinusQty, qty = productDetailScreenState.quantity)
+                        Spacer(modifier = Modifier.size(8.dp))
+                        AddToBagBtn(modifier = Modifier.weight(2f), price = productDetailScreenState.price, onClickAddToBag = onClickAddToBag)
 
+                    }
                 }
             }
+
+            Dialog(productDetailScreenState.dialogState)
         }
 
     }
@@ -166,10 +185,10 @@ private fun QtySelector(modifier: Modifier, onClickPlus: () -> Unit, onClickMinu
 }
 
 @Composable
-private fun AddToBagBtn(modifier: Modifier, price: String) {
+private fun AddToBagBtn(modifier: Modifier, price: String, onClickAddToBag: () -> Unit) {
     Button(
         modifier = modifier.fillMaxSize(),
-        onClick = {},
+        onClick = { onClickAddToBag.invoke() },
         contentPadding = PaddingValues(16.dp),
         colors = ButtonDefaults.buttonColors(backgroundColor = CoralRed),
         shape = RoundedCornerShape(8.dp)

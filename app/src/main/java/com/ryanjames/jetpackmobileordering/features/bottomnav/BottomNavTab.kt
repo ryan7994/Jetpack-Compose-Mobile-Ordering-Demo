@@ -25,9 +25,9 @@ sealed class BottomNavScreen(open val route: String, val rootTab: String, val la
         }
     }
 
-    object ProductDetailModal : BottomNavScreen("$PRODUCT_DETAIL_ROUTE/{productId}", ROUTE_BROWSE_TAB) {
-        fun routeWithArgs(productId: String): String {
-            return "$PRODUCT_DETAIL_ROUTE/$productId"
+    object ProductDetailModal : BottomNavScreen("$PRODUCT_DETAIL_ROUTE/{productId}/{venueId}", ROUTE_BROWSE_TAB) {
+        fun routeWithArgs(productId: String, venueId: String): String {
+            return "$PRODUCT_DETAIL_ROUTE/$productId/$venueId"
         }
     }
 

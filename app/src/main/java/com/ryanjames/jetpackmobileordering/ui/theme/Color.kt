@@ -1,7 +1,6 @@
 package com.ryanjames.jetpackmobileordering.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import androidx.constraintlayout.widget.Placeholder
 
 val Purple200 = Color(0xFFBB86FC)
 val Purple500 = Color(0xFF6200EE)
@@ -18,6 +17,7 @@ val PrimaryDark = Color(0xFF1f212c)
 val HintGray = Color(0xFF858585)
 val BlueGray = Color(0xFF1f212c)
 val ChipGray = Color(0xFF959ba9)
+val SunYellow = Color(0xFFf4c861)
 
 val PlaceholderBlueGray = Color(0xFF373742)
 val PlaceholderGray = Color(0xFFE6E6E6)

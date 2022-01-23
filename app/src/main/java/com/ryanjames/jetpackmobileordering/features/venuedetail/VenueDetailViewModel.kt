@@ -6,8 +6,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryanjames.jetpackmobileordering.TAG
-import com.ryanjames.jetpackmobileordering.domain.EmptyVenue
 import com.ryanjames.jetpackmobileordering.core.Resource
+import com.ryanjames.jetpackmobileordering.domain.EmptyVenue
 import com.ryanjames.jetpackmobileordering.repository.MenuRepository
 import com.ryanjames.jetpackmobileordering.repository.VenueRepository
 import com.ryanjames.jetpackmobileordering.ui.toCategoryViewStateList
@@ -36,13 +36,13 @@ class VenueDetailViewModel @Inject constructor(
 
         Log.d(TAG, "Venue Detail Screen init()")
 
-        val venueId = savedStateHandle.get<String>("venueId")
+        val venueId = savedStateHandle.get<String>("venueId") ?: ""
         val venueName = savedStateHandle.get<String>("venueName")
 
         val initialVenue = EmptyVenue.copy(name = venueName ?: "")
-        _venueDetailScreenState.value = VenueDetailScreenState(initialVenue.toVenueDetailHeader(), Resource.Loading)
+        _venueDetailScreenState.value = VenueDetailScreenState(initialVenue.toVenueDetailHeader(), Resource.Loading, venueId = venueId)
 
-        if (venueId != null) {
+        if (venueId.isNotBlank()) {
             viewModelScope.launch {
                 awaitAll(async {
                     venueRepository.getVenueById(id = venueId).collect { resource ->

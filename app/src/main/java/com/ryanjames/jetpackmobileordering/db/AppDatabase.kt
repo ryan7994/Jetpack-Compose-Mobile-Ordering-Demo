@@ -2,23 +2,31 @@ package com.ryanjames.jetpackmobileordering.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.ryanjames.jetpackmobileordering.db.dao.GlobalDao
 import com.ryanjames.jetpackmobileordering.db.dao.MenuDao
+import com.ryanjames.jetpackmobileordering.db.dao.OrderDao
 import com.ryanjames.jetpackmobileordering.db.dao.VenueDao
-import com.ryanjames.jetpackmobileordering.db.model.BasicMenuCategoryEntity
-import com.ryanjames.jetpackmobileordering.db.model.BasicMenuEntity
-import com.ryanjames.jetpackmobileordering.db.model.BasicMenuProductEntity
+import com.ryanjames.jetpackmobileordering.db.model.*
 
 @Database(
-    entities = arrayOf(
+    entities = [
         VenueEntity::class,
         VenueCategoryEntity::class,
         VenueCategoryCrossRef::class,
         BasicMenuProductEntity::class,
         BasicMenuEntity::class,
-        BasicMenuCategoryEntity::class
-    ), version = 1
+        BasicMenuCategoryEntity::class,
+        LineItemEntity::class,
+        LineItemProductEntity::class,
+        LineItemModifierGroupEntity::class,
+        LineItemModifierInfoEntity::class,
+        GlobalEntity::class
+    ],
+    version = 1
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun venueDao(): VenueDao
     abstract fun menuDao(): MenuDao
+    abstract fun orderDao(): OrderDao
+    abstract fun globalDao(): GlobalDao
 }

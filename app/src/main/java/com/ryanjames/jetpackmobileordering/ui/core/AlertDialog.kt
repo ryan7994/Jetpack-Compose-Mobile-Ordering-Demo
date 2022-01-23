@@ -1,7 +1,6 @@
 package com.ryanjames.jetpackmobileordering.ui.core
 
 
-import android.widget.Space
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
@@ -10,8 +9,11 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import com.ryanjames.jetpackmobileordering.R
+import com.ryanjames.jetpackmobileordering.core.StringResource
 import com.ryanjames.jetpackmobileordering.ui.theme.*
 
 @Composable
@@ -33,7 +35,7 @@ fun Dialog(alertDialogState: AlertDialogState?) {
                 ) {
                     CircularProgressIndicator(color = CoralRed)
                     Spacer(modifier = Modifier.size(16.dp))
-                    TypeScaledTextView(label = alertDialogState.loadingText, typeScale = TypeScaleCategory.Subtitle1)
+                    TypeScaledTextView(label = stringResource(id =  alertDialogState.loadingText.id), typeScale = TypeScaleCategory.Subtitle1)
                 }
             }
 
@@ -84,5 +86,5 @@ open class AlertDialogState(
 }
 
 class LoadingDialogState(
-    val loadingText: String = "Please wait..."
+    val loadingText: StringResource = StringResource(R.string.please_wait)
 ) : AlertDialogState()

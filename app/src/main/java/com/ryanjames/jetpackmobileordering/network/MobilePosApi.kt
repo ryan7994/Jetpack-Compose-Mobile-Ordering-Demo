@@ -1,7 +1,6 @@
 package com.ryanjames.jetpackmobileordering.network
 
 import com.ryanjames.jetpackmobileordering.network.model.*
-import kotlinx.coroutines.flow.Flow
 import retrofit2.http.*
 
 interface MobilePosApi {
@@ -24,4 +23,13 @@ interface MobilePosApi {
 
     @GET("/productDetail/{product_id}")
     suspend fun getProductDetails(@Path(value = "product_id", encoded = true) productId: String): ProductDetailsResponse
+
+    @POST("/order")
+    suspend fun postOrder(@Body createUpdateOrderRequest: CreateUpdateOrderRequest): GetOrderResponse
+
+    @PUT("/order")
+    suspend fun putOrder(@Body createUpdateOrderRequest: CreateUpdateOrderRequest): GetOrderResponse
+
+    @POST("/retrieveOrder")
+    suspend fun getOrder(@Body getOrderRequest: GetOrderRequest): GetOrderResponse
 }
