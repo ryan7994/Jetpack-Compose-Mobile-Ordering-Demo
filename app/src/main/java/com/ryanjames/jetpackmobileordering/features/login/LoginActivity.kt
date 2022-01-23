@@ -3,11 +3,9 @@ package com.ryanjames.jetpackmobileordering.features.login
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.compose.rememberNavController
 import com.ryanjames.jetpackmobileordering.TAG
 import com.ryanjames.jetpackmobileordering.core.BaseActivity
 import com.ryanjames.jetpackmobileordering.features.bottomnav.BottomNavActivity
@@ -41,7 +39,7 @@ class LoginActivity : BaseActivity() {
                             loginUser()
                         }
                         LoginEvent.AutoLogin -> {
-                             loginUser()
+                            loginUser()
                         }
                     }
                 }

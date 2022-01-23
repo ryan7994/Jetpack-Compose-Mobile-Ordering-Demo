@@ -16,3 +16,12 @@ fun <T> MutableList<T>.clearAndAddAll(c: Collection<T>) {
     clear()
     addAll(c)
 }
+
+fun <T> List<T>.replaceOrAdd(newValue: T, block: (T) -> Boolean): List<T> {
+    if (find { block(it) } == null) {
+        return this.plus(newValue)
+    }
+    return map {
+        if (block(it)) newValue else it
+    }
+}

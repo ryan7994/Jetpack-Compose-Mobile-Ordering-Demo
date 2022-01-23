@@ -2,12 +2,17 @@ package com.ryanjames.jetpackmobileordering.features.venuedetail
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -30,7 +35,7 @@ import com.ryanjames.jetpackmobileordering.ui.widget.RestaurantHeader
 @Composable
 fun VenueDetailScreen(
     venueDetailViewModel: VenueDetailViewModel = hiltViewModel(),
-    onClickMenuItemCard: (productId: String) -> Unit = {}
+    onClickMenuItemCard: (productId: String, venueId: String) -> Unit = { _, _ -> }
 ) {
     val state = venueDetailViewModel.venueDetailScreenState.collectAsState()
     VenueDetailScreen(
@@ -44,7 +49,7 @@ fun VenueDetailScreen(
 fun VenueDetailScreen(
     venueDetailScreenState: VenueDetailScreenState,
     onClickUp: () -> Unit = {},
-    onClickMenuItemCard: (productId: String) -> Unit
+    onClickMenuItemCard: (productId: String, venueId: String) -> Unit
 ) {
 
     Box {
@@ -84,7 +89,7 @@ fun VenueDetailScreen(
                                     Spacer(modifier = Modifier.size(16.dp))
                                 }
                                 val category = menuCategories[index]
-                                CategoryItems(category = category.categoryName, items = category.menuItems, onClickMenuItemCard = onClickMenuItemCard)
+                                CategoryItems(category = category.categoryName, items = category.menuItems, onClickMenuItemCard = onClickMenuItemCard, venueId = venueDetailScreenState.venueId)
 
                                 if (index == menuCategories.size - 1) {
                                     Spacer(modifier = Modifier.size(64.dp))
@@ -164,11 +169,11 @@ private fun NoMenuView(phoneUri: Uri?, email: String?, addressUri: Uri?) {
 
 
 @Composable
-private fun CategoryItems(category: String, items: List<MenuItemCardDisplayModel>, onClickMenuItemCard: (productId: String) -> Unit) {
+private fun CategoryItems(category: String, items: List<MenuItemCardDisplayModel>, onClickMenuItemCard: (productId: String, venueId: String) -> Unit, venueId: String) {
     TypeScaledTextView(label = category, typeScale = TypeScaleCategory.H6)
     Spacer(modifier = Modifier.size(16.dp))
     items.forEachIndexed { index, menuItemCardState ->
-        MenuItemCard(state = menuItemCardState, onClickMenuItemCard = { onClickMenuItemCard.invoke(menuItemCardState.id) })
+        MenuItemCard(state = menuItemCardState, onClickMenuItemCard = { onClickMenuItemCard.invoke(menuItemCardState.id, venueId) })
         Spacer(modifier = Modifier.size(if (index == items.size - 1) 16.dp else 12.dp))
     }
 

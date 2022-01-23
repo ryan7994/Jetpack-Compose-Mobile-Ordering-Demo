@@ -1,6 +1,7 @@
 package com.ryanjames.jetpackmobileordering.features.productdetail
 
 import com.ryanjames.jetpackmobileordering.domain.Product
+import com.ryanjames.jetpackmobileordering.ui.core.AlertDialogState
 
 data class ProductDetailScreenState(
     val product: Product? = null,
@@ -10,6 +11,8 @@ data class ProductDetailScreenState(
     val modifierOptions: List<ModifierOptionDisplayModel> = listOf(),
     val quantity: String = "",
     val price: String = "",
+    val loadingProductDetail: Boolean = true,
+    val dialogState: AlertDialogState? = null
 )
 
 data class ModifierSummaryRowDisplayModel(

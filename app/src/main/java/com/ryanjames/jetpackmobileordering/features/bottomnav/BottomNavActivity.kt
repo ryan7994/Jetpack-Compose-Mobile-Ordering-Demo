@@ -7,29 +7,23 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navigation
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.ryanjames.jetpackmobileordering.constants.PRODUCT_COKE
-import com.ryanjames.jetpackmobileordering.features.home.HomeViewModel
+import com.ryanjames.jetpackmobileordering.R
 import com.ryanjames.jetpackmobileordering.features.productdetail.ProductDetailScreen
-import com.ryanjames.jetpackmobileordering.features.productdetail.ProductDetailViewModel
 import com.ryanjames.jetpackmobileordering.features.venuedetail.VenueDetailScreen
 import com.ryanjames.jetpackmobileordering.features.venuedetail.VenueDetailScreen2
-import com.ryanjames.jetpackmobileordering.features.venuedetail.VenueDetailViewModel
+import com.ryanjames.jetpackmobileordering.ui.core.CustomSnackbar
 import com.ryanjames.jetpackmobileordering.ui.screens.HomeScreen
 import com.ryanjames.jetpackmobileordering.ui.screens.LoginScreen
 import com.ryanjames.jetpackmobileordering.ui.theme.AppTheme
@@ -37,6 +31,9 @@ import com.ryanjames.jetpackmobileordering.ui.theme.CoralRed
 import com.ryanjames.jetpackmobileordering.ui.theme.FreeSans
 import com.ryanjames.jetpackmobileordering.ui.theme.MyComposeAppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+
+val LocalSnackbarHostState = compositionLocalOf<SnackbarHostState> { error("No SnackbarHostState provided") }
 
 @AndroidEntryPoint
 class BottomNavActivity : ComponentActivity() {
@@ -66,17 +63,29 @@ class BottomNavActivity : ComponentActivity() {
         val navController = rememberNavController()
         val bottomNavTabs = listOf(BottomNavScreen.Home, BottomNavScreen.Random)
 
-        Scaffold(
-            bottomBar = {
-                BottomNavBar(navController = navController, items = bottomNavTabs)
-            }
-        ) { innerPadding ->
-            Box(modifier = Modifier.padding(innerPadding)) {
-                BottomNavScreenNavigationConfig(
-                    navController = navController
-                )
+        val scaffoldState = rememberScaffoldState()
+        CompositionLocalProvider(
+            LocalSnackbarHostState provides scaffoldState.snackbarHostState
+        ) {
+            Scaffold(scaffoldState = scaffoldState,
+                bottomBar = {
+                    BottomNavBar(navController = navController, items = bottomNavTabs)
+                },
+                snackbarHost = { snackbarHostState ->
+                    SnackbarHost(snackbarHostState) { data ->
+                        CustomSnackbar(data)
+                    }
+                }
+            ) { innerPadding ->
+                Box(modifier = Modifier.padding(innerPadding)) {
+                    BottomNavScreenNavigationConfig(
+                        navController = navController,
+                    )
+                }
             }
         }
+
+
     }
 
     @Composable
@@ -138,6 +147,9 @@ class BottomNavActivity : ComponentActivity() {
     private fun BottomNavScreenNavigationConfig(
         navController: NavHostController
     ) {
+        val snackbarHostState = LocalSnackbarHostState.current
+        val scope = rememberCoroutineScope()
+        val itemAddedMessage = stringResource(R.string.item_added)
 
         NavHost(navController, startDestination = BottomNavScreen.Home.route) {
 
@@ -150,15 +162,23 @@ class BottomNavActivity : ComponentActivity() {
 
             composable(BottomNavScreen.VenueDetail.route) { backStackEntry ->
                 VenueDetailScreen(
-                    onClickMenuItemCard = { productId ->
-                        navController.navigate(BottomNavScreen.ProductDetailModal.routeWithArgs(productId))
+                    onClickMenuItemCard = { productId, venueId ->
+                        navController.navigate(BottomNavScreen.ProductDetailModal.routeWithArgs(productId, venueId))
                     },
-                    venueDetailViewModel =  hiltViewModel()
+                    venueDetailViewModel = hiltViewModel()
                 )
             }
 
+
             composable(BottomNavScreen.ProductDetailModal.route) {
-                ProductDetailScreen(viewModel = hiltViewModel())
+                ProductDetailScreen(viewModel = hiltViewModel(),
+                    onSuccessfulAddOrUpdate = {
+                        navController.popBackStack()
+                        scope.launch {
+                            snackbarHostState.currentSnackbarData
+                            snackbarHostState.showSnackbar(itemAddedMessage)
+                        }
+                    })
             }
 
             composable(BottomNavScreen.Login.route) {

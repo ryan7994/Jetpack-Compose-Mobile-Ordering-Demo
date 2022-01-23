@@ -2,7 +2,9 @@ package com.ryanjames.jetpackmobileordering.features.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ryanjames.jetpackmobileordering.R
 import com.ryanjames.jetpackmobileordering.core.LoginManager
+import com.ryanjames.jetpackmobileordering.core.StringResource
 import com.ryanjames.jetpackmobileordering.features.login.LoginEvent.LoginErrorEvent
 import com.ryanjames.jetpackmobileordering.network.ApiService
 import com.ryanjames.jetpackmobileordering.network.model.Event
@@ -59,7 +61,7 @@ class LoginViewModel @Inject constructor(
 
     private fun showLoggingInDialog() {
         _loginViewState.value = _loginViewState.value.copy(
-            alertDialogState = LoadingDialogState(loadingText = "Logging in...")
+            alertDialogState = LoadingDialogState(loadingText = StringResource(id = R.string.logging_in))
         )
     }
 
