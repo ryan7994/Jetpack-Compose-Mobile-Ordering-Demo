@@ -29,6 +29,11 @@ interface GlobalDao {
         } else if (globalEntity.currentOrderId == null) {
             updateCurrentOrderId(orderId)
         }
+    }
 
+    @Transaction
+    suspend fun getCurrentVenueId(): String? {
+        val globalEntity = getGlobalValues()
+        return globalEntity?.currentVenue
     }
 }

@@ -1,12 +1,7 @@
 package com.ryanjames.jetpackmobileordering.ui.theme
 
-import android.util.Log
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.collectIsDraggedAsState
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,14 +9,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
@@ -30,10 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlin.math.max
 
 @Composable
 fun TypeScaledTextView(
@@ -146,6 +138,28 @@ fun AccentButton(onClick: () -> Unit, label: String, modifier: Modifier = Modifi
 }
 
 @Composable
+fun OutlinedAccentButton(onClick: () -> Unit, label: String, modifier: Modifier = Modifier) {
+
+    OutlinedButton(
+        onClick = onClick,
+        contentPadding = PaddingValues(horizontal = 8.dp),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(width = 2.dp, color = CoralRed),
+        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Transparent)
+    ) {
+
+        TypeScaledTextView(
+            label = label,
+            color = TextColor.DarkTextColor,
+            textAlign = TextAlign.Center,
+            modifier = modifier
+        )
+
+
+    }
+}
+
+@Composable
 fun FullWidthButton(onClick: () -> Unit, label: String) {
     val gradient = Brush.horizontalGradient(listOf(CoralRed, CoralRedGradientEnd))
 
@@ -227,4 +241,14 @@ fun TextTabs(
                 })
         }
     }
+}
+
+@Composable
+fun HorizontalLine() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(AppTheme.colors.placeholderColor)
+    )
 }

@@ -8,8 +8,8 @@
     <string name="loading_product_details">Loading product details…</string>
     <string name="delivering_to">Delivering to</string>
     <string name="edit_address">Edit Address</string>
-    <string name="please_wait">Please wait...</string>
-    <string name="logging_in">Logging in...</string>
-    <string name="adding_item_to_bag">Adding item to bag...</string>
+    <string name="please_wait">Please wait…</string>
+    <string name="logging_in">Logging in…</string>
+    <string name="adding_item_to_bag">Adding item to bag…</string>
     <string name="item_added">Item is added to bag successfully.</string>
 </resources>

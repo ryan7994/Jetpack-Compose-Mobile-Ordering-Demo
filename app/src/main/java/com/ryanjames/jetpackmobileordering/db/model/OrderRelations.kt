@@ -3,7 +3,7 @@ package com.ryanjames.jetpackmobileordering.db.model
 import androidx.room.Embedded
 import androidx.room.Relation
 
-data class LineItemWithProducts(
+data class LineItemEntityWithProducts(
     @Embedded
     val lineItem: LineItemEntity,
     @Relation(
@@ -11,10 +11,10 @@ data class LineItemWithProducts(
         entityColumn = "lineItemId",
         entity = LineItemProductEntity::class
     )
-    val products: List<LineItemProductWithModifiers>
+    val products: List<LineItemProductEntityWithModifiers>
 )
 
-data class LineItemProductWithModifiers(
+data class LineItemProductEntityWithModifiers(
     @Embedded
     val product: LineItemProductEntity,
     @Relation(
@@ -22,18 +22,18 @@ data class LineItemProductWithModifiers(
         entityColumn = "productItemId",
         entity = LineItemModifierGroupEntity::class
     )
-    val modifiers: List<LineItemModifierGroupWithModifiers>
+    val modifiers: List<LineItemModifierGroupEntityWithModifiers>
 )
 
 
-data class LineItemModifierGroupWithModifiers(
+data class LineItemModifierGroupEntityWithModifiers(
     @Embedded
     val modifierGroup: LineItemModifierGroupEntity,
     @Relation(
         parentColumn = "id",
         entityColumn = "modifierGroupId"
     )
-    val modifierIds: List<LineItemModifierInfoEntity>,
+    val modifierIds: List<LineItemModifierInfoEntity>
 )
 
 

@@ -44,4 +44,6 @@ class VenueRepository(
         mapToDomainModel = { it?.toDomain() }
     )
 
+    suspend fun getCurrentVenue() = roomDb.globalDao().getCurrentVenueId()
+
 }

@@ -45,7 +45,7 @@ fun ProductDetailScreen(
         }
     }
 
-    ProductDetailScreen(
+    ProductDetailLayout(
         productDetailScreenState = product,
         onClickModifierSummary = viewModel::onClickModifierSummary,
         onClickModifier = viewModel::onClickModifierOption,
@@ -57,7 +57,7 @@ fun ProductDetailScreen(
 
 @ExperimentalMaterialApi
 @Composable
-fun ProductDetailScreen(
+fun ProductDetailLayout(
     productDetailScreenState: ProductDetailScreenState,
     onClickModifierSummary: (String) -> Unit,
     onClickModifier: (parentId: String, id: String) -> Unit,
@@ -296,12 +296,7 @@ fun ModifierSummaryRow(modifierSummaryRowDisplayModel: ModifierSummaryRowDisplay
         }
 
         if (!modifierSummaryRowDisplayModel.hideLineSeparator) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(AppTheme.colors.placeholderColor)
-            )
+            HorizontalLine()
         }
     }
 

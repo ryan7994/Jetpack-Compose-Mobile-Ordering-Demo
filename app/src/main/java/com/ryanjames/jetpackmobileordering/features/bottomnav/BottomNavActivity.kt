@@ -20,12 +20,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.ryanjames.jetpackmobileordering.R
+import com.ryanjames.jetpackmobileordering.features.bag.BagScreen
 import com.ryanjames.jetpackmobileordering.features.productdetail.ProductDetailScreen
 import com.ryanjames.jetpackmobileordering.features.venuedetail.VenueDetailScreen
-import com.ryanjames.jetpackmobileordering.features.venuedetail.VenueDetailScreen2
 import com.ryanjames.jetpackmobileordering.ui.core.CustomSnackbar
 import com.ryanjames.jetpackmobileordering.ui.screens.HomeScreen
-import com.ryanjames.jetpackmobileordering.ui.screens.LoginScreen
 import com.ryanjames.jetpackmobileordering.ui.theme.AppTheme
 import com.ryanjames.jetpackmobileordering.ui.theme.CoralRed
 import com.ryanjames.jetpackmobileordering.ui.theme.FreeSans
@@ -61,7 +60,7 @@ class BottomNavActivity : ComponentActivity() {
     fun BottomNavScreen() {
 
         val navController = rememberNavController()
-        val bottomNavTabs = listOf(BottomNavScreen.Home, BottomNavScreen.Random)
+        val bottomNavTabs = listOf(BottomNavScreen.Home, BottomNavScreen.Bag)
 
         val scaffoldState = rememberScaffoldState()
         CompositionLocalProvider(
@@ -165,10 +164,10 @@ class BottomNavActivity : ComponentActivity() {
                     onClickMenuItemCard = { productId, venueId ->
                         navController.navigate(BottomNavScreen.ProductDetailModal.routeWithArgs(productId, venueId))
                     },
-                    venueDetailViewModel = hiltViewModel()
+                    venueDetailViewModel = hiltViewModel(),
+                    onClickUpBtn = { navController.popBackStack() }
                 )
             }
-
 
             composable(BottomNavScreen.ProductDetailModal.route) {
                 ProductDetailScreen(viewModel = hiltViewModel(),
@@ -181,19 +180,12 @@ class BottomNavActivity : ComponentActivity() {
                     })
             }
 
-            composable(BottomNavScreen.Login.route) {
-                LoginScreen(hiltViewModel()) {
-                    navController.navigate(BottomNavScreen.VenueDetail2.route)
+
+            composable(BottomNavScreen.Bag.route) {
+                BagScreen(hiltViewModel()) { venueId ->
+                    navController.navigate(BottomNavScreen.ProductDetailModal.routeWithArgs("B1000", "BUGST"))
                 }
                 BackHandler {}
-            }
-
-            composable(BottomNavScreen.Random.route) {
-                BackHandler {}
-            }
-
-            composable(BottomNavScreen.VenueDetail2.route) {
-                VenueDetailScreen2()
             }
         }
 

@@ -2,6 +2,7 @@ package com.ryanjames.jetpackmobileordering.db.dao
 
 import androidx.room.*
 import com.ryanjames.jetpackmobileordering.db.model.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface OrderDao {
@@ -20,7 +21,10 @@ interface OrderDao {
 
     // If function returns a Flow, the function should not be suspendable
     @Query("SELECT * FROM LineItemEntity")
-    suspend fun getAllLineItems(): List<LineItemWithProducts>
+    suspend fun getAllLineItems(): List<LineItemEntityWithProducts>
+
+    @Query("SELECT * FROM LineItemEntity")
+    fun getAllLineItemsFlow(): Flow<List<LineItemEntityWithProducts>>
 
     @Query("DELETE FROM LineItemEntity")
     suspend fun deleteLineItems()
@@ -36,7 +40,7 @@ interface OrderDao {
 
 
     @Transaction
-    suspend fun updateLocalBag(lineItems: List<LineItemWithProducts>, venueId: String) {
+    suspend fun updateLocalBag(lineItems: List<LineItemEntityWithProducts>, venueId: String) {
         deleteLineItems()
         deleteLineItemProducts()
         deleteModifierGroups()
