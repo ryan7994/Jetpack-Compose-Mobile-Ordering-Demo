@@ -12,12 +12,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.ryanjames.jetpackmobileordering.R
 import com.ryanjames.jetpackmobileordering.features.bag.BagScreen
@@ -30,9 +34,11 @@ import com.ryanjames.jetpackmobileordering.ui.theme.CoralRed
 import com.ryanjames.jetpackmobileordering.ui.theme.FreeSans
 import com.ryanjames.jetpackmobileordering.ui.theme.MyComposeAppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 val LocalSnackbarHostState = compositionLocalOf<SnackbarHostState> { error("No SnackbarHostState provided") }
+val LocalCoroutineScope = compositionLocalOf<CoroutineScope> { error("No coroutine scope provided") }
 
 @AndroidEntryPoint
 class BottomNavActivity : ComponentActivity() {
@@ -60,11 +66,13 @@ class BottomNavActivity : ComponentActivity() {
     fun BottomNavScreen() {
 
         val navController = rememberNavController()
-        val bottomNavTabs = listOf(BottomNavScreen.Home, BottomNavScreen.Bag)
+        val bottomNavTabs = listOf(BottomNavTabs.BrowseTab, BottomNavTabs.BagTab)
 
         val scaffoldState = rememberScaffoldState()
+        val coroutineScope = rememberCoroutineScope()
         CompositionLocalProvider(
-            LocalSnackbarHostState provides scaffoldState.snackbarHostState
+            LocalSnackbarHostState provides scaffoldState.snackbarHostState,
+            LocalCoroutineScope provides coroutineScope
         ) {
             Scaffold(scaffoldState = scaffoldState,
                 bottomBar = {
@@ -87,40 +95,110 @@ class BottomNavActivity : ComponentActivity() {
 
     }
 
+    @ExperimentalMaterialApi
+    fun NavGraphBuilder.bagGraph(navController: NavController) {
+
+        navigation(startDestination = BottomNavScreens.Bag.route, route = BottomNavTabs.BagTab.tabRoute) {
+            composable(BottomNavScreens.Bag.route) {
+                BagScreen(hiltViewModel()) { venueId ->
+                    navController.navigate(BottomNavScreens.VenueDetailFromBag.routeWithArgs("BUGST"))
+                }
+                BackHandler {}
+            }
+
+            composable(BottomNavScreens.ProductDetailFromBag.route) {
+                NavigateToProductDetailScreen(navController = navController)
+            }
+
+            composable(BottomNavScreens.VenueDetailFromBag.route) { backStackEntry ->
+                VenueDetailScreen(
+                    onClickMenuItemCard = { productId, venueId ->
+                        navController.navigate(BottomNavScreens.ProductDetailFromBag.routeWithArgs(productId, venueId))
+                    },
+                    venueDetailViewModel = hiltViewModel(),
+                    onClickUpBtn = { navController.popBackStack() }
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun NavigateToVenueDetailScreen(navController: NavController) {
+        VenueDetailScreen(
+            onClickMenuItemCard = { productId, venueId ->
+                navController.navigate(BottomNavScreens.ProductDetailModal.routeWithArgs(productId, venueId))
+            },
+            venueDetailViewModel = hiltViewModel(),
+            onClickUpBtn = { navController.popBackStack() }
+        )
+    }
+
+    @ExperimentalMaterialApi
+    @Composable
+    private fun NavigateToProductDetailScreen(navController: NavController) {
+        val scope = LocalCoroutineScope.current
+        val snackbarHostState = LocalSnackbarHostState.current
+        val itemAddedMessage = stringResource(id = R.string.item_added)
+        ProductDetailScreen(viewModel = hiltViewModel(),
+            onSuccessfulAddOrUpdate = {
+                navController.popBackStack()
+                scope.launch {
+                    snackbarHostState.showSnackbar(itemAddedMessage)
+                }
+            })
+    }
+
+    @ExperimentalMaterialApi
+    fun NavGraphBuilder.browseGraph(
+        navController: NavController,
+    ) {
+
+        navigation(startDestination = BottomNavScreens.Home.route, route = BottomNavTabs.BrowseTab.tabRoute) {
+
+            composable(BottomNavScreens.Home.route) {
+                HomeScreen(viewModel = hiltViewModel(),
+                    onClickCard = { venueId ->
+                        navController.navigate(BottomNavScreens.VenueDetail.routeWithArgs(venueId))
+                    })
+            }
+
+            composable(BottomNavScreens.VenueDetail.route) { backStackEntry ->
+                NavigateToVenueDetailScreen(navController = navController)
+            }
+
+            composable(BottomNavScreens.ProductDetailModal.route) {
+                NavigateToProductDetailScreen(navController = navController)
+            }
+        }
+    }
+
+
     @Composable
     fun BottomNavBar(
         navController: NavHostController,
-        items: List<BottomNavScreen>
+        items: List<BottomNavTabs>
     ) {
         BottomNavigation(backgroundColor = AppTheme.colors.bottomNavBackground) {
 
             val backStackEntry by navController.currentBackStackEntryAsState()
-            val currentRoute = backStackEntry?.destination?.route
-            val currentTab = BottomNavScreen.getTabRoute(currentRoute ?: "")
-
             items.forEach { tab ->
-
-                val isSelected = currentTab == tab.rootTab
+                val isSelected = backStackEntry?.destination?.hierarchy?.any { it.route == tab.tabRoute } == true
 
                 BottomNavigationItem(
                     selectedContentColor = CoralRed,
                     unselectedContentColor = AppTheme.colors.darkTextColor,
                     onClick = {
+                        navController.navigate(tab.tabRoute) {
+                            val id = navController.graph.findStartDestination().id
 
-                        if (currentTab != tab.rootTab) {
-                            val route = tab.route
-
-                            navController.navigate(route) {
-                                val id = navController.graph.findStartDestination().id
-
-                                popUpTo(id) {
-                                    saveState = true
-                                }
-
-                                launchSingleTop = true
-                                restoreState = true
+                            popUpTo(id) {
+                                saveState = true
                             }
+
+                            launchSingleTop = true
+                            restoreState = true
                         }
+
                     },
                     label = {
                         Text(
@@ -130,10 +208,9 @@ class BottomNavActivity : ComponentActivity() {
                         )
                     },
                     alwaysShowLabel = true,
-                    icon = { tab.icon?.let { Icon(tab.icon, stringResource(id = tab.labelResId)) } },
                     selected = isSelected,
+                    icon = { tab.icon?.let { Icon(tab.icon, stringResource(id = tab.labelResId)) } },
                 )
-
             }
 
         }
@@ -146,47 +223,10 @@ class BottomNavActivity : ComponentActivity() {
     private fun BottomNavScreenNavigationConfig(
         navController: NavHostController
     ) {
-        val snackbarHostState = LocalSnackbarHostState.current
-        val scope = rememberCoroutineScope()
-        val itemAddedMessage = stringResource(R.string.item_added)
 
-        NavHost(navController, startDestination = BottomNavScreen.Home.route) {
-
-            composable(BottomNavScreen.Home.route) {
-                HomeScreen(viewModel = hiltViewModel(),
-                    onClickCard = { venueId ->
-                        navController.navigate(BottomNavScreen.VenueDetail.routeWithArgs(venueId))
-                    })
-            }
-
-            composable(BottomNavScreen.VenueDetail.route) { backStackEntry ->
-                VenueDetailScreen(
-                    onClickMenuItemCard = { productId, venueId ->
-                        navController.navigate(BottomNavScreen.ProductDetailModal.routeWithArgs(productId, venueId))
-                    },
-                    venueDetailViewModel = hiltViewModel(),
-                    onClickUpBtn = { navController.popBackStack() }
-                )
-            }
-
-            composable(BottomNavScreen.ProductDetailModal.route) {
-                ProductDetailScreen(viewModel = hiltViewModel(),
-                    onSuccessfulAddOrUpdate = {
-                        navController.popBackStack()
-                        scope.launch {
-                            snackbarHostState.currentSnackbarData
-                            snackbarHostState.showSnackbar(itemAddedMessage)
-                        }
-                    })
-            }
-
-
-            composable(BottomNavScreen.Bag.route) {
-                BagScreen(hiltViewModel()) { venueId ->
-                    navController.navigate(BottomNavScreen.ProductDetailModal.routeWithArgs("B1000", "BUGST"))
-                }
-                BackHandler {}
-            }
+        NavHost(navController, startDestination = BottomNavTabs.BrowseTab.tabRoute) {
+            this.browseGraph(navController = navController)
+            this.bagGraph(navController = navController)
         }
 
     }
