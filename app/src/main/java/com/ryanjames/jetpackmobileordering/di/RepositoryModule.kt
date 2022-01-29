@@ -2,9 +2,7 @@ package com.ryanjames.jetpackmobileordering.di
 
 import com.ryanjames.jetpackmobileordering.db.AppDatabase
 import com.ryanjames.jetpackmobileordering.network.MobilePosApi
-import com.ryanjames.jetpackmobileordering.repository.MenuRepository
-import com.ryanjames.jetpackmobileordering.repository.OrderRepository
-import com.ryanjames.jetpackmobileordering.repository.VenueRepository
+import com.ryanjames.jetpackmobileordering.repository.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,6 +23,22 @@ open class RepositoryModule {
     @Provides
     fun provideMenuRepository(mobilePosApi: MobilePosApi, roomDb: AppDatabase): MenuRepository {
         return MenuRepository(mobilePosApi = mobilePosApi, roomDb = roomDb)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAbsMenuRepository(mobilePosApi: MobilePosApi, roomDb: AppDatabase): AbsMenuRepository {
+        return MenuRepository(mobilePosApi = mobilePosApi, roomDb = roomDb)
+    }
+
+    @Provides
+    fun provideAbsOrderRepository(mobilePosApi: MobilePosApi, roomDb: AppDatabase): AbsOrderRepository {
+        return OrderRepository(mobilePosApi = mobilePosApi, roomDb = roomDb)
+    }
+
+    @Provides
+    fun provideAbsVenueRepository(mobilePosApi: MobilePosApi, roomDb: AppDatabase): AbsVenueRepository {
+        return VenueRepository(mobilePosApi = mobilePosApi, roomDb = roomDb)
     }
 
     @Singleton

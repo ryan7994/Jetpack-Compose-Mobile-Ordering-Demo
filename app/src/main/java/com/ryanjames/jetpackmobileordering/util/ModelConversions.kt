@@ -6,6 +6,7 @@ import com.ryanjames.jetpackmobileordering.db.VenueEntityType
 import com.ryanjames.jetpackmobileordering.db.VenueWithCategories
 import com.ryanjames.jetpackmobileordering.db.model.*
 import com.ryanjames.jetpackmobileordering.domain.*
+import com.ryanjames.jetpackmobileordering.features.bag.BagItemRowDisplayModel
 import com.ryanjames.jetpackmobileordering.features.home.FeaturedRestaurantCardState
 import com.ryanjames.jetpackmobileordering.features.home.RestaurantCardState
 import com.ryanjames.jetpackmobileordering.features.venuedetail.CategoryViewState
@@ -493,5 +494,16 @@ fun LineItemEntityWithProducts.toDomain(): BagLineItem {
         productsInBundle = productsInBundle,
         modifiers = HashMap(modifierSelections),
         quantity = lineItemEntity.quantity
+    )
+}
+
+fun BagLineItem.toDisplayModel(): BagItemRowDisplayModel {
+    return BagItemRowDisplayModel(
+        lineItemId = lineItemId,
+        qty = quantity.toString(),
+        itemName = lineItemName,
+        itemModifier = modifiersDisplay,
+        price = "$" + price.toTwoDigitString(),
+        forRemoval = false
     )
 }

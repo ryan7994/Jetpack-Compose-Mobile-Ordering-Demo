@@ -23,7 +23,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.ryanjames.jetpackmobileordering.R
 import com.ryanjames.jetpackmobileordering.features.bag.BagScreen
 import com.ryanjames.jetpackmobileordering.features.productdetail.ProductDetailScreen
 import com.ryanjames.jetpackmobileordering.features.venuedetail.VenueDetailScreen
@@ -35,7 +34,6 @@ import com.ryanjames.jetpackmobileordering.ui.theme.FreeSans
 import com.ryanjames.jetpackmobileordering.ui.theme.MyComposeAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 val LocalSnackbarHostState = compositionLocalOf<SnackbarHostState> { error("No SnackbarHostState provided") }
 val LocalCoroutineScope = compositionLocalOf<CoroutineScope> { error("No coroutine scope provided") }
@@ -100,13 +98,20 @@ class BottomNavActivity : ComponentActivity() {
 
         navigation(startDestination = BottomNavScreens.Bag.route, route = BottomNavTabs.BagTab.tabRoute) {
             composable(BottomNavScreens.Bag.route) {
-                BagScreen(hiltViewModel()) { venueId ->
-                    navController.navigate(BottomNavScreens.VenueDetailFromBag.routeWithArgs("BUGST"))
-                }
+                BagScreen(hiltViewModel(),
+                    onClickAddMoreItems = { venueId ->
+                        navController.navigate(BottomNavScreens.VenueDetailFromBag.routeWithArgs(venueId))
+                    },
+                    onClickLineItem = { lineItemId ->
+                        navController.navigate(BottomNavScreens.ProductDetailFromBag.routeWithArgs(lineItemId = lineItemId))
+                    })
                 BackHandler {}
             }
 
-            composable(BottomNavScreens.ProductDetailFromBag.route) {
+            composable(
+                BottomNavScreens.ProductDetailFromBag.route,
+                arguments = BottomNavScreens.ProductDetailFromBag.navArguments()
+            ) {
                 NavigateToProductDetailScreen(navController = navController)
             }
 
@@ -136,15 +141,9 @@ class BottomNavActivity : ComponentActivity() {
     @ExperimentalMaterialApi
     @Composable
     private fun NavigateToProductDetailScreen(navController: NavController) {
-        val scope = LocalCoroutineScope.current
-        val snackbarHostState = LocalSnackbarHostState.current
-        val itemAddedMessage = stringResource(id = R.string.item_added)
         ProductDetailScreen(viewModel = hiltViewModel(),
             onSuccessfulAddOrUpdate = {
                 navController.popBackStack()
-                scope.launch {
-                    snackbarHostState.showSnackbar(itemAddedMessage)
-                }
             })
     }
 

@@ -13,4 +13,15 @@
     <string name="adding_item_to_bag">Adding item to bag…</string>
     <string name="item_added">Item is added to bag successfully.</string>
     <string name="item_updated">Item is updated successfully.</string>
+    <string name="your_bag_from">Your bag from:</string>
+    <string name="add_more_items">+ Add more items</string>
+    <string name="select_item_to_modify">Select item to modify</string>
+    <string name="add_to_bag">Add to bag</string>
+    <string name="update_item">Update item</string>
+    <string name="updating_item">Updating item…</string>
+    <string name="remove">Remove</string>
+    <string name="remove_selected">Remove selected</string>
+    <string name="cancel">Cancel</string>
+    <string name="removing_from_bag">Removing from bag</string>
+    <string name="item_removed">Item/s removed successfully</string>
 </resources>

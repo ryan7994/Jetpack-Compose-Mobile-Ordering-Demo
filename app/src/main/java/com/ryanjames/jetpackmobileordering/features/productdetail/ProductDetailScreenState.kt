@@ -1,5 +1,7 @@
 package com.ryanjames.jetpackmobileordering.features.productdetail
 
+import com.ryanjames.jetpackmobileordering.R
+import com.ryanjames.jetpackmobileordering.core.StringResource
 import com.ryanjames.jetpackmobileordering.domain.Product
 import com.ryanjames.jetpackmobileordering.ui.core.AlertDialogState
 
@@ -12,7 +14,9 @@ data class ProductDetailScreenState(
     val quantity: String = "",
     val price: String = "",
     val loadingProductDetail: Boolean = true,
-    val dialogState: AlertDialogState? = null
+    val dialogState: AlertDialogState? = null,
+    val btnLabel: StringResource = StringResource(R.string.add_to_bag),
+    val addOrUpdateSuccessMessage: StringResource = StringResource(R.string.item_added)
 )
 
 data class ModifierSummaryRowDisplayModel(

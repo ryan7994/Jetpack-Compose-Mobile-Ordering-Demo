@@ -1,9 +1,9 @@
 package com.ryanjames.jetpackmobileordering.repository
 
+import com.ryanjames.jetpackmobileordering.core.Resource
 import com.ryanjames.jetpackmobileordering.db.AppDatabase
 import com.ryanjames.jetpackmobileordering.db.model.BasicMenuWithCategories
 import com.ryanjames.jetpackmobileordering.network.MobilePosApi
-import com.ryanjames.jetpackmobileordering.core.Resource
 import com.ryanjames.jetpackmobileordering.network.networkBoundResource
 import com.ryanjames.jetpackmobileordering.network.networkResource
 import com.ryanjames.jetpackmobileordering.ui.toDomain
@@ -13,10 +13,10 @@ import kotlinx.coroutines.flow.Flow
 class MenuRepository(
     private val mobilePosApi: MobilePosApi,
     val roomDb: AppDatabase
-) {
+) : AbsMenuRepository {
 
     @ExperimentalCoroutinesApi
-    fun getBasicMenuByVenue(venueId: String): Flow<Resource<BasicMenuWithCategories?>> = networkBoundResource(
+    override fun getBasicMenuByVenue(venueId: String): Flow<Resource<BasicMenuWithCategories?>> = networkBoundResource(
         fetchFromApi = { mobilePosApi.getBasicMenuByVenue(venueId = venueId) },
         queryDb = { roomDb.menuDao().getBasicMenuById(venueId) },
         mapToDomainModel = { it },
@@ -26,7 +26,7 @@ class MenuRepository(
     )
 
     @ExperimentalCoroutinesApi
-    fun getProductById(id: String) = networkResource(
+    override fun getProductById(id: String) = networkResource(
         fetchFromApi = { mobilePosApi.getProductDetails(id) },
         mapToDomainModel = { it.toDomain() }
     )

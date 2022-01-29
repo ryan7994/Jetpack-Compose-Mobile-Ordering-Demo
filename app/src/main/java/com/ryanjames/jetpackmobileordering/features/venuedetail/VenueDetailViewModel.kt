@@ -75,8 +75,6 @@ class VenueDetailViewModel @Inject constructor(
                             resource.throwable.printStackTrace()
                             _venueDetailScreenState.value = _venueDetailScreenState.value.copy(menuCategoriesResource = Resource.Error(resource.throwable))
                         }
-
-
                     }
                 })
             }

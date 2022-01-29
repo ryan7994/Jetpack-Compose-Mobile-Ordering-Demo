@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ryanjames.jetpackmobileordering.features.bag.ButtonState
 import kotlinx.coroutines.launch
 
 @Composable
@@ -154,8 +155,28 @@ fun OutlinedAccentButton(onClick: () -> Unit, label: String, modifier: Modifier 
             textAlign = TextAlign.Center,
             modifier = modifier
         )
+    }
+}
 
+@Composable
+fun AccentTextButton(onClick: () -> Unit, label: String, modifier: Modifier = Modifier, buttonState: ButtonState? = null) {
 
+    if (buttonState?.visible == true) {
+        TextButton(
+            onClick = onClick,
+            contentPadding = PaddingValues(horizontal = 8.dp),
+            colors = ButtonDefaults.textButtonColors(),
+            enabled = buttonState.enabled
+        ) {
+
+            TypeScaledTextView(
+                label = label,
+                color = if (buttonState.enabled) TextColor.StaticColor(CoralRed) else TextColor.LightTextColor,
+                textAlign = TextAlign.Center,
+                modifier = modifier,
+                overrideFontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 

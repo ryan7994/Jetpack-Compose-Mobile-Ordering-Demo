@@ -4,6 +4,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NavType
+import androidx.navigation.compose.NamedNavArgument
+import androidx.navigation.compose.navArgument
 import com.ryanjames.jetpackmobileordering.R
 
 private const val TAB_ROUTE_BROWSE = "tabBrowse"
@@ -43,9 +46,30 @@ sealed class BottomNavScreens(open val route: String) {
         }
     }
 
-    object ProductDetailFromBag : BottomNavScreens("$SCREEN_ROUTE_PRODUCT_DETAIL_FROM_BAG/{productId}/{venueId}") {
+    object ProductDetailFromBag : BottomNavScreens("$SCREEN_ROUTE_PRODUCT_DETAIL_FROM_BAG?productId={productId}&venueId={venueId}&lineItemId={lineItemId}") {
         fun routeWithArgs(productId: String, venueId: String): String {
-            return "$SCREEN_ROUTE_PRODUCT_DETAIL_FROM_BAG/$productId/$venueId"
+            return "$SCREEN_ROUTE_PRODUCT_DETAIL_FROM_BAG?productId=$productId&venueId=$venueId"
+        }
+
+        fun routeWithArgs(lineItemId: String): String {
+            return "$SCREEN_ROUTE_PRODUCT_DETAIL_FROM_BAG?lineItemId=$lineItemId"
+        }
+
+        fun navArguments(): List<NamedNavArgument> {
+            return listOf(
+                navArgument("productId") {
+                    nullable = true
+                    defaultValue = null
+                    type = NavType.StringType
+                }, navArgument("venueId") {
+                    nullable = true
+                    defaultValue = null
+                    type = NavType.StringType
+                }, navArgument("lineItemId") {
+                    nullable = true
+                    defaultValue = null
+                    type = NavType.StringType
+                })
         }
     }
 }

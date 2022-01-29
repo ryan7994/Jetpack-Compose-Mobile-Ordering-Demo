@@ -22,6 +22,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ryanjames.jetpackmobileordering.R
+import com.ryanjames.jetpackmobileordering.core.StringResource
+import com.ryanjames.jetpackmobileordering.features.bottomnav.LocalCoroutineScope
+import com.ryanjames.jetpackmobileordering.features.bottomnav.LocalSnackbarHostState
 import com.ryanjames.jetpackmobileordering.ui.core.Dialog
 import com.ryanjames.jetpackmobileordering.ui.theme.*
 import com.ryanjames.jetpackmobileordering.ui.widget.LoadingSpinnerWithText
@@ -35,18 +38,27 @@ fun ProductDetailScreen(
     viewModel: ProductDetailViewModel,
     onSuccessfulAddOrUpdate: () -> Unit
 ) {
-    val product = viewModel.productDetailScreenState.collectAsState().value
-    LaunchedEffect(Unit) {
-        viewModel.onSuccessfulAddOrUpdate.collect { isSuccessful ->
-            if (isSuccessful) {
-                onSuccessfulAddOrUpdate.invoke()
 
+    val productDetalScreenState = viewModel.productDetailScreenState.collectAsState().value
+    val snackbarMessage = stringResource(productDetalScreenState.addOrUpdateSuccessMessage.id)
+
+    val scope = LocalCoroutineScope.current
+    val snackbarHostState = LocalSnackbarHostState.current
+
+
+    LaunchedEffect(Unit) {
+        scope.launch {
+            viewModel.onSuccessfulAddOrUpdate.collect { isSuccessful ->
+                if (isSuccessful) {
+                    onSuccessfulAddOrUpdate.invoke()
+                    snackbarHostState.showSnackbar(snackbarMessage)
+                }
             }
         }
     }
 
     ProductDetailLayout(
-        productDetailScreenState = product,
+        productDetailScreenState = productDetalScreenState,
         onClickModifierSummary = viewModel::onClickModifierSummary,
         onClickModifier = viewModel::onClickModifierOption,
         onClickPlusQty = viewModel::onClickPlusQty,
@@ -115,9 +127,21 @@ fun ProductDetailLayout(
                             .fillMaxWidth()
                             .height(60.dp)
                     ) {
-                        QtySelector(modifier = Modifier.weight(1f), onClickPlus = onClickPlusQty, onClickMinus = onClickMinusQty, qty = productDetailScreenState.quantity)
+                        QtySelector(
+                            modifier = Modifier.weight(1f),
+                            onClickPlus = onClickPlusQty,
+                            onClickMinus = onClickMinusQty,
+                            qty = productDetailScreenState.quantity
+                        )
+
                         Spacer(modifier = Modifier.size(8.dp))
-                        AddToBagBtn(modifier = Modifier.weight(2f), price = productDetailScreenState.price, onClickAddToBag = onClickAddToBag)
+
+                        AddToBagBtn(
+                            modifier = Modifier.weight(2f),
+                            price = productDetailScreenState.price,
+                            onClickAddToBag = onClickAddToBag,
+                            btnLabel = productDetailScreenState.btnLabel
+                        )
 
                     }
                 }
@@ -185,13 +209,13 @@ private fun QtySelector(modifier: Modifier, onClickPlus: () -> Unit, onClickMinu
 }
 
 @Composable
-private fun AddToBagBtn(modifier: Modifier, price: String, onClickAddToBag: () -> Unit) {
+private fun AddToBagBtn(modifier: Modifier, price: String, onClickAddToBag: () -> Unit, btnLabel: StringResource) {
     Button(
         modifier = modifier.fillMaxSize(),
         onClick = { onClickAddToBag.invoke() },
         contentPadding = PaddingValues(16.dp),
         colors = ButtonDefaults.buttonColors(backgroundColor = CoralRed),
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(8.dp),
     ) {
 
         Row(
@@ -199,7 +223,7 @@ private fun AddToBagBtn(modifier: Modifier, price: String, onClickAddToBag: () -
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             TypeScaledTextView(
-                label = "Add to bag",
+                label = stringResource(btnLabel.id),
                 color = TextColor.StaticColor(Color.White),
                 modifier = Modifier,
                 typeScale = TypeScaleCategory.Subtitle1,

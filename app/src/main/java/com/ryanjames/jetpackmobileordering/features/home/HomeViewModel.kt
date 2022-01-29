@@ -13,7 +13,7 @@ import com.ryanjames.jetpackmobileordering.ui.toFeaturedRestaurantCardState
 import com.ryanjames.jetpackmobileordering.ui.toRestaurantCardState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,8 +26,7 @@ class HomeViewModel @Inject constructor(
 
     private val _homeViewState =
         MutableStateFlow(HomeViewState(listOf(), listOf(), HomeScreenDataState.Loading))
-    val homeViewState: StateFlow<HomeViewState>
-        get() = _homeViewState
+    val homeViewState = _homeViewState.asStateFlow()
 
     private val featuredList = mutableListOf<Venue>()
     private val restaurantList = mutableListOf<Venue>()

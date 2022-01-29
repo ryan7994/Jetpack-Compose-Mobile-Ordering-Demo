@@ -1,56 +1,155 @@
 package com.ryanjames.jetpackmobileordering.features.bag
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
+import androidx.compose.material.Checkbox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.ryanjames.jetpackmobileordering.R
+import com.ryanjames.jetpackmobileordering.features.bottomnav.LocalCoroutineScope
+import com.ryanjames.jetpackmobileordering.features.bottomnav.LocalSnackbarHostState
+import com.ryanjames.jetpackmobileordering.ui.core.Dialog
 import com.ryanjames.jetpackmobileordering.ui.theme.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 @Composable
-fun BagScreen(bagViewModel: BagViewModel, onClickAddMoreItems: (venueId: String) -> Unit) {
-    BagLayout(bagScreenState = bagViewModel.bagScreenState.value, onClickAddMoreItems)
+fun BagScreen(
+    bagViewModel: BagViewModel,
+    onClickAddMoreItems: (venueId: String) -> Unit,
+    onClickLineItem: (lineItemId: String) -> Unit
+) {
+    BagLayout(
+        bagScreenState = bagViewModel.bagScreenState.collectAsState().value,
+        onClickAddMoreItems = onClickAddMoreItems,
+        onClickLineItem = onClickLineItem,
+        onClickRemove = bagViewModel::onClickRemove,
+        onClickCancel = bagViewModel::onClickCancel,
+        onClickRemoveSelected = bagViewModel::onClickRemoveSelected,
+        onCheckChanged = bagViewModel::onRemoveCbCheckChanged
+    )
+    val globalScope = LocalCoroutineScope.current
+    val snackbarHostState = LocalSnackbarHostState.current
+    val snackbarMessage = stringResource(R.string.item_removed)
+
+    LaunchedEffect(Unit) {
+        globalScope.launch {
+            bagViewModel.onItemRemoval.collect { event ->
+                if (event.peekContent()) {
+                    event.handleSuspendingEvent {
+                        snackbarHostState.showSnackbar(snackbarMessage)
+                    }
+                }
+
+            }
+        }
+    }
 }
 
+
 @Composable
-fun BagLayout(bagScreenState: BagScreenState, onClickAddMoreItems: (venueId: String) -> Unit) {
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
-        TypeScaledTextView(label = "Your bag from:", typeScale = TypeScaleCategory.Subtitle2)
-        TypeScaledTextView(label = "Jollibee", typeScale = TypeScaleCategory.H6)
-        OutlinedAccentButton(onClick = {
-            onClickAddMoreItems.invoke(bagScreenState.venueId ?: "")
-        }, label = "+ Add more items")
-        Spacer(modifier = Modifier.size(8.dp))
-        BagSummaryCard(bagScreenState.bagItems)
+fun BagLayout(
+    bagScreenState: BagScreenState,
+    onClickAddMoreItems: (venueId: String) -> Unit,
+    onClickLineItem: (lineItemId: String) -> Unit,
+    onClickRemove: () -> Unit,
+    onClickCancel: () -> Unit,
+    onClickRemoveSelected: () -> Unit,
+    onCheckChanged: (checked: Boolean, lineItemId: String) -> Unit
+) {
+    Box {
+
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+
+            Spacer(modifier = Modifier.size(16.dp))
+            if (bagScreenState.venueName != null) {
+                TypeScaledTextView(label = stringResource(R.string.your_bag_from), typeScale = TypeScaleCategory.Subtitle2)
+                TypeScaledTextView(label = bagScreenState.venueName, typeScale = TypeScaleCategory.H6)
+            }
+
+            OutlinedAccentButton(onClick = {
+                onClickAddMoreItems.invoke(bagScreenState.venueId ?: "")
+            }, label = stringResource(R.string.add_more_items))
+            Spacer(modifier = Modifier.size(8.dp))
+            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                if (bagScreenState.btnRemoveState.visible) {
+                    Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                        AccentTextButton(
+                            onClick = {
+                                onClickRemove.invoke()
+                            },
+                            label = stringResource(R.string.remove),
+                            buttonState = bagScreenState.btnRemoveState
+                        )
+                    }
+                }
+
+                AccentTextButton(
+                    onClick = {
+                        onClickRemoveSelected.invoke()
+                    },
+                    label = stringResource(R.string.remove_selected),
+                    buttonState = bagScreenState.btnRemoveSelectedState
+                )
+
+                AccentTextButton(
+                    onClick = {
+                        onClickCancel.invoke()
+                    },
+                    label = stringResource(R.string.cancel),
+                    buttonState = bagScreenState.btnCancelState
+                )
+            }
+
+            BagSummaryCard(bagScreenState.bagItems, onClickLineItem = onClickLineItem, isRemoving = bagScreenState.isRemoving, onCheckChanged = onCheckChanged)
+            Spacer(modifier = Modifier.size(16.dp))
+        }
+
+        Dialog(bagScreenState.alertDialog)
     }
 }
 
 @Composable
-fun BagSummaryCard(bagItems: List<BagItemRowState>) {
+fun BagSummaryCard(
+    bagItems: List<BagItemRowDisplayModel>,
+    onClickLineItem: (lineItemId: String) -> Unit,
+    isRemoving: Boolean,
+    onCheckChanged: (checked: Boolean, lineItemId: String) -> Unit
+) {
     Card(
         shape = RoundedCornerShape(12.dp),
         elevation = 4.dp,
     ) {
 
         Column(modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp)) {
-            TypeScaledTextView(label = "Select item to modify", typeScale = TypeScaleCategory.Subtitle1, overrideFontWeight = FontWeight.Bold)
+            TypeScaledTextView(label = stringResource(R.string.select_item_to_modify), typeScale = TypeScaleCategory.Subtitle1, overrideFontWeight = FontWeight.Bold)
 
             bagItems.forEachIndexed { index, bagItemRowState ->
-                Spacer(modifier = Modifier.size(12.dp))
-                BagItemRow(bagItemRowState = bagItemRowState)
-                Spacer(modifier = Modifier.size(12.dp))
-                if (index < bagItems.size - 1) {
-                    HorizontalLine()
+                Column(modifier = Modifier.clickable {
+                    onClickLineItem.invoke(bagItemRowState.lineItemId)
+                }) {
+                    Spacer(modifier = Modifier.size(12.dp))
+                    BagItemRow(bagItemRowDisplayModel = bagItemRowState, isRemoving = isRemoving, onCheckChanged = onCheckChanged)
+                    Spacer(modifier = Modifier.size(12.dp))
+                    if (index < bagItems.size - 1) {
+                        HorizontalLine()
+                    }
                 }
+
             }
         }
 
@@ -58,12 +157,16 @@ fun BagSummaryCard(bagItems: List<BagItemRowState>) {
 }
 
 @Composable
-fun BagItemRow(bagItemRowState: BagItemRowState) {
+fun BagItemRow(
+    bagItemRowDisplayModel: BagItemRowDisplayModel,
+    isRemoving: Boolean,
+    onCheckChanged: (checked: Boolean, lineItemId: String) -> Unit
+) {
 
     Row(modifier = Modifier.fillMaxWidth()) {
 
         TypeScaledTextView(
-            label = bagItemRowState.qty, modifier = Modifier.weight(1f),
+            label = bagItemRowDisplayModel.qty, modifier = Modifier.weight(1f),
             typeScale = TypeScaleCategory.Subtitle1
         )
 
@@ -72,25 +175,33 @@ fun BagItemRow(bagItemRowState: BagItemRowState) {
                 .weight(12f)
                 .padding(start = 8.dp)
         ) {
-            TypeScaledTextView(label = bagItemRowState.itemName, typeScale = TypeScaleCategory.Subtitle1)
-            if (bagItemRowState.itemModifier.isNotBlank()) {
-                TypeScaledTextView(label = bagItemRowState.itemModifier, color = TextColor.LightTextColor, typeScale = TypeScaleCategory.Subtitle2)
+            TypeScaledTextView(label = bagItemRowDisplayModel.itemName, typeScale = TypeScaleCategory.Subtitle1)
+            if (bagItemRowDisplayModel.itemModifier.isNotBlank()) {
+                TypeScaledTextView(label = bagItemRowDisplayModel.itemModifier, color = TextColor.LightTextColor, typeScale = TypeScaleCategory.Subtitle2)
             }
         }
 
-        TypeScaledTextView(label = bagItemRowState.price, modifier = Modifier.weight(4f), typeScale = TypeScaleCategory.Subtitle1, textAlign = TextAlign.End)
+        Row(
+            modifier = Modifier
+                .weight(4f)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            if (isRemoving) {
+                Checkbox(
+                    modifier = Modifier,
+                    onCheckedChange = { checked ->
+                        onCheckChanged.invoke(checked, bagItemRowDisplayModel.lineItemId)
+                    },
+                    checked = bagItemRowDisplayModel.forRemoval
+                )
+            } else {
+                TypeScaledTextView(label = bagItemRowDisplayModel.price, modifier = Modifier.weight(4f), typeScale = TypeScaleCategory.Subtitle1, textAlign = TextAlign.End)
+
+            }
+        }
+
+
     }
 
 }
-
-data class BagScreenState(
-    val bagItems: List<BagItemRowState>,
-    val venueId: String?
-)
-
-data class BagItemRowState(
-    val qty: String,
-    val itemName: String,
-    val itemModifier: String,
-    val price: String
-)

@@ -21,10 +21,10 @@ import java.util.*
 class OrderRepository(
     private val mobilePosApi: MobilePosApi,
     val roomDb: AppDatabase
-) {
+) : AbsOrderRepository {
 
     @ExperimentalCoroutinesApi
-    fun addOrUpdateLineItem(lineItem: LineItem, venueId: String): Flow<Resource<BagSummary>> = channelFlow {
+    override fun addOrUpdateLineItem(lineItem: LineItem, venueId: String): Flow<Resource<BagSummary>> = channelFlow {
         send(Resource.Loading)
 
         try {
@@ -40,7 +40,8 @@ class OrderRepository(
                 val lineItems = roomDb.orderDao().getAllLineItems()
                 val newLineItem = lineItem.toLineItemRequest()
                 val newLineItemListRequest = lineItems.map { it.toLineItemRequest() }.replaceOrAdd(newValue = newLineItem) { it.lineItemId == newLineItem.lineItemId }
-                val getOrderResponse = mobilePosApi.putOrder(CreateUpdateOrderRequest(orderId = currentOrderId, lineItems = newLineItemListRequest, status = null, customerName = null, storeId = venueId))
+                val getOrderResponse =
+                    mobilePosApi.putOrder(CreateUpdateOrderRequest(orderId = currentOrderId, lineItems = newLineItemListRequest, status = null, customerName = null, storeId = venueId))
                 roomDb.orderDao().updateLocalBag(getOrderResponse.toEntity(), venueId)
                 send(Resource.Success(getOrderResponse.toBagSummary()))
 
@@ -51,8 +52,41 @@ class OrderRepository(
         }
     }
 
-    fun getLineItemsFlow(): Flow<List<BagLineItem>> {
+    @ExperimentalCoroutinesApi
+    override fun removeLineItems(lineItemIds: List<String>, venueId: String): Flow<Resource<BagSummary>> = channelFlow {
+        send(Resource.Loading)
+
+        try {
+            val currentOrderId = getCurrentOrderId()
+            if (currentOrderId != null) {
+                val lineItems = roomDb.orderDao().getAllLineItems().toMutableList()
+                lineItems.removeIf { lineItemIds.contains(it.lineItem.lineItemId) }
+                val getOrderResponse =
+                    mobilePosApi.putOrder(
+                        CreateUpdateOrderRequest(
+                            orderId = currentOrderId,
+                            lineItems = lineItems.map { it.toLineItemRequest() },
+                            status = null,
+                            customerName = null,
+                            storeId = venueId
+                        )
+                    )
+                roomDb.orderDao().updateLocalBag(getOrderResponse.toEntity(), venueId)
+                send(Resource.Success(getOrderResponse.toBagSummary()))
+            }
+        } catch (t: Throwable) {
+            send(Resource.Error(t))
+            t.printStackTrace()
+        }
+
+    }
+
+    override fun getLineItemsFlow(): Flow<List<BagLineItem>> {
         return roomDb.orderDao().getAllLineItemsFlow().map { list -> list.map { it.toDomain() } }
+    }
+
+    override suspend fun getLineItems(): List<BagLineItem> {
+        return roomDb.orderDao().getAllLineItems().map { it.toDomain() }
     }
 
     private suspend fun getCurrentOrderId(): String? {

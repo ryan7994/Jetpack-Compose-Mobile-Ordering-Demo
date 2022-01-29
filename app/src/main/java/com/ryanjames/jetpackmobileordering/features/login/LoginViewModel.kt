@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -26,8 +27,7 @@ class LoginViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _loginViewState = MutableStateFlow(LoginScreenState())
-    val loginScreenState: StateFlow<LoginScreenState>
-        get() = _loginViewState
+    val loginScreenState = _loginViewState.asStateFlow()
 
     private val _loginEvent: MutableStateFlow<Event<LoginEvent>> = MutableStateFlow(Event(LoginEvent.NoEvent))
     val loginEvent: StateFlow<Event<LoginEvent>>

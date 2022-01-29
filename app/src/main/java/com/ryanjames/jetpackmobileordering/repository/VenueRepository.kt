@@ -12,7 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class VenueRepository(
     private val mobilePosApi: MobilePosApi,
     private val roomDb: AppDatabase
-) {
+): AbsVenueRepository {
 
 //    @ExperimentalCoroutinesApi
 //    fun getFeaturedVenues() = networkResource(
@@ -22,7 +22,7 @@ class VenueRepository(
 //    )
 
     @ExperimentalCoroutinesApi
-    fun getFeaturedVenues() = networkBoundResource(
+    override fun getFeaturedVenues() = networkBoundResource(
         fetchFromApi = { mobilePosApi.getFeaturedVenues() },
         queryDb = { roomDb.venueDao().getHomeVenues() },
         savetoDb = { homeResponse -> roomDb.venueDao().insertVenues(homeResponse.toEntity()) },
@@ -35,7 +35,7 @@ class VenueRepository(
         }
     )
 
-    fun getVenueById(id: String) = networkBoundResource(
+    override fun getVenueById(id: String) = networkBoundResource(
         fetchFromApi = { mobilePosApi.getVenueById(id) },
         queryDb = { roomDb.venueDao().getVenueById(id) },
         savetoDb = { roomDb.venueDao().insertVenues(listOf(it.toEntity(""))) },
@@ -44,6 +44,6 @@ class VenueRepository(
         mapToDomainModel = { it?.toDomain() }
     )
 
-    suspend fun getCurrentVenue() = roomDb.globalDao().getCurrentVenueId()
+    override suspend fun getCurrentVenue() = roomDb.globalDao().getCurrentVenueId()
 
 }
