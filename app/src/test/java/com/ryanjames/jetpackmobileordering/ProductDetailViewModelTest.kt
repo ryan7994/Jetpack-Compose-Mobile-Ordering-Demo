@@ -53,7 +53,7 @@ class ProductDetailViewModelTest {
     @Throws(Exception::class)
     fun setUp() {
         runBlocking {
-            `when`(venueRepository.getCurrentVenue()).thenReturn("BUSGT")
+            `when`(venueRepository.getCurrentVenueId()).thenReturn("BUSGT")
         }
 
     }

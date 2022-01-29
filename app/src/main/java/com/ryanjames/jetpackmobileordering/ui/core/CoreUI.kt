@@ -1,6 +1,7 @@
 package com.ryanjames.jetpackmobileordering.ui.theme
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
@@ -15,8 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
@@ -272,4 +275,21 @@ fun HorizontalLine() {
             .height(1.dp)
             .background(AppTheme.colors.placeholderColor)
     )
+}
+
+@Composable
+fun DashedHorizontalLine() {
+    val pathEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 10f), 0f)
+    Canvas(
+        Modifier.fillMaxWidth()
+
+    ) {
+        drawLine(
+            strokeWidth = 8f,
+            color = Color.LightGray,
+            start = Offset(0f, 0f),
+            end = Offset(size.width, 0f),
+            pathEffect = pathEffect
+        )
+    }
 }

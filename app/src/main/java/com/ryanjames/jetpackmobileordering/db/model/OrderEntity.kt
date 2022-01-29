@@ -3,6 +3,16 @@ package com.ryanjames.jetpackmobileordering.db.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+@Entity(tableName = "CurrentOrderEntity")
+data class CurrentOrderEntity(
+    @PrimaryKey
+    val id: Int = 0,
+    val orderId: String,
+    val subtotal: Float,
+    val tax: Float,
+    val total: Float
+)
+
 @Entity(tableName = "LineItemEntity")
 data class LineItemEntity(
     @PrimaryKey
@@ -11,7 +21,8 @@ data class LineItemEntity(
     val bundleId: String?,
     val quantity: Int,
     val lineItemName: String,
-    val price: Float
+    val price: Float,
+    val currentOrderId: Int
 )
 
 @Entity(tableName = "LineItemProductEntity")

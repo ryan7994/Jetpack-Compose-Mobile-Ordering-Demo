@@ -10,7 +10,10 @@ data class BagScreenState(
     val btnCancelState: ButtonState,
     val btnRemoveSelectedState: ButtonState,
     val isRemoving: Boolean,
-    val alertDialog: AlertDialogState?
+    val alertDialog: AlertDialogState?,
+    val subtotal: String = "",
+    val tax: String = "",
+    val total: String = ""
 )
 
 data class ButtonState(val enabled: Boolean, val visible: Boolean)

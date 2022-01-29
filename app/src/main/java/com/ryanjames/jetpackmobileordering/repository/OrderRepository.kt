@@ -5,13 +5,15 @@ import com.ryanjames.jetpackmobileordering.db.AppDatabase
 import com.ryanjames.jetpackmobileordering.domain.BagLineItem
 import com.ryanjames.jetpackmobileordering.domain.BagSummary
 import com.ryanjames.jetpackmobileordering.domain.LineItem
+import com.ryanjames.jetpackmobileordering.domain.OrderStatus
 import com.ryanjames.jetpackmobileordering.network.MobilePosApi
 import com.ryanjames.jetpackmobileordering.network.model.CreateUpdateOrderRequest
+import com.ryanjames.jetpackmobileordering.network.model.GetOrderRequest
 import com.ryanjames.jetpackmobileordering.replaceOrAdd
 import com.ryanjames.jetpackmobileordering.ui.toBagSummary
 import com.ryanjames.jetpackmobileordering.ui.toDomain
-import com.ryanjames.jetpackmobileordering.ui.toEntity
 import com.ryanjames.jetpackmobileordering.ui.toLineItemRequest
+import com.ryanjames.jetpackmobileordering.ui.toOrderEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -34,7 +36,7 @@ class OrderRepository(
                 roomDb.globalDao().createLocalBagOrderId(orderId = orderId, venueId = venueId)
                 val lineItems = listOf(lineItem.toLineItemRequest())
                 val getOrderResponse = mobilePosApi.postOrder(CreateUpdateOrderRequest(orderId = orderId, lineItems = lineItems, status = null, customerName = null, storeId = venueId))
-                roomDb.orderDao().updateLocalBag(getOrderResponse.toEntity(), venueId)
+                roomDb.orderDao().updateLocalBag(getOrderResponse.toOrderEntity())
                 send(Resource.Success(getOrderResponse.toBagSummary()))
             } else {
                 val lineItems = roomDb.orderDao().getAllLineItems()
@@ -42,7 +44,7 @@ class OrderRepository(
                 val newLineItemListRequest = lineItems.map { it.toLineItemRequest() }.replaceOrAdd(newValue = newLineItem) { it.lineItemId == newLineItem.lineItemId }
                 val getOrderResponse =
                     mobilePosApi.putOrder(CreateUpdateOrderRequest(orderId = currentOrderId, lineItems = newLineItemListRequest, status = null, customerName = null, storeId = venueId))
-                roomDb.orderDao().updateLocalBag(getOrderResponse.toEntity(), venueId)
+                roomDb.orderDao().updateLocalBag(getOrderResponse.toOrderEntity())
                 send(Resource.Success(getOrderResponse.toBagSummary()))
 
             }
@@ -71,7 +73,7 @@ class OrderRepository(
                             storeId = venueId
                         )
                     )
-                roomDb.orderDao().updateLocalBag(getOrderResponse.toEntity(), venueId)
+                roomDb.orderDao().updateLocalBag(getOrderResponse.toOrderEntity())
                 send(Resource.Success(getOrderResponse.toBagSummary()))
             }
         } catch (t: Throwable) {
@@ -81,8 +83,37 @@ class OrderRepository(
 
     }
 
-    override fun getLineItemsFlow(): Flow<List<BagLineItem>> {
-        return roomDb.orderDao().getAllLineItemsFlow().map { list -> list.map { it.toDomain() } }
+    override suspend fun retrieveCurrentOrder(): Flow<Resource<BagSummary>> = channelFlow {
+        send(Resource.Loading)
+        try {
+            val orderId = getCurrentOrderId()
+            if (orderId != null) {
+                val response = mobilePosApi.getOrder(GetOrderRequest(orderId))
+                roomDb.orderDao().updateLocalBag(response.toOrderEntity())
+                send(Resource.Success(response.toBagSummary()))
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            send(Resource.Error(e))
+        }
+    }
+
+    override fun getBagSummaryFlow(): Flow<BagSummary?> {
+
+        return roomDb.orderDao().getCurrentOrderFlow().map { currentOrder ->
+            if (currentOrder == null || currentOrder.lineItems.isNullOrEmpty()) {
+                null
+            } else {
+                val lineItems = currentOrder.lineItems.map { it.toDomain() }
+                BagSummary(
+                    lineItems = lineItems,
+                    price = currentOrder.order.total,
+                    status = OrderStatus.CREATED,
+                    orderId = currentOrder.order.orderId
+                )
+            }
+        }
     }
 
     override suspend fun getLineItems(): List<BagLineItem> {

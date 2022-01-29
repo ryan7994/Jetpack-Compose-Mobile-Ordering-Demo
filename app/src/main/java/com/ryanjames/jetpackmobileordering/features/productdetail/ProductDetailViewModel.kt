@@ -63,7 +63,7 @@ class ProductDetailViewModel @Inject constructor(
 
             bagLineItem = orderRepository.getLineItems().find { it.lineItemId == lineItemId }
             val productId = savedStateHandle.get<String>("productId") ?: bagLineItem?.productId
-            venueId = savedStateHandle.get<String>("venueId") ?: venueRepository.getCurrentVenue() ?: ""
+            venueId = savedStateHandle.get<String>("venueId") ?: venueRepository.getCurrentVenueId() ?: ""
 
             productId?.let { id ->
                 menuRepository.getProductById(id).collect { resource ->

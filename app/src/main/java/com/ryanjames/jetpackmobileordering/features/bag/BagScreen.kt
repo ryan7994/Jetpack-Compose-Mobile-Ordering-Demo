@@ -82,7 +82,7 @@ fun BagLayout(
             }
 
             OutlinedAccentButton(onClick = {
-                onClickAddMoreItems.invoke(bagScreenState.venueId ?: "")
+                bagScreenState.venueId?.let { onClickAddMoreItems.invoke(it) }
             }, label = stringResource(R.string.add_more_items))
             Spacer(modifier = Modifier.size(8.dp))
             Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
@@ -116,10 +116,45 @@ fun BagLayout(
             }
 
             BagSummaryCard(bagScreenState.bagItems, onClickLineItem = onClickLineItem, isRemoving = bagScreenState.isRemoving, onCheckChanged = onCheckChanged)
-            Spacer(modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.size(24.dp))
+            OrderPriceBreakdown(bagScreenState.subtotal, bagScreenState.tax, bagScreenState.total)
         }
 
         Dialog(bagScreenState.alertDialog)
+    }
+}
+
+@Composable
+fun OrderPriceBreakdown(subtotal: String, tax: String, total: String) {
+    Column {
+        TypeScaledTextView(label = stringResource(R.string.summary), typeScale = TypeScaleCategory.H6)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            TypeScaledTextView(label = stringResource(R.string.subtotal), typeScale = TypeScaleCategory.Subtitle1, color = TextColor.LightTextColor)
+            TypeScaledTextView(label = subtotal, typeScale = TypeScaleCategory.Subtitle1, color = TextColor.DarkTextColor)
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            TypeScaledTextView(label = stringResource(R.string.tax), typeScale = TypeScaleCategory.Subtitle1, color = TextColor.LightTextColor)
+            TypeScaledTextView(label = tax, typeScale = TypeScaleCategory.Subtitle1, color = TextColor.DarkTextColor)
+        }
+        Spacer(modifier = Modifier.size(8.dp))
+        DashedHorizontalLine()
+        Spacer(modifier = Modifier.size(8.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            TypeScaledTextView(label = stringResource(R.string.total), typeScale = TypeScaleCategory.Subtitle1, color = TextColor.DarkTextColor, overrideFontWeight = FontWeight.Bold)
+            TypeScaledTextView(label = total, typeScale = TypeScaleCategory.Subtitle1, color = TextColor.DarkTextColor, overrideFontWeight = FontWeight.Bold)
+        }
     }
 }
 

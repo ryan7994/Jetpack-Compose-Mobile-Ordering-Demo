@@ -2,12 +2,16 @@ package com.ryanjames.jetpackmobileordering.db.dao
 
 import androidx.room.*
 import com.ryanjames.jetpackmobileordering.db.model.GlobalEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface GlobalDao {
 
     @Query("SELECT * FROM GlobalEntity WHERE id = 0")
     suspend fun getGlobalValues(): GlobalEntity?
+
+    @Query("SELECT * FROM GlobalEntity WHERE id = 0")
+    fun getGlobalValuesFlow(): Flow<GlobalEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertGlobalEntity(globalEntity: GlobalEntity)
@@ -29,11 +33,5 @@ interface GlobalDao {
         } else if (globalEntity.currentOrderId == null) {
             updateCurrentOrderId(orderId)
         }
-    }
-
-    @Transaction
-    suspend fun getCurrentVenueId(): String? {
-        val globalEntity = getGlobalValues()
-        return globalEntity?.currentVenue
     }
 }

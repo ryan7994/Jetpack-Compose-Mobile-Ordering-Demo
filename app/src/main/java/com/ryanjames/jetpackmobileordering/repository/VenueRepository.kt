@@ -8,18 +8,13 @@ import com.ryanjames.jetpackmobileordering.network.networkBoundResource
 import com.ryanjames.jetpackmobileordering.ui.toDomain
 import com.ryanjames.jetpackmobileordering.ui.toEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class VenueRepository(
     private val mobilePosApi: MobilePosApi,
     private val roomDb: AppDatabase
-): AbsVenueRepository {
-
-//    @ExperimentalCoroutinesApi
-//    fun getFeaturedVenues() = networkResource(
-//        fetchFromApi = { mobilePosApi.getFeaturedVenues() },
-//        onFetchFailed = { it.printStackTrace() },
-//        mapToDomainModel = { list -> list.toDomain() }
-//    )
+) : AbsVenueRepository {
 
     @ExperimentalCoroutinesApi
     override fun getFeaturedVenues() = networkBoundResource(
@@ -44,6 +39,9 @@ class VenueRepository(
         mapToDomainModel = { it?.toDomain() }
     )
 
-    override suspend fun getCurrentVenue() = roomDb.globalDao().getCurrentVenueId()
+    override suspend fun getCurrentVenueId() = roomDb.globalDao().getGlobalValues()?.currentVenue
 
+    override fun getCurrentVenueIdFlow(): Flow<String?> {
+        return roomDb.globalDao().getGlobalValuesFlow().map { it?.currentVenue }
+    }
 }

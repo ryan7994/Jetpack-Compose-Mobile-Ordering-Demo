@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.ryanjames.jetpackmobileordering.TAG
 import com.ryanjames.jetpackmobileordering.clearAndAddAll
 import com.ryanjames.jetpackmobileordering.domain.Venue
-import com.ryanjames.jetpackmobileordering.repository.VenueRepository
+import com.ryanjames.jetpackmobileordering.repository.AbsVenueRepository
 import com.ryanjames.jetpackmobileordering.ui.toFeaturedRestaurantCardState
 import com.ryanjames.jetpackmobileordering.ui.toRestaurantCardState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val venueRepository: VenueRepository,
+    private val venueRepository: AbsVenueRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 

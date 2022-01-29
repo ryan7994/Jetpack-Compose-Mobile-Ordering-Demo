@@ -10,5 +10,7 @@ interface AbsVenueRepository {
 
     fun getVenueById(id: String): Flow<Resource<Venue?>>
 
-    suspend fun getCurrentVenue(): String?
+    suspend fun getCurrentVenueId(): String?
+
+    fun getCurrentVenueIdFlow(): Flow<String?>
 }

@@ -395,9 +395,14 @@ fun GetOrderModifierSelectionResponse.toEntity(productItemId: String): LineItemM
     )
 }
 
-fun GetOrderResponse.toEntity(): List<LineItemEntityWithProducts> {
-    return this.lineItems.map { it.toEntity() }
+fun GetOrderResponse.toOrderEntity(): CurrentOrderEntityWithLineItems {
+    val bagSummary = this.toBagSummary()
+    return CurrentOrderEntityWithLineItems(
+        order = CurrentOrderEntity(orderId = orderId, subtotal = bagSummary.subtotal(), tax = bagSummary.tax(), total = bagSummary.price),
+        lineItems = this.lineItems.map { it.toEntity() }
+    )
 }
+
 
 fun GetOrderLineItemResponse.toEntity(): LineItemEntityWithProducts {
     val lineItemEntity = LineItemEntity(
@@ -406,7 +411,8 @@ fun GetOrderLineItemResponse.toEntity(): LineItemEntityWithProducts {
         bundleId = bundleId,
         quantity = quantity,
         lineItemName = lineItemName,
-        price = price
+        price = price,
+        currentOrderId = 0
     )
     val productEntityList = products.map { productResponse ->
         LineItemProductEntityWithModifiers(

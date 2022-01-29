@@ -10,9 +10,11 @@ interface AbsOrderRepository {
 
     fun addOrUpdateLineItem(lineItem: LineItem, venueId: String): Flow<Resource<BagSummary>>
 
-    fun getLineItemsFlow(): Flow<List<BagLineItem>>
+    fun getBagSummaryFlow(): Flow<BagSummary?>
 
     suspend fun getLineItems(): List<BagLineItem>
 
     fun removeLineItems(lineItemIds: List<String>, venueId: String): Flow<Resource<BagSummary>>
+
+    suspend fun retrieveCurrentOrder(): Flow<Resource<BagSummary>>
 }

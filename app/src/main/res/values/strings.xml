@@ -24,4 +24,8 @@
     <string name="cancel">Cancel</string>
     <string name="removing_from_bag">Removing from bag</string>
     <string name="item_removed">Item/s removed successfully</string>
+    <string name="summary">Summary</string>
+    <string name="subtotal">Subtotal</string>
+    <string name="tax">Tax</string>
+    <string name="total">Total</string>
 </resources>

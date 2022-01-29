@@ -3,6 +3,17 @@ package com.ryanjames.jetpackmobileordering.db.model
 import androidx.room.Embedded
 import androidx.room.Relation
 
+data class CurrentOrderEntityWithLineItems(
+    @Embedded
+    val order: CurrentOrderEntity,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "currentOrderId",
+        entity = LineItemEntity::class
+    )
+    val lineItems: List<LineItemEntityWithProducts>
+)
+
 data class LineItemEntityWithProducts(
     @Embedded
     val lineItem: LineItemEntity,
