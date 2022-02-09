@@ -20,13 +20,14 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.map
 import java.util.*
 
+@ExperimentalCoroutinesApi
 class OrderRepository(
     private val mobilePosApi: MobilePosApi,
     val roomDb: AppDatabase
 ) : AbsOrderRepository {
 
-    @ExperimentalCoroutinesApi
-    override fun addOrUpdateLineItem(lineItem: LineItem, venueId: String): Flow<Resource<BagSummary>> = channelFlow {
+
+    override fun addOrUpdateLineItem(lineItem: LineItem, venueId: String) = channelFlow {
         send(Resource.Loading)
 
         try {
@@ -54,7 +55,6 @@ class OrderRepository(
         }
     }
 
-    @ExperimentalCoroutinesApi
     override fun removeLineItems(lineItemIds: List<String>, venueId: String): Flow<Resource<BagSummary>> = channelFlow {
         send(Resource.Loading)
 
@@ -122,5 +122,10 @@ class OrderRepository(
 
     private suspend fun getCurrentOrderId(): String? {
         return roomDb.globalDao().getGlobalValues()?.currentOrderId
+    }
+
+    override suspend fun clearBag() {
+        roomDb.orderDao().clearLocalBag()
+        roomDb.globalDao().clearCurrentOrder()
     }
 }

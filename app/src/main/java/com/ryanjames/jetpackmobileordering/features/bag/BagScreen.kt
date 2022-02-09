@@ -5,24 +5,35 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Checkbox
+import androidx.compose.material.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
 import com.ryanjames.jetpackmobileordering.R
 import com.ryanjames.jetpackmobileordering.features.bottomnav.LocalCoroutineScope
 import com.ryanjames.jetpackmobileordering.features.bottomnav.LocalSnackbarHostState
 import com.ryanjames.jetpackmobileordering.ui.core.Dialog
 import com.ryanjames.jetpackmobileordering.ui.theme.*
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+@FlowPreview
 @Composable
 fun BagScreen(
     bagViewModel: BagViewModel,
@@ -36,7 +47,9 @@ fun BagScreen(
         onClickRemove = bagViewModel::onClickRemove,
         onClickCancel = bagViewModel::onClickCancel,
         onClickRemoveSelected = bagViewModel::onClickRemoveSelected,
-        onCheckChanged = bagViewModel::onRemoveCbCheckChanged
+        onCheckChanged = bagViewModel::onRemoveCbCheckChanged,
+        onClickPickup = bagViewModel::onClickPickup,
+        onClickDelivery = bagViewModel::onClickDelivery
     )
     val globalScope = LocalCoroutineScope.current
     val snackbarHostState = LocalSnackbarHostState.current
@@ -65,7 +78,9 @@ fun BagLayout(
     onClickRemove: () -> Unit,
     onClickCancel: () -> Unit,
     onClickRemoveSelected: () -> Unit,
-    onCheckChanged: (checked: Boolean, lineItemId: String) -> Unit
+    onCheckChanged: (checked: Boolean, lineItemId: String) -> Unit,
+    onClickPickup: () -> Unit,
+    onClickDelivery: () -> Unit
 ) {
     Box {
 
@@ -116,6 +131,10 @@ fun BagLayout(
             }
 
             BagSummaryCard(bagScreenState.bagItems, onClickLineItem = onClickLineItem, isRemoving = bagScreenState.isRemoving, onCheckChanged = onCheckChanged)
+            Spacer(modifier = Modifier.size(24.dp))
+            DeliveryOptionToggle(bagScreenState.isPickupSelected, onClickPickup = onClickPickup, onClickDelivery = onClickDelivery)
+            Spacer(modifier = Modifier.size(16.dp))
+            MapCard(latLng = bagScreenState.restaurantPosition, bagScreenState.venueAddress)
             Spacer(modifier = Modifier.size(24.dp))
             OrderPriceBreakdown(bagScreenState.subtotal, bagScreenState.tax, bagScreenState.total)
         }
@@ -185,6 +204,79 @@ fun BagSummaryCard(
                     }
                 }
 
+            }
+        }
+
+    }
+}
+
+@Composable
+fun DeliveryOptionToggle(pickupSelected: Boolean, onClickPickup: () -> Unit, onClickDelivery: () -> Unit) {
+    val radius = 8.dp
+    val selectedColor = ButtonDefaults.outlinedButtonColors(backgroundColor = CoralRed)
+    val unselectedColor = ButtonDefaults.outlinedButtonColors()
+    val selectedTextColor = TextColor.StaticColor(Color.White)
+    val unselectedTextColor = TextColor.DarkTextColor
+
+    Row(modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(
+            colors = if (pickupSelected) selectedColor else unselectedColor,
+            shape = RoundedCornerShape(topStart = radius, bottomStart = radius),
+            onClick = { onClickPickup.invoke() },
+            modifier = Modifier.weight(1f)
+        ) {
+            TypeScaledTextView(label = "Pickup", color = if (pickupSelected) selectedTextColor else unselectedTextColor, typeScale = TypeScaleCategory.Subtitle1, overrideFontWeight = FontWeight.Bold)
+        }
+        OutlinedButton(
+            colors = if (!pickupSelected) selectedColor else unselectedColor,
+            shape = RoundedCornerShape(topEnd = radius, bottomEnd = radius),
+            onClick = { onClickDelivery.invoke() },
+            modifier = Modifier.weight(1f)
+        ) {
+            TypeScaledTextView(
+                label = "Delivery",
+                color = if (!pickupSelected) selectedTextColor else unselectedTextColor,
+                typeScale = TypeScaleCategory.Subtitle1,
+                overrideFontWeight = FontWeight.Bold
+            )
+        }
+    }
+
+}
+
+@Composable
+fun MapCard(latLng: LatLng, address: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column {
+            GoogleMap(
+                modifier = Modifier.height(200.dp),
+                cameraPositionState = CameraPositionState(CameraPosition.fromLatLngZoom(latLng, 13f)),
+                uiSettings = MapUiSettings(
+                    zoomGesturesEnabled = false,
+                    zoomControlsEnabled = false,
+                    rotationGesturesEnabled = false,
+                    scrollGesturesEnabled = false, tiltGesturesEnabled = false
+                )
+            ) {
+                Marker(
+                    position = latLng,
+                    title = ".",
+                    onClick = {
+                        false
+                    }
+                )
+            }
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                TypeScaledTextView(
+                    label = stringResource(R.string.pickup_from), color = TextColor.LightTextColor
+                )
+                TypeScaledTextView(
+                    typeScale = TypeScaleCategory.Subtitle1, label = address
+                )
             }
         }
 

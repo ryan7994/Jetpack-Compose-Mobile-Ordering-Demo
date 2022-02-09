@@ -1,8 +1,5 @@
 package com.ryanjames.jetpackmobileordering.features.bottomnav
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavType
 import androidx.navigation.compose.NamedNavArgument
@@ -18,9 +15,9 @@ private const val SCREEN_ROUTE_PRODUCT_DETAIL_FROM_BAG = "productDetailFromBag"
 private const val SCREEN_ROUTE_HOME = "screenHome"
 private const val SCREEN_ROUTE_BAG = "screenBag"
 
-sealed class BottomNavTabs(open val tabRoute: String, val labelResId: Int = -1, val icon: ImageVector? = null) {
-    object BrowseTab : BottomNavTabs(TAB_ROUTE_BROWSE, R.string.bottom_nav_browse, Icons.Default.ArrowBack)
-    object BagTab : BottomNavTabs(TAB_ROUTE_BAG, R.string.bottom_nav_bag, Icons.Default.ThumbUp)
+sealed class BottomNavTabs(open val tabRoute: String, val labelResId: Int = -1, val icon: ImageVector? = null, val drawableId: Int? = null) {
+    object BrowseTab : BottomNavTabs(TAB_ROUTE_BROWSE, R.string.bottom_nav_browse, drawableId = R.drawable.search_svgrepo_com)
+    object BagTab : BottomNavTabs(TAB_ROUTE_BAG, R.string.bottom_nav_bag, drawableId = R.drawable.shopping_bag_svgrepo_com)
 }
 
 sealed class BottomNavScreens(open val route: String) {

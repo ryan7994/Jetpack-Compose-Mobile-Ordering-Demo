@@ -2,7 +2,10 @@ package com.ryanjames.jetpackmobileordering.network
 
 import com.ryanjames.jetpackmobileordering.core.Resource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
@@ -32,8 +35,9 @@ inline fun <DatabaseModel, NetworkModel, DomainModel> networkBoundResource(
 
         } catch (t: Throwable) {
             onFetchFailed(t)
+            t.printStackTrace()
             loading.cancel()
-            queryDb().collect { send(Resource.Error(t)) }
+            send(Resource.Error(t))
         }
     } else {
         queryDb().collect { send(Resource.Success(mapToDomainModel(it))) }
@@ -60,6 +64,7 @@ inline fun <NetworkModel, DomainModel> networkResource(
 
     } catch (t: Throwable) {
         onFetchFailed(t)
+        t.printStackTrace()
         loading.cancel()
         send(Resource.Error(t))
     }

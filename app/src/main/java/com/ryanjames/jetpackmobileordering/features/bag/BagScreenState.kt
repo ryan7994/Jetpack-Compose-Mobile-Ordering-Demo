@@ -1,5 +1,6 @@
 package com.ryanjames.jetpackmobileordering.features.bag
 
+import com.google.android.gms.maps.model.LatLng
 import com.ryanjames.jetpackmobileordering.ui.core.AlertDialogState
 
 data class BagScreenState(
@@ -13,7 +14,10 @@ data class BagScreenState(
     val alertDialog: AlertDialogState?,
     val subtotal: String = "",
     val tax: String = "",
-    val total: String = ""
+    val total: String = "",
+    val restaurantPosition: LatLng = LatLng(0.0, 0.0),
+    val venueAddress: String = "",
+    val isPickupSelected: Boolean = true
 )
 
 data class ButtonState(val enabled: Boolean, val visible: Boolean)

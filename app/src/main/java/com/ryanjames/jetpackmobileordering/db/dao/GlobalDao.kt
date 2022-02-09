@@ -16,13 +16,20 @@ interface GlobalDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertGlobalEntity(globalEntity: GlobalEntity)
 
-    @Query("UPDATE GlobalEntity SET currentOrderId = :id")
+    @Query("UPDATE GlobalEntity SET currentOrderId = :id WHERE id = 0")
     suspend fun updateCurrentOrderId(id: String)
+
+    @Query("UPDATE GlobalEntity SET currentOrderId = null, currentVenue = null")
+    suspend fun clearCurrentOrder()
+
+    @Query("UPDATE GlobalEntity SET currentVenue = :id WHERE id = 0")
+    suspend fun updateCurrentVenueId(id: String)
 
     @Transaction
     suspend fun createLocalBagOrderId(orderId: String, venueId: String) {
-        val globalEntity = getGlobalValues()
-        if (globalEntity == null) {
+//        deleteGlobalEntity()
+//        val globalEntity = getGlobalValues()
+//        if (globalEntity == null) {
             insertGlobalEntity(
                 GlobalEntity(
                     id = 0,
@@ -30,8 +37,6 @@ interface GlobalDao {
                     currentVenue = venueId
                 )
             )
-        } else if (globalEntity.currentOrderId == null) {
-            updateCurrentOrderId(orderId)
-        }
+//        }
     }
 }

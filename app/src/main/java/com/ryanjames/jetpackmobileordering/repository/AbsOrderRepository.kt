@@ -17,4 +17,6 @@ interface AbsOrderRepository {
     fun removeLineItems(lineItemIds: List<String>, venueId: String): Flow<Resource<BagSummary>>
 
     suspend fun retrieveCurrentOrder(): Flow<Resource<BagSummary>>
+
+    suspend fun clearBag()
 }

@@ -6,11 +6,14 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -206,9 +209,12 @@ class BottomNavActivity : ComponentActivity() {
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                         )
                     },
-                    alwaysShowLabel = true,
+                    alwaysShowLabel = false,
                     selected = isSelected,
-                    icon = { tab.icon?.let { Icon(tab.icon, stringResource(id = tab.labelResId)) } },
+                    icon = {
+                        tab.drawableId?.let { Icon(painterResource(id = tab.drawableId), stringResource(id = tab.labelResId), modifier = Modifier.size(24.dp)) }
+                        tab.icon?.let { Icon(tab.icon, stringResource(id = tab.labelResId)) }
+                    },
                 )
             }
 

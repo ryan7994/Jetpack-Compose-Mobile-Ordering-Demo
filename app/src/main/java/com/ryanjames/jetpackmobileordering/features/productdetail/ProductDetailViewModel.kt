@@ -16,6 +16,7 @@ import com.ryanjames.jetpackmobileordering.repository.AbsOrderRepository
 import com.ryanjames.jetpackmobileordering.repository.AbsVenueRepository
 import com.ryanjames.jetpackmobileordering.toTwoDigitString
 import com.ryanjames.jetpackmobileordering.ui.core.LoadingDialogState
+import com.ryanjames.jetpackmobileordering.ui.core.TwoButtonsDialogState
 import com.ryanjames.jetpackmobileordering.util.LineItemManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -104,15 +105,39 @@ class ProductDetailViewModel @Inject constructor(
 
     fun onClickAddToBag() {
         viewModelScope.launch {
-            orderRepository.addOrUpdateLineItem(lineItemManager.getLineItem(), venueId).collect {
-                if (it is Resource.Loading) {
-                    val loadingDialogLabel = if (isModifying) R.string.updating_item else R.string.adding_item_to_bag
-                    _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = LoadingDialogState(StringResource(loadingDialogLabel)))
-                } else if (it is Resource.Success) {
-                    _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = null)
-                    _onSuccessfulAddOrUpdate.value = true
-                }
 
+            val currentOrderVenueId = venueRepository.getCurrentVenueId()
+            if (currentOrderVenueId != null && currentOrderVenueId != venueId) {
+                val dialog = TwoButtonsDialogState(
+                    title = "You have other items from another restaurant.",
+                    message = "Adding this item will clear your bag and change the selected restaurant. Are you sure you want to proceed?",
+                    positiveButton = StringResource(R.string.yes),
+                    negativeButton = StringResource(R.string.no),
+                    onClickNegativeBtn = {
+                        _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = null)
+                    },
+                    onClickPositiveBtn = {
+                        viewModelScope.launch {
+                            orderRepository.clearBag()
+                            addOrUpdateLineItem()
+                        }
+                    }
+                )
+                _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = dialog)
+            } else {
+                addOrUpdateLineItem()
+            }
+        }
+    }
+
+    private suspend fun addOrUpdateLineItem() {
+        orderRepository.addOrUpdateLineItem(lineItemManager.getLineItem(), venueId).collect {
+            if (it is Resource.Loading) {
+                val loadingDialogLabel = if (isModifying) R.string.updating_item else R.string.adding_item_to_bag
+                _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = LoadingDialogState(StringResource(loadingDialogLabel)))
+            } else if (it is Resource.Success) {
+                _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = null)
+                _onSuccessfulAddOrUpdate.value = true
             }
         }
     }

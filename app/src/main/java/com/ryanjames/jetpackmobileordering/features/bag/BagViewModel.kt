@@ -2,6 +2,7 @@ package com.ryanjames.jetpackmobileordering.features.bag
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.LatLng
 import com.ryanjames.jetpackmobileordering.R
 import com.ryanjames.jetpackmobileordering.core.Resource
 import com.ryanjames.jetpackmobileordering.core.StringResource
@@ -12,16 +13,11 @@ import com.ryanjames.jetpackmobileordering.toTwoDigitString
 import com.ryanjames.jetpackmobileordering.ui.core.LoadingDialogState
 import com.ryanjames.jetpackmobileordering.ui.toDisplayModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
+@FlowPreview
 @HiltViewModel
 class BagViewModel @Inject constructor(
     private val orderRepository: AbsOrderRepository,
@@ -56,16 +52,17 @@ class BagViewModel @Inject constructor(
     }
 
     private suspend fun collectCurrentVenueId() {
-        venueRepository.getCurrentVenueIdFlow().collect { venueId ->
-            if (venueId != null) {
-                venueRepository.getVenueById(venueId).collect {
-                    if (it is Resource.Success) {
-                        _bagItemScreenState.value = _bagItemScreenState.value.copy(
-                            venueId = venueId,
-                            venueName = it.data?.name
-                        )
-                    }
-                }
+        venueRepository.getCurrentVenueIdFlow().filterNotNull().flatMapMerge { venueId ->
+            venueRepository.getVenueById(venueId)
+        }.collect {
+            if (it is Resource.Success) {
+                val venue = it.data ?: return@collect
+                _bagItemScreenState.value = _bagItemScreenState.value.copy(
+                    venueId = venue.id,
+                    venueName = venue.name,
+                    restaurantPosition = LatLng(venue.lat.toDouble(), venue.long.toDouble()),
+                    venueAddress = venue.address ?: ""
+                )
             }
         }
     }
@@ -139,6 +136,14 @@ class BagViewModel @Inject constructor(
             isRemoving = false,
             bagItems = newBagItems
         )
+    }
+
+    fun onClickPickup() {
+        _bagItemScreenState.value = _bagItemScreenState.value.copy(isPickupSelected = true)
+    }
+
+    fun onClickDelivery() {
+        _bagItemScreenState.value = _bagItemScreenState.value.copy(isPickupSelected = false)
     }
 
     fun onRemoveCbCheckChanged(checked: Boolean, lineItemId: String) {

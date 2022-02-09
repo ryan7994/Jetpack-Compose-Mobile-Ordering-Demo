@@ -6,6 +6,7 @@ plugins {
 
     // To use @Parcelize, add:
     id 'kotlin-android-extensions'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 android {
@@ -134,5 +135,10 @@ dependencies {
     // Needed for coroutine unit test with mockito
     testImplementation "org.mockito.kotlin:mockito-kotlin:4.0.0"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1"
+
+    // Google Map - Compose
+    implementation 'com.google.maps.android:maps-compose:1.0.0'
+    // Make sure to also include the latest version of the Maps SDK for Android
+    implementation 'com.google.android.gms:play-services-maps:18.0.2'
 
 }

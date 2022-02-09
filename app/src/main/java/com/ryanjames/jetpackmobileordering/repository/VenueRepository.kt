@@ -21,11 +21,11 @@ class VenueRepository(
         fetchFromApi = { mobilePosApi.getFeaturedVenues() },
         queryDb = { roomDb.venueDao().getHomeVenues() },
         savetoDb = { homeResponse -> roomDb.venueDao().insertVenues(homeResponse.toEntity()) },
-        shouldFetchFromApi = { it.isEmpty() },
-        onFetchFailed = { it.printStackTrace() },
-        mapToDomainModel = { list ->
-            val featuredList = list.filter { it.venue.type == VenueEntityType.HOME_FEATURED }.map { it.toDomain() }
-            val restaurantList = list.filter { it.venue.type == VenueEntityType.HOME_RESTAURANT_LIST }.map { it.toDomain() }
+        shouldFetchFromApi = { databaseModel -> databaseModel.isEmpty() },
+        onFetchFailed = { },
+        mapToDomainModel = { dbList ->
+            val featuredList = dbList.filter { it.venue.type == VenueEntityType.HOME_FEATURED }.map { it.toDomain() }
+            val restaurantList = dbList.filter { it.venue.type == VenueEntityType.HOME_RESTAURANT_LIST }.map { it.toDomain() }
             Pair(featuredList, restaurantList)
         }
     )

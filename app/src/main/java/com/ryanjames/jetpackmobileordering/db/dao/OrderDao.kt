@@ -50,12 +50,17 @@ interface OrderDao {
 
 
     @Transaction
-    suspend fun updateLocalBag(currentOrder: CurrentOrderEntityWithLineItems) {
+    suspend fun clearLocalBag() {
         deleteOrderEntity()
         deleteLineItems()
         deleteLineItemProducts()
         deleteModifierGroups()
         deleteModifierInfo()
+    }
+
+    @Transaction
+    suspend fun updateLocalBag(currentOrder: CurrentOrderEntityWithLineItems) {
+        clearLocalBag()
 
         insertCurrentOrderEntity(currentOrder.order)
         currentOrder.lineItems.forEach { lineItemEntity ->
