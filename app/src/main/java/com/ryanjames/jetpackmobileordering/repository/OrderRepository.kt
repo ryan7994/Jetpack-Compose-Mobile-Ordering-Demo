@@ -128,4 +128,14 @@ class OrderRepository(
         roomDb.orderDao().clearLocalBag()
         roomDb.globalDao().clearCurrentOrder()
     }
+
+    override fun getDeliveryAddressFlow(): Flow<String?> {
+        return roomDb.globalDao().getGlobalValuesFlow().map { it?.deliveryAddress }
+    }
+
+    override suspend fun updateDeliveryAddress(address: String?) {
+        roomDb.globalDao().updateDeliveryAddress(address)
+    }
+
+
 }

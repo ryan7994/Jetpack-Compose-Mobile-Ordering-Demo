@@ -1,17 +1,16 @@
 package com.ryanjames.jetpackmobileordering.features.bag
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
-import androidx.compose.material.Checkbox
-import androidx.compose.material.OutlinedButton
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,6 +29,7 @@ import com.ryanjames.jetpackmobileordering.features.bottomnav.LocalCoroutineScop
 import com.ryanjames.jetpackmobileordering.features.bottomnav.LocalSnackbarHostState
 import com.ryanjames.jetpackmobileordering.ui.core.Dialog
 import com.ryanjames.jetpackmobileordering.ui.theme.*
+import com.ryanjames.jetpackmobileordering.ui.widget.DeliveryAddressBottomSheetLayout
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -50,7 +50,9 @@ fun BagScreen(
         onClickRemoveSelected = bagViewModel::onClickRemoveSelected,
         onCheckChanged = bagViewModel::onRemoveCbCheckChanged,
         onClickPickup = bagViewModel::onClickPickup,
-        onClickDelivery = bagViewModel::onClickDelivery
+        onClickDelivery = bagViewModel::onClickDelivery,
+        onDeliveryAddressValueChange = bagViewModel::onDeliveryAddressInputChange,
+        onClickSaveDeliveryAddress = bagViewModel::updateDeliveryAddress
     )
     val globalScope = LocalCoroutineScope.current
     val snackbarHostState = LocalSnackbarHostState.current
@@ -71,6 +73,7 @@ fun BagScreen(
 }
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BagLayout(
     bagScreenState: BagScreenState,
@@ -81,73 +84,112 @@ fun BagLayout(
     onClickRemoveSelected: () -> Unit,
     onCheckChanged: (checked: Boolean, lineItemId: String) -> Unit,
     onClickPickup: () -> Unit,
-    onClickDelivery: () -> Unit
+    onClickDelivery: () -> Unit,
+    onDeliveryAddressValueChange: (String) -> Unit,
+    onClickSaveDeliveryAddress: () -> Unit
 ) {
-    Box {
 
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
+    val modalBottomSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden
+    )
 
-            Spacer(modifier = Modifier.size(16.dp))
-            if (bagScreenState.venueName != null) {
-                TypeScaledTextView(label = stringResource(R.string.your_bag_from), typeScale = TypeScaleCategory.Subtitle2)
-                TypeScaledTextView(label = bagScreenState.venueName, typeScale = TypeScaleCategory.H6)
+    val scope = rememberCoroutineScope()
+
+    BackHandler {
+        if (modalBottomSheetState.isVisible) {
+            scope.launch {
+                modalBottomSheetState.hide()
             }
+        }
+    }
 
-            OutlinedAccentButton(onClick = {
-                bagScreenState.venueId?.let { onClickAddMoreItems.invoke(it) }
-            }, label = stringResource(R.string.add_more_items))
-            Spacer(modifier = Modifier.size(8.dp))
-            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                if (bagScreenState.btnRemoveState.visible) {
-                    Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                        AccentTextButton(
-                            onClick = {
-                                onClickRemove.invoke()
-                            },
-                            label = stringResource(R.string.remove),
-                            buttonState = bagScreenState.btnRemoveState
-                        )
+
+    ModalBottomSheetLayout(
+        sheetContent = {
+            DeliveryAddressBottomSheetLayout(value = bagScreenState.deliveryAddressInput, onValueChange = onDeliveryAddressValueChange, onClickSave = {
+                onClickSaveDeliveryAddress.invoke()
+                scope.launch {
+                    modalBottomSheetState.hide()
+                }
+            })
+        },
+        sheetState = modalBottomSheetState,
+        scrimColor = Color.Transparent,
+        sheetBackgroundColor = AppTheme.colors.bottomNavBackground,
+        sheetShape = RoundedCornerShape(topEnd = 32.dp, topStart = 32.dp),
+        sheetElevation = 8.dp,
+    ) {
+        Box {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+
+                Spacer(modifier = Modifier.size(16.dp))
+                if (bagScreenState.venueName != null) {
+                    TypeScaledTextView(label = stringResource(R.string.your_bag_from), typeScale = TypeScaleCategory.Subtitle2)
+                    TypeScaledTextView(label = bagScreenState.venueName, typeScale = TypeScaleCategory.H6)
+                }
+
+                OutlinedAccentButton(onClick = {
+                    bagScreenState.venueId?.let { onClickAddMoreItems.invoke(it) }
+                }, label = stringResource(R.string.add_more_items))
+                Spacer(modifier = Modifier.size(8.dp))
+                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                    if (bagScreenState.btnRemoveState.visible) {
+                        Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                            AccentTextButton(
+                                onClick = {
+                                    onClickRemove.invoke()
+                                },
+                                label = stringResource(R.string.remove),
+                                buttonState = bagScreenState.btnRemoveState
+                            )
+                        }
+                    }
+
+                    AccentTextButton(
+                        onClick = {
+                            onClickRemoveSelected.invoke()
+                        },
+                        label = stringResource(R.string.remove_selected),
+                        buttonState = bagScreenState.btnRemoveSelectedState
+                    )
+
+                    AccentTextButton(
+                        onClick = {
+                            onClickCancel.invoke()
+                        },
+                        label = stringResource(R.string.cancel),
+                        buttonState = bagScreenState.btnCancelState
+                    )
+                }
+
+                BagSummaryCard(bagScreenState.bagItems, onClickLineItem = onClickLineItem, isRemoving = bagScreenState.isRemoving, onCheckChanged = onCheckChanged)
+                Spacer(modifier = Modifier.size(24.dp))
+                DeliveryOptionToggle(bagScreenState.isPickupSelected, onClickPickup = onClickPickup, onClickDelivery = onClickDelivery)
+                Spacer(modifier = Modifier.size(16.dp))
+
+                if (bagScreenState.isPickupSelected) {
+                    MapCard(latLng = bagScreenState.restaurantPosition, bagScreenState.venueAddress)
+                } else {
+                    DeliveryAddressCard(deliveryAddress = bagScreenState.deliveryAddress) {
+                        scope.launch {
+                            modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                        }
                     }
                 }
 
-                AccentTextButton(
-                    onClick = {
-                        onClickRemoveSelected.invoke()
-                    },
-                    label = stringResource(R.string.remove_selected),
-                    buttonState = bagScreenState.btnRemoveSelectedState
-                )
-
-                AccentTextButton(
-                    onClick = {
-                        onClickCancel.invoke()
-                    },
-                    label = stringResource(R.string.cancel),
-                    buttonState = bagScreenState.btnCancelState
-                )
+                Spacer(modifier = Modifier.size(24.dp))
+                OrderPriceBreakdown(bagScreenState.subtotal, bagScreenState.tax, bagScreenState.total)
             }
 
-            BagSummaryCard(bagScreenState.bagItems, onClickLineItem = onClickLineItem, isRemoving = bagScreenState.isRemoving, onCheckChanged = onCheckChanged)
-            Spacer(modifier = Modifier.size(24.dp))
-            DeliveryOptionToggle(bagScreenState.isPickupSelected, onClickPickup = onClickPickup, onClickDelivery = onClickDelivery)
-            Spacer(modifier = Modifier.size(16.dp))
-
-            if (bagScreenState.isPickupSelected) {
-                MapCard(latLng = bagScreenState.restaurantPosition, bagScreenState.venueAddress)
-            } else {
-                DeliveryAddressCard(deliveryAddress = null)
-            }
-
-            Spacer(modifier = Modifier.size(24.dp))
-            OrderPriceBreakdown(bagScreenState.subtotal, bagScreenState.tax, bagScreenState.total)
+            Dialog(bagScreenState.alertDialog)
         }
-
-        Dialog(bagScreenState.alertDialog)
     }
+
+
 }
 
 @Composable
@@ -296,16 +338,24 @@ fun MapCard(latLng: LatLng, address: String) {
 }
 
 @Composable
-fun DeliveryAddressCard(deliveryAddress: String?) {
+fun DeliveryAddressCard(deliveryAddress: String?, onClickAddEditAddress: () -> Unit) {
     Card(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp, start = 16.dp)) {
             if (deliveryAddress == null) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     TypeScaledTextView(label = stringResource(R.string.no_address_provided), color = TextColor.LightTextColor)
-                    AccentTextButton(onClick = { /*TODO*/ }, label = stringResource(R.string.add))
+                    AccentTextButton(onClick = { onClickAddEditAddress.invoke() }, label = stringResource(R.string.add))
                 }
             } else {
-
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.weight(7f)) {
+                        TypeScaledTextView(label = stringResource(id = R.string.delivering_to), color = TextColor.LightTextColor)
+                        TypeScaledTextView(label = deliveryAddress, color = TextColor.DarkTextColor)
+                    }
+                    Row(modifier = Modifier.weight(3f).fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        AccentTextButton(onClick = { onClickAddEditAddress.invoke() }, label = stringResource(R.string.edit))
+                    }
+                }
             }
         }
     }

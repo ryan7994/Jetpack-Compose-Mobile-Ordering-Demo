@@ -47,7 +47,26 @@ class BagViewModel @Inject constructor(
             awaitAll(
                 async { orderRepository.retrieveCurrentOrder().collect { } },
                 async { collectCurrentVenueId() },
-                async { collectCurrentBagSummary() })
+                async { collectCurrentBagSummary() },
+                async { getDeliveryAddress() })
+
+        }
+    }
+
+    fun updateDeliveryAddress() {
+        viewModelScope.launch {
+            orderRepository.updateDeliveryAddress(_bagItemScreenState.value.deliveryAddressInput)
+        }
+    }
+
+    fun onDeliveryAddressInputChange(newValue: String) {
+        _bagItemScreenState.value = _bagItemScreenState.value.copy(deliveryAddressInput = newValue)
+    }
+
+    private suspend fun getDeliveryAddress() {
+        _bagItemScreenState.value = _bagItemScreenState.value.copy(deliveryAddressInput = orderRepository.getDeliveryAddressFlow().first() ?: "")
+        orderRepository.getDeliveryAddressFlow().collect { deliveryAddress ->
+            _bagItemScreenState.value = _bagItemScreenState.value.copy(deliveryAddress = deliveryAddress)
         }
     }
 

@@ -17,7 +17,9 @@ data class BagScreenState(
     val total: String = "",
     val restaurantPosition: LatLng = LatLng(0.0, 0.0),
     val venueAddress: String = "",
-    val isPickupSelected: Boolean = true
+    val isPickupSelected: Boolean = true,
+    val deliveryAddress: String? = null,
+    val deliveryAddressInput: String = ""
 )
 
 data class ButtonState(val enabled: Boolean, val visible: Boolean)

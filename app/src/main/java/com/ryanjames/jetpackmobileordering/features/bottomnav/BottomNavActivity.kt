@@ -2,11 +2,11 @@ package com.ryanjames.jetpackmobileordering.features.bottomnav
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -31,10 +31,7 @@ import com.ryanjames.jetpackmobileordering.features.productdetail.ProductDetailS
 import com.ryanjames.jetpackmobileordering.features.venuedetail.VenueDetailScreen
 import com.ryanjames.jetpackmobileordering.ui.core.CustomSnackbar
 import com.ryanjames.jetpackmobileordering.ui.screens.HomeScreen
-import com.ryanjames.jetpackmobileordering.ui.theme.AppTheme
-import com.ryanjames.jetpackmobileordering.ui.theme.CoralRed
-import com.ryanjames.jetpackmobileordering.ui.theme.FreeSans
-import com.ryanjames.jetpackmobileordering.ui.theme.MyComposeAppTheme
+import com.ryanjames.jetpackmobileordering.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 
@@ -73,7 +70,8 @@ class BottomNavActivity : ComponentActivity() {
         val coroutineScope = rememberCoroutineScope()
         CompositionLocalProvider(
             LocalSnackbarHostState provides scaffoldState.snackbarHostState,
-            LocalCoroutineScope provides coroutineScope
+            LocalCoroutineScope provides coroutineScope,
+            LocalTextSelectionColors provides customTextSelectionColors
         ) {
             Scaffold(scaffoldState = scaffoldState,
                 bottomBar = {
@@ -108,7 +106,6 @@ class BottomNavActivity : ComponentActivity() {
                     onClickLineItem = { lineItemId ->
                         navController.navigate(BottomNavScreens.ProductDetailFromBag.routeWithArgs(lineItemId = lineItemId))
                     })
-                BackHandler {}
             }
 
             composable(

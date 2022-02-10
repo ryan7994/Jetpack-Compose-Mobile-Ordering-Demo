@@ -353,8 +353,7 @@ fun ModifierRbRow(modifierOptionDisplayModel: ModifierOptionDisplayModel, onClic
             .clickable {
                 onClickModifier.invoke(modifierOptionDisplayModel.parentId, modifierOptionDisplayModel.id)
             }
-            .fillMaxWidth()
-            .padding(top = 16.dp, bottom = 16.dp),
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -379,8 +378,7 @@ fun ModifierCbRow(modifierOptionDisplayModel: ModifierOptionDisplayModel, onClic
                     onClickModifier.invoke(modifierOptionDisplayModel.parentId, modifierOptionDisplayModel.id)
                 }
             }
-            .fillMaxWidth()
-            .padding(top = 16.dp, bottom = 16.dp),
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {

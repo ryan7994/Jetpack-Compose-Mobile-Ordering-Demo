@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
@@ -88,33 +90,36 @@ fun SingleLineTextField(
     onValueChange: (String) -> Unit,
     hintText: String,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions(),
+    keyboardActions: KeyboardActions? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
-    OutlinedTextField(
-        shape = RoundedCornerShape(16.dp),
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            focusedBorderColor = CoralRed,
-            unfocusedBorderColor = AppTheme.colors.darkTextColor,
-            cursorColor = CoralRed
-        ),
-        value = value,
-        onValueChange = onValueChange,
-        singleLine = true,
-        modifier = modifier
-            .fillMaxWidth(),
-        placeholder = {
-            Text(
-                text = hintText,
-                color = AppTheme.colors.hintTextColor,
-                fontFamily = FreeSans
-            )
-        },
-        keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
-        visualTransformation = visualTransformation,
-        textStyle = TextStyle(color = AppTheme.colors.darkTextColor)
-    )
+    val focusManager = LocalFocusManager.current
+        OutlinedTextField(
+            shape = RoundedCornerShape(16.dp),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = CoralRed,
+                unfocusedBorderColor = AppTheme.colors.darkTextColor,
+                cursorColor = CoralRed
+            ),
+            value = value,
+            onValueChange = onValueChange,
+            singleLine = true,
+            modifier = modifier
+                .fillMaxWidth(),
+            placeholder = {
+                Text(
+                    text = hintText,
+                    color = AppTheme.colors.hintTextColor,
+                    fontFamily = FreeSans
+                )
+            },
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions ?: KeyboardActions(onAny = { focusManager.clearFocus() }),
+            visualTransformation = visualTransformation,
+            textStyle = TextStyle(color = AppTheme.colors.darkTextColor)
+        )
+
+
 }
 
 @Composable
@@ -293,3 +298,8 @@ fun DashedHorizontalLine() {
         )
     }
 }
+
+val customTextSelectionColors = TextSelectionColors(
+    handleColor = CoralRed,
+    backgroundColor = CoralRed.copy(alpha = 0.4f)
+)

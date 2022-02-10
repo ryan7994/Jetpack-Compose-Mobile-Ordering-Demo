@@ -25,18 +25,19 @@ interface GlobalDao {
     @Query("UPDATE GlobalEntity SET currentVenue = :id WHERE id = 0")
     suspend fun updateCurrentVenueId(id: String)
 
+    @Query("UPDATE GlobalEntity SET deliveryAddress = :deliveryAddress WHERE id = 0")
+    suspend fun updateDeliveryAddress(deliveryAddress: String?)
+
     @Transaction
     suspend fun createLocalBagOrderId(orderId: String, venueId: String) {
-//        deleteGlobalEntity()
-//        val globalEntity = getGlobalValues()
-//        if (globalEntity == null) {
-            insertGlobalEntity(
-                GlobalEntity(
-                    id = 0,
-                    currentOrderId = orderId,
-                    currentVenue = venueId
-                )
+        val globalEntity = getGlobalValues()
+        insertGlobalEntity(
+            GlobalEntity(
+                id = 0,
+                currentOrderId = orderId,
+                currentVenue = venueId,
+                deliveryAddress = globalEntity?.deliveryAddress
             )
-//        }
+        )
     }
 }

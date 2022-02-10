@@ -19,4 +19,8 @@ interface AbsOrderRepository {
     suspend fun retrieveCurrentOrder(): Flow<Resource<BagSummary>>
 
     suspend fun clearBag()
+
+    fun getDeliveryAddressFlow(): Flow<String?>
+
+    suspend fun updateDeliveryAddress(address: String?)
 }
