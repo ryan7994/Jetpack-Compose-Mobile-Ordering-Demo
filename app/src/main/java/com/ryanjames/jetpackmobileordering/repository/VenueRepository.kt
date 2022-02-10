@@ -11,12 +11,12 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+@ExperimentalCoroutinesApi
 class VenueRepository(
     private val mobilePosApi: MobilePosApi,
     private val roomDb: AppDatabase
 ) : AbsVenueRepository {
 
-    @ExperimentalCoroutinesApi
     override fun getFeaturedVenues() = networkBoundResource(
         fetchFromApi = { mobilePosApi.getFeaturedVenues() },
         queryDb = { roomDb.venueDao().getHomeVenues() },

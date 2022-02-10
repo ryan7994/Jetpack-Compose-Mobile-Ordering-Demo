@@ -127,16 +127,17 @@ fun AccentButton(onClick: () -> Unit, label: String, modifier: Modifier = Modifi
         shape = RoundedCornerShape(8.dp)
     ) {
 
-        Text(
-            text = label,
-            fontFamily = FreeSans,
-            color = Color.White,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            modifier = modifier
-        )
-
+        Box(modifier = Modifier.padding(horizontal = 8.dp)) {
+            Text(
+                text = label,
+                fontFamily = FreeSans,
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = modifier
+            )
+        }
 
     }
 }
@@ -162,12 +163,11 @@ fun OutlinedAccentButton(onClick: () -> Unit, label: String, modifier: Modifier 
 }
 
 @Composable
-fun AccentTextButton(onClick: () -> Unit, label: String, modifier: Modifier = Modifier, buttonState: ButtonState? = null) {
+fun AccentTextButton(onClick: () -> Unit, label: String, modifier: Modifier = Modifier, buttonState: ButtonState? = ButtonState(true, true)) {
 
     if (buttonState?.visible == true) {
         TextButton(
             onClick = onClick,
-            contentPadding = PaddingValues(horizontal = 8.dp),
             colors = ButtonDefaults.textButtonColors(),
             enabled = buttonState.enabled
         ) {

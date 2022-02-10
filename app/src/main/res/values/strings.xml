@@ -31,4 +31,8 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="pickup_from">Pickup from:</string>
+    <string name="delivery">Delivery</string>
+    <string name="pickup">Pickup</string>
+    <string name="no_address_provided">No address provided</string>
+    <string name="add">Add</string>
 </resources>

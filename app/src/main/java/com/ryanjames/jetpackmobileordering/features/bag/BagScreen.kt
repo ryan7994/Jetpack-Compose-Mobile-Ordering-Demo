@@ -12,6 +12,7 @@ import androidx.compose.material.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -134,7 +135,13 @@ fun BagLayout(
             Spacer(modifier = Modifier.size(24.dp))
             DeliveryOptionToggle(bagScreenState.isPickupSelected, onClickPickup = onClickPickup, onClickDelivery = onClickDelivery)
             Spacer(modifier = Modifier.size(16.dp))
-            MapCard(latLng = bagScreenState.restaurantPosition, bagScreenState.venueAddress)
+
+            if (bagScreenState.isPickupSelected) {
+                MapCard(latLng = bagScreenState.restaurantPosition, bagScreenState.venueAddress)
+            } else {
+                DeliveryAddressCard(deliveryAddress = null)
+            }
+
             Spacer(modifier = Modifier.size(24.dp))
             OrderPriceBreakdown(bagScreenState.subtotal, bagScreenState.tax, bagScreenState.total)
         }
@@ -225,7 +232,12 @@ fun DeliveryOptionToggle(pickupSelected: Boolean, onClickPickup: () -> Unit, onC
             onClick = { onClickPickup.invoke() },
             modifier = Modifier.weight(1f)
         ) {
-            TypeScaledTextView(label = "Pickup", color = if (pickupSelected) selectedTextColor else unselectedTextColor, typeScale = TypeScaleCategory.Subtitle1, overrideFontWeight = FontWeight.Bold)
+            TypeScaledTextView(
+                label = stringResource(R.string.pickup),
+                color = if (pickupSelected) selectedTextColor else unselectedTextColor,
+                typeScale = TypeScaleCategory.Subtitle1,
+                overrideFontWeight = FontWeight.Bold
+            )
         }
         OutlinedButton(
             colors = if (!pickupSelected) selectedColor else unselectedColor,
@@ -234,7 +246,7 @@ fun DeliveryOptionToggle(pickupSelected: Boolean, onClickPickup: () -> Unit, onC
             modifier = Modifier.weight(1f)
         ) {
             TypeScaledTextView(
-                label = "Delivery",
+                label = stringResource(R.string.delivery),
                 color = if (!pickupSelected) selectedTextColor else unselectedTextColor,
                 typeScale = TypeScaleCategory.Subtitle1,
                 overrideFontWeight = FontWeight.Bold
@@ -280,6 +292,22 @@ fun MapCard(latLng: LatLng, address: String) {
             }
         }
 
+    }
+}
+
+@Composable
+fun DeliveryAddressCard(deliveryAddress: String?) {
+    Card(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp, start = 16.dp)) {
+            if (deliveryAddress == null) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    TypeScaledTextView(label = stringResource(R.string.no_address_provided), color = TextColor.LightTextColor)
+                    AccentTextButton(onClick = { /*TODO*/ }, label = stringResource(R.string.add))
+                }
+            } else {
+
+            }
+        }
     }
 }
 

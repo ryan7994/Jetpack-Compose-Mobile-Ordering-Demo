@@ -10,12 +10,13 @@ import com.ryanjames.jetpackmobileordering.ui.toDomain
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
+@ExperimentalCoroutinesApi
 class MenuRepository(
     private val mobilePosApi: MobilePosApi,
     val roomDb: AppDatabase
 ) : AbsMenuRepository {
 
-    @ExperimentalCoroutinesApi
+
     override fun getBasicMenuByVenue(venueId: String): Flow<Resource<BasicMenuWithCategories?>> = networkBoundResource(
         fetchFromApi = { mobilePosApi.getBasicMenuByVenue(venueId = venueId) },
         queryDb = { roomDb.menuDao().getBasicMenuById(venueId) },
@@ -25,7 +26,7 @@ class MenuRepository(
         onFetchFailed = { it.printStackTrace() }
     )
 
-    @ExperimentalCoroutinesApi
+
     override fun getProductById(id: String) = networkResource(
         fetchFromApi = { mobilePosApi.getProductDetails(id) },
         mapToDomainModel = { it.toDomain() }
