@@ -8,16 +8,19 @@ import com.ryanjames.jetpackmobileordering.R
 
 private const val TAB_ROUTE_BROWSE = "tabBrowse"
 private const val TAB_ROUTE_BAG = "tabBag"
+private const val TAB_ROUTE_MAP = "tabMap"
 private const val SCREEN_ROUTE_VENUE_DETAIL = "venueDetail"
 private const val SCREEN_ROUTE_VENUE_DETAIL_FROM_BAG = "venueDetailFromBag"
 private const val SCREEN_ROUTE_PRODUCT_DETAIL = "productDetail"
 private const val SCREEN_ROUTE_PRODUCT_DETAIL_FROM_BAG = "productDetailFromBag"
 private const val SCREEN_ROUTE_HOME = "screenHome"
 private const val SCREEN_ROUTE_BAG = "screenBag"
+private const val SCREEN_ROUTE_MAP = "screenMap"
 
 sealed class BottomNavTabs(open val tabRoute: String, val labelResId: Int = -1, val icon: ImageVector? = null, val drawableId: Int? = null) {
-    object BrowseTab : BottomNavTabs(TAB_ROUTE_BROWSE, R.string.bottom_nav_browse, drawableId = R.drawable.search_svgrepo_com)
+    object BrowseTab : BottomNavTabs(TAB_ROUTE_BROWSE, R.string.bottom_nav_browse, drawableId = R.drawable.search)
     object BagTab : BottomNavTabs(TAB_ROUTE_BAG, R.string.bottom_nav_bag, drawableId = R.drawable.shopping_bag_svgrepo_com)
+    object MapTab : BottomNavTabs(TAB_ROUTE_MAP, R.string.map, drawableId = R.drawable.map)
 }
 
 sealed class BottomNavScreens(open val route: String) {
@@ -35,6 +38,8 @@ sealed class BottomNavScreens(open val route: String) {
             return "$SCREEN_ROUTE_VENUE_DETAIL_FROM_BAG/$venueId"
         }
     }
+
+    object Map: BottomNavScreens(SCREEN_ROUTE_MAP)
 
 
     object ProductDetailModal : BottomNavScreens("$SCREEN_ROUTE_PRODUCT_DETAIL/{productId}/{venueId}") {

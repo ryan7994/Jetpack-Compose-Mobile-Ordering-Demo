@@ -1,6 +1,7 @@
 package com.ryanjames.jetpackmobileordering.features.bag
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +15,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,7 +41,8 @@ import kotlinx.coroutines.launch
 fun BagScreen(
     bagViewModel: BagViewModel,
     onClickAddMoreItems: (venueId: String) -> Unit,
-    onClickLineItem: (lineItemId: String) -> Unit
+    onClickLineItem: (lineItemId: String) -> Unit,
+    onClickBrowseRestaurants: () -> Unit
 ) {
     BagLayout(
         bagScreenState = bagViewModel.bagScreenState.collectAsState().value,
@@ -52,7 +55,8 @@ fun BagScreen(
         onClickPickup = bagViewModel::onClickPickup,
         onClickDelivery = bagViewModel::onClickDelivery,
         onDeliveryAddressValueChange = bagViewModel::onDeliveryAddressInputChange,
-        onClickSaveDeliveryAddress = bagViewModel::updateDeliveryAddress
+        onClickSaveDeliveryAddress = bagViewModel::updateDeliveryAddress,
+        onClickBrowseRestaurants = onClickBrowseRestaurants
     )
     val globalScope = LocalCoroutineScope.current
     val snackbarHostState = LocalSnackbarHostState.current
@@ -86,7 +90,8 @@ fun BagLayout(
     onClickPickup: () -> Unit,
     onClickDelivery: () -> Unit,
     onDeliveryAddressValueChange: (String) -> Unit,
-    onClickSaveDeliveryAddress: () -> Unit
+    onClickSaveDeliveryAddress: () -> Unit,
+    onClickBrowseRestaurants: () -> Unit
 ) {
 
     val modalBottomSheetState = rememberModalBottomSheetState(
@@ -120,71 +125,78 @@ fun BagLayout(
         sheetElevation = 8.dp,
     ) {
         Box {
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .verticalScroll(rememberScrollState())
-            ) {
 
-                Spacer(modifier = Modifier.size(16.dp))
-                if (bagScreenState.venueName != null) {
-                    TypeScaledTextView(label = stringResource(R.string.your_bag_from), typeScale = TypeScaleCategory.Subtitle2)
-                    TypeScaledTextView(label = bagScreenState.venueName, typeScale = TypeScaleCategory.H6)
-                }
+            if (bagScreenState.isLoading) {
 
-                OutlinedAccentButton(onClick = {
-                    bagScreenState.venueId?.let { onClickAddMoreItems.invoke(it) }
-                }, label = stringResource(R.string.add_more_items))
-                Spacer(modifier = Modifier.size(8.dp))
-                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                    if (bagScreenState.btnRemoveState.visible) {
-                        Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                            AccentTextButton(
-                                onClick = {
-                                    onClickRemove.invoke()
-                                },
-                                label = stringResource(R.string.remove),
-                                buttonState = bagScreenState.btnRemoveState
-                            )
-                        }
-                    }
-
-                    AccentTextButton(
-                        onClick = {
-                            onClickRemoveSelected.invoke()
-                        },
-                        label = stringResource(R.string.remove_selected),
-                        buttonState = bagScreenState.btnRemoveSelectedState
-                    )
-
-                    AccentTextButton(
-                        onClick = {
-                            onClickCancel.invoke()
-                        },
-                        label = stringResource(R.string.cancel),
-                        buttonState = bagScreenState.btnCancelState
-                    )
-                }
-
-                BagSummaryCard(bagScreenState.bagItems, onClickLineItem = onClickLineItem, isRemoving = bagScreenState.isRemoving, onCheckChanged = onCheckChanged)
-                Spacer(modifier = Modifier.size(24.dp))
-                DeliveryOptionToggle(bagScreenState.isPickupSelected, onClickPickup = onClickPickup, onClickDelivery = onClickDelivery)
-                Spacer(modifier = Modifier.size(16.dp))
-
-                if (bagScreenState.isPickupSelected) {
-                    MapCard(latLng = bagScreenState.restaurantPosition, bagScreenState.venueAddress)
-                } else {
-                    DeliveryAddressCard(deliveryAddress = bagScreenState.deliveryAddress) {
-                        scope.launch {
-                            modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.size(24.dp))
-                OrderPriceBreakdown(bagScreenState.subtotal, bagScreenState.tax, bagScreenState.total)
             }
+            else if (bagScreenState.isBagEmpty) {
+                EmptyBag(onClickBrowseRestaurants)
+            } else {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
 
+                    Spacer(modifier = Modifier.size(16.dp))
+                    if (bagScreenState.venueName != null) {
+                        TypeScaledTextView(label = stringResource(R.string.your_bag_from), typeScale = TypeScaleCategory.Subtitle2)
+                        TypeScaledTextView(label = bagScreenState.venueName, typeScale = TypeScaleCategory.H6)
+                    }
+
+                    OutlinedAccentButton(onClick = {
+                        bagScreenState.venueId?.let { onClickAddMoreItems.invoke(it) }
+                    }, label = stringResource(R.string.add_more_items))
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                        if (bagScreenState.btnRemoveState.visible) {
+                            Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                                AccentTextButton(
+                                    onClick = {
+                                        onClickRemove.invoke()
+                                    },
+                                    label = stringResource(R.string.remove),
+                                    buttonState = bagScreenState.btnRemoveState
+                                )
+                            }
+                        }
+
+                        AccentTextButton(
+                            onClick = {
+                                onClickRemoveSelected.invoke()
+                            },
+                            label = stringResource(R.string.remove_selected),
+                            buttonState = bagScreenState.btnRemoveSelectedState
+                        )
+
+                        AccentTextButton(
+                            onClick = {
+                                onClickCancel.invoke()
+                            },
+                            label = stringResource(R.string.cancel),
+                            buttonState = bagScreenState.btnCancelState
+                        )
+                    }
+
+                    BagSummaryCard(bagScreenState.bagItems, onClickLineItem = onClickLineItem, isRemoving = bagScreenState.isRemoving, onCheckChanged = onCheckChanged)
+                    Spacer(modifier = Modifier.size(24.dp))
+                    DeliveryOptionToggle(bagScreenState.isPickupSelected, onClickPickup = onClickPickup, onClickDelivery = onClickDelivery)
+                    Spacer(modifier = Modifier.size(16.dp))
+
+                    if (bagScreenState.isPickupSelected) {
+                        MapCard(latLng = bagScreenState.restaurantPosition, bagScreenState.venueAddress)
+                    } else {
+                        DeliveryAddressCard(deliveryAddress = bagScreenState.deliveryAddress) {
+                            scope.launch {
+                                modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.size(24.dp))
+                    OrderPriceBreakdown(bagScreenState.subtotal, bagScreenState.tax, bagScreenState.total)
+                }
+            }
             Dialog(bagScreenState.alertDialog)
         }
     }
@@ -338,6 +350,18 @@ fun MapCard(latLng: LatLng, address: String) {
 }
 
 @Composable
+fun EmptyBag(onClickBrowseRestaurants: () -> Unit) {
+    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+        Image(painter = painterResource(id = R.drawable.online_order), contentDescription = "", modifier = Modifier.size(250.dp))
+        Spacer(modifier = Modifier.size(16.dp))
+        TypeScaledTextView(label = "Your bag is empty", typeScale = TypeScaleCategory.Subtitle1)
+        Spacer(modifier = Modifier.size(8.dp))
+        OutlinedAccentButton(onClick = { onClickBrowseRestaurants.invoke()}, label = "Browse restaurants")
+    }
+
+}
+
+@Composable
 fun DeliveryAddressCard(deliveryAddress: String?, onClickAddEditAddress: () -> Unit) {
     Card(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp, start = 16.dp)) {
@@ -352,7 +376,11 @@ fun DeliveryAddressCard(deliveryAddress: String?, onClickAddEditAddress: () -> U
                         TypeScaledTextView(label = stringResource(id = R.string.delivering_to), color = TextColor.LightTextColor)
                         TypeScaledTextView(label = deliveryAddress, color = TextColor.DarkTextColor)
                     }
-                    Row(modifier = Modifier.weight(3f).fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    Row(
+                        modifier = Modifier
+                            .weight(3f)
+                            .fillMaxWidth(), horizontalArrangement = Arrangement.End
+                    ) {
                         AccentTextButton(onClick = { onClickAddEditAddress.invoke() }, label = stringResource(R.string.edit))
                     }
                 }

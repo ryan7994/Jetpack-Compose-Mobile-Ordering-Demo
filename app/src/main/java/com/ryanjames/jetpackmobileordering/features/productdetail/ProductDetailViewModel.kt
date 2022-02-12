@@ -11,6 +11,7 @@ import com.ryanjames.jetpackmobileordering.core.StringResource
 import com.ryanjames.jetpackmobileordering.domain.BagLineItem
 import com.ryanjames.jetpackmobileordering.domain.LineItem
 import com.ryanjames.jetpackmobileordering.domain.Product
+import com.ryanjames.jetpackmobileordering.network.model.Event
 import com.ryanjames.jetpackmobileordering.repository.AbsMenuRepository
 import com.ryanjames.jetpackmobileordering.repository.AbsOrderRepository
 import com.ryanjames.jetpackmobileordering.repository.AbsVenueRepository
@@ -38,7 +39,7 @@ class ProductDetailViewModel @Inject constructor(
     private val _productDetailScreenState = MutableStateFlow(ProductDetailScreenState())
     val productDetailScreenState = _productDetailScreenState.asStateFlow()
 
-    private val _onSuccessfulAddOrUpdate = MutableStateFlow(false)
+    private val _onSuccessfulAddOrUpdate = MutableStateFlow(Event(false))
     val onSuccessfulAddOrUpdate = _onSuccessfulAddOrUpdate.asStateFlow()
 
     private val rowDataHolders = mutableListOf<ProductDetailRowData>()
@@ -137,7 +138,7 @@ class ProductDetailViewModel @Inject constructor(
                 _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = LoadingDialogState(StringResource(loadingDialogLabel)))
             } else if (it is Resource.Success) {
                 _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = null)
-                _onSuccessfulAddOrUpdate.value = true
+                _onSuccessfulAddOrUpdate.value = Event(true)
             }
         }
     }

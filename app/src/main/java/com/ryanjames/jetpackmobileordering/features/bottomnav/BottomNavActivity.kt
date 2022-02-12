@@ -31,6 +31,7 @@ import com.ryanjames.jetpackmobileordering.features.productdetail.ProductDetailS
 import com.ryanjames.jetpackmobileordering.features.venuedetail.VenueDetailScreen
 import com.ryanjames.jetpackmobileordering.ui.core.CustomSnackbar
 import com.ryanjames.jetpackmobileordering.ui.screens.HomeScreen
+import com.ryanjames.jetpackmobileordering.ui.screens.LoginScreen
 import com.ryanjames.jetpackmobileordering.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -64,7 +65,7 @@ class BottomNavActivity : ComponentActivity() {
     fun BottomNavScreen() {
 
         val navController = rememberNavController()
-        val bottomNavTabs = listOf(BottomNavTabs.BrowseTab, BottomNavTabs.BagTab)
+        val bottomNavTabs = listOf(BottomNavTabs.BrowseTab, BottomNavTabs.MapTab, BottomNavTabs.BagTab)
 
         val scaffoldState = rememberScaffoldState()
         val coroutineScope = rememberCoroutineScope()
@@ -105,6 +106,10 @@ class BottomNavActivity : ComponentActivity() {
                     },
                     onClickLineItem = { lineItemId ->
                         navController.navigate(BottomNavScreens.ProductDetailFromBag.routeWithArgs(lineItemId = lineItemId))
+                    },
+                    onClickBrowseRestaurants = {
+                        navController.navigateToAnotherTab(BottomNavTabs.BrowseTab, BottomNavScreens.Home.route)
+
                     })
             }
 
@@ -112,7 +117,9 @@ class BottomNavActivity : ComponentActivity() {
                 BottomNavScreens.ProductDetailFromBag.route,
                 arguments = BottomNavScreens.ProductDetailFromBag.navArguments()
             ) {
-                NavigateToProductDetailScreen(navController = navController)
+                NavigateToProductDetailScreen(navController = navController) {
+                    navController.popBackStack(BottomNavScreens.Bag.route, false)
+                }
             }
 
             composable(BottomNavScreens.VenueDetailFromBag.route) { backStackEntry ->
@@ -140,11 +147,21 @@ class BottomNavActivity : ComponentActivity() {
 
     @ExperimentalMaterialApi
     @Composable
-    private fun NavigateToProductDetailScreen(navController: NavController) {
+    private fun NavigateToProductDetailScreen(navController: NavController, onSuccessfulAddOrUpdate: () -> Unit) {
         ProductDetailScreen(viewModel = hiltViewModel(),
             onSuccessfulAddOrUpdate = {
-                navController.popBackStack()
+                onSuccessfulAddOrUpdate.invoke()
+                // navController.popBackStack()
             })
+    }
+
+    @ExperimentalMaterialApi
+    fun NavGraphBuilder.mapGraph(navController: NavController) {
+        navigation(startDestination = BottomNavScreens.Map.route, route = BottomNavTabs.MapTab.tabRoute) {
+            composable(BottomNavScreens.Map.route) {
+                LoginScreen(loginViewModel = hiltViewModel())
+            }
+        }
     }
 
     @ExperimentalMaterialApi
@@ -166,8 +183,26 @@ class BottomNavActivity : ComponentActivity() {
             }
 
             composable(BottomNavScreens.ProductDetailModal.route) {
-                NavigateToProductDetailScreen(navController = navController)
+                NavigateToProductDetailScreen(navController = navController) {
+                    navController.popBackStack(BottomNavScreens.VenueDetail.route, false)
+                }
             }
+        }
+    }
+
+    private fun NavController.navigateToAnotherTab(tab: BottomNavTabs, popUpToRoute: String? = null) {
+        navigate(tab.tabRoute) {
+            val id = graph.findStartDestination().id
+
+            popUpTo(id) {
+                saveState = true
+            }
+
+            launchSingleTop = true
+            restoreState = true
+        }
+        if (popUpToRoute != null) {
+            this.popBackStack(popUpToRoute, false, false)
         }
     }
 
@@ -187,17 +222,10 @@ class BottomNavActivity : ComponentActivity() {
                     selectedContentColor = CoralRed,
                     unselectedContentColor = AppTheme.colors.darkTextColor,
                     onClick = {
-                        navController.navigate(tab.tabRoute) {
-                            val id = navController.graph.findStartDestination().id
-
-                            popUpTo(id) {
-                                saveState = true
-                            }
-
-                            launchSingleTop = true
-                            restoreState = true
+                        val currentTabRoute = backStackEntry?.destination?.parent?.route
+                        if (tab.tabRoute != currentTabRoute) {
+                            navController.navigateToAnotherTab(tab)
                         }
-
                     },
                     label = {
                         Text(
@@ -229,6 +257,7 @@ class BottomNavActivity : ComponentActivity() {
         NavHost(navController, startDestination = BottomNavTabs.BrowseTab.tabRoute) {
             this.browseGraph(navController = navController)
             this.bagGraph(navController = navController)
+            this.mapGraph(navController = navController)
         }
 
     }

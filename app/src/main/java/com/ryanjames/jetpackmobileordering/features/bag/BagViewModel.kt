@@ -33,7 +33,7 @@ class BagViewModel @Inject constructor(
             btnCancelState = ButtonState(true, false),
             btnRemoveSelectedState = ButtonState(false, false),
             isRemoving = false,
-            alertDialog = null,
+            alertDialog = null
         )
     )
     val bagScreenState: StateFlow<BagScreenState>
@@ -43,9 +43,9 @@ class BagViewModel @Inject constructor(
     val onItemRemoval = _onItemRemoval.asStateFlow()
 
     init {
+
         viewModelScope.launch {
             awaitAll(
-                async { orderRepository.retrieveCurrentOrder().collect { } },
                 async { collectCurrentVenueId() },
                 async { collectCurrentBagSummary() },
                 async { getDeliveryAddress() })
@@ -64,9 +64,9 @@ class BagViewModel @Inject constructor(
     }
 
     private suspend fun getDeliveryAddress() {
-        _bagItemScreenState.value = _bagItemScreenState.value.copy(deliveryAddressInput = orderRepository.getDeliveryAddressFlow().first() ?: "")
+        _bagItemScreenState.update { it.copy(deliveryAddressInput = orderRepository.getDeliveryAddressFlow().first() ?: "") }
         orderRepository.getDeliveryAddressFlow().collect { deliveryAddress ->
-            _bagItemScreenState.value = _bagItemScreenState.value.copy(deliveryAddress = deliveryAddress)
+            _bagItemScreenState.update { it.copy(deliveryAddress = deliveryAddress) }
         }
     }
 
@@ -76,26 +76,34 @@ class BagViewModel @Inject constructor(
         }.collect {
             if (it is Resource.Success) {
                 val venue = it.data ?: return@collect
-                _bagItemScreenState.value = _bagItemScreenState.value.copy(
-                    venueId = venue.id,
-                    venueName = venue.name,
-                    restaurantPosition = LatLng(venue.lat.toDouble(), venue.long.toDouble()),
-                    venueAddress = venue.address ?: ""
-                )
+                _bagItemScreenState.update {
+                    it.copy(
+                        venueId = venue.id,
+                        venueName = venue.name,
+                        restaurantPosition = LatLng(venue.lat.toDouble(), venue.long.toDouble()),
+                        venueAddress = venue.address ?: ""
+                    )
+                }
             }
         }
     }
 
     private suspend fun collectCurrentBagSummary() {
         orderRepository.getBagSummaryFlow().collect { bagSummary ->
-            if (bagSummary != null) {
+            if (bagSummary != null && bagSummary.lineItems.isNotEmpty()) {
                 val items = bagSummary.lineItems.map { it.toDisplayModel() }
-                _bagItemScreenState.value = _bagItemScreenState.value.copy(
-                    bagItems = items,
-                    subtotal = "$${bagSummary.subtotal().toTwoDigitString()}",
-                    total = "$${bagSummary.price.toTwoDigitString()}",
-                    tax = "$${bagSummary.tax().toTwoDigitString()}"
-                )
+                _bagItemScreenState.update {
+                    it.copy(
+                        bagItems = items,
+                        subtotal = "$${bagSummary.subtotal().toTwoDigitString()}",
+                        total = "$${bagSummary.price.toTwoDigitString()}",
+                        tax = "$${bagSummary.tax().toTwoDigitString()}",
+                        isBagEmpty = false,
+                        isLoading = false
+                    )
+                }
+            } else {
+                _bagItemScreenState.update { it.copy(isBagEmpty = true, isLoading = false) }
             }
         }
     }
@@ -109,7 +117,6 @@ class BagViewModel @Inject constructor(
         )
     }
 
-    @ExperimentalCoroutinesApi
     fun onClickRemoveSelected() {
         viewModelScope.launch {
             val venueId = venueRepository.getCurrentVenueId() ?: ""
