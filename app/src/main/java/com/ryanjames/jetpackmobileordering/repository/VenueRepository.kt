@@ -1,8 +1,10 @@
 package com.ryanjames.jetpackmobileordering.repository
 
 
+import com.ryanjames.jetpackmobileordering.core.Resource
 import com.ryanjames.jetpackmobileordering.db.AppDatabase
 import com.ryanjames.jetpackmobileordering.db.VenueEntityType
+import com.ryanjames.jetpackmobileordering.domain.Venue
 import com.ryanjames.jetpackmobileordering.network.MobilePosApi
 import com.ryanjames.jetpackmobileordering.network.networkBoundResource
 import com.ryanjames.jetpackmobileordering.ui.toDomain
@@ -44,4 +46,14 @@ class VenueRepository(
     override fun getCurrentVenueIdFlow(): Flow<String?> {
         return roomDb.globalDao().getGlobalValuesFlow().map { it?.currentVenue }
     }
+
+    override fun getAllVenues(): Flow<Resource<List<Venue>>> = networkBoundResource(
+        fetchFromApi = { mobilePosApi.getFeaturedVenues() },
+        queryDb = { roomDb.venueDao().getAllVenues() },
+        savetoDb = { },
+        shouldFetchFromApi = { databaseModel -> databaseModel.isEmpty() },
+        onFetchFailed = { },
+        mapToDomainModel = { dbList ->
+            dbList.map { it.toDomain() }
+        })
 }

@@ -15,6 +15,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +33,7 @@ import com.ryanjames.jetpackmobileordering.features.bottomnav.LocalSnackbarHostS
 import com.ryanjames.jetpackmobileordering.ui.core.Dialog
 import com.ryanjames.jetpackmobileordering.ui.theme.*
 import com.ryanjames.jetpackmobileordering.ui.widget.DeliveryAddressBottomSheetLayout
+import com.ryanjames.jetpackmobileordering.util.getBitmapDescriptor
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -128,8 +130,7 @@ fun BagLayout(
 
             if (bagScreenState.isLoading) {
 
-            }
-            else if (bagScreenState.isBagEmpty) {
+            } else if (bagScreenState.isBagEmpty) {
                 EmptyBag(onClickBrowseRestaurants)
             } else {
                 Column(
@@ -329,6 +330,7 @@ fun MapCard(latLng: LatLng, address: String) {
                 )
             ) {
                 Marker(
+                    icon = getBitmapDescriptor(LocalContext.current, R.drawable.marker, 48.dp, 48.dp),
                     position = latLng,
                     title = ".",
                     onClick = {
@@ -356,7 +358,7 @@ fun EmptyBag(onClickBrowseRestaurants: () -> Unit) {
         Spacer(modifier = Modifier.size(16.dp))
         TypeScaledTextView(label = "Your bag is empty", typeScale = TypeScaleCategory.Subtitle1)
         Spacer(modifier = Modifier.size(8.dp))
-        OutlinedAccentButton(onClick = { onClickBrowseRestaurants.invoke()}, label = "Browse restaurants")
+        OutlinedAccentButton(onClick = { onClickBrowseRestaurants.invoke() }, label = "Browse restaurants")
     }
 
 }

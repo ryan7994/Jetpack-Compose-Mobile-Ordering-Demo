@@ -3,8 +3,10 @@ package com.ryanjames.jetpackmobileordering.features.login
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.lifecycleScope
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.ryanjames.jetpackmobileordering.core.BaseActivity
 import com.ryanjames.jetpackmobileordering.features.bottomnav.BottomNavActivity
 import com.ryanjames.jetpackmobileordering.ui.screens.LoginScreen
@@ -12,6 +14,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+@ExperimentalPagerApi
+@ExperimentalMaterialApi
 @AndroidEntryPoint
 class LoginActivity : BaseActivity() {
 

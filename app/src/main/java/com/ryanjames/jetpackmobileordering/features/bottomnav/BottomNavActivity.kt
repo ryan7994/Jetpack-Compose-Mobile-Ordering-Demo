@@ -25,20 +25,25 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.ryanjames.jetpackmobileordering.features.bag.BagScreen
 import com.ryanjames.jetpackmobileordering.features.productdetail.ProductDetailScreen
 import com.ryanjames.jetpackmobileordering.features.venuedetail.VenueDetailScreen
+import com.ryanjames.jetpackmobileordering.features.venuemapfinder.VenueFinderScreen
 import com.ryanjames.jetpackmobileordering.ui.core.CustomSnackbar
 import com.ryanjames.jetpackmobileordering.ui.screens.HomeScreen
-import com.ryanjames.jetpackmobileordering.ui.screens.LoginScreen
 import com.ryanjames.jetpackmobileordering.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
 
 val LocalSnackbarHostState = compositionLocalOf<SnackbarHostState> { error("No SnackbarHostState provided") }
 val LocalCoroutineScope = compositionLocalOf<CoroutineScope> { error("No coroutine scope provided") }
 
+@ExperimentalPagerApi
+@ExperimentalMaterialApi
+@FlowPreview
 @AndroidEntryPoint
 class BottomNavActivity : ComponentActivity() {
 
@@ -95,21 +100,20 @@ class BottomNavActivity : ComponentActivity() {
 
     }
 
-    @ExperimentalMaterialApi
     fun NavGraphBuilder.bagGraph(navController: NavController) {
 
         navigation(startDestination = BottomNavScreens.Bag.route, route = BottomNavTabs.BagTab.tabRoute) {
             composable(BottomNavScreens.Bag.route) {
                 BagScreen(hiltViewModel(),
                     onClickAddMoreItems = { venueId ->
-                        navController.navigate(BottomNavScreens.VenueDetailFromBag.routeWithArgs(venueId))
+                        navController.navigateToAnotherTab(BottomNavTabs.BrowseTab, BottomNavScreens.Home.route)
+                        navController.navigate(BottomNavScreens.VenueDetail.routeWithArgs(venueId))
                     },
                     onClickLineItem = { lineItemId ->
                         navController.navigate(BottomNavScreens.ProductDetailFromBag.routeWithArgs(lineItemId = lineItemId))
                     },
                     onClickBrowseRestaurants = {
                         navController.navigateToAnotherTab(BottomNavTabs.BrowseTab, BottomNavScreens.Home.route)
-
                     })
             }
 
@@ -120,16 +124,6 @@ class BottomNavActivity : ComponentActivity() {
                 NavigateToProductDetailScreen(navController = navController) {
                     navController.popBackStack(BottomNavScreens.Bag.route, false)
                 }
-            }
-
-            composable(BottomNavScreens.VenueDetailFromBag.route) { backStackEntry ->
-                VenueDetailScreen(
-                    onClickMenuItemCard = { productId, venueId ->
-                        navController.navigate(BottomNavScreens.ProductDetailFromBag.routeWithArgs(productId, venueId))
-                    },
-                    venueDetailViewModel = hiltViewModel(),
-                    onClickUpBtn = { navController.popBackStack() }
-                )
             }
         }
     }
@@ -145,26 +139,25 @@ class BottomNavActivity : ComponentActivity() {
         )
     }
 
-    @ExperimentalMaterialApi
     @Composable
     private fun NavigateToProductDetailScreen(navController: NavController, onSuccessfulAddOrUpdate: () -> Unit) {
         ProductDetailScreen(viewModel = hiltViewModel(),
             onSuccessfulAddOrUpdate = {
                 onSuccessfulAddOrUpdate.invoke()
-                // navController.popBackStack()
             })
     }
 
-    @ExperimentalMaterialApi
     fun NavGraphBuilder.mapGraph(navController: NavController) {
-        navigation(startDestination = BottomNavScreens.Map.route, route = BottomNavTabs.MapTab.tabRoute) {
-            composable(BottomNavScreens.Map.route) {
-                LoginScreen(loginViewModel = hiltViewModel())
+        navigation(startDestination = BottomNavScreens.VenueFinder.route, route = BottomNavTabs.MapTab.tabRoute) {
+            composable(BottomNavScreens.VenueFinder.route) {
+                VenueFinderScreen(hiltViewModel()) { venueId ->
+                    navController.navigateToAnotherTab(BottomNavTabs.BrowseTab, BottomNavScreens.Home.route)
+                    navController.navigate(BottomNavScreens.VenueDetail.routeWithArgs(venueId))
+                }
             }
         }
     }
 
-    @ExperimentalMaterialApi
     fun NavGraphBuilder.browseGraph(
         navController: NavController,
     ) {
@@ -246,9 +239,7 @@ class BottomNavActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(
-        ExperimentalMaterialApi::class,
-    )
+
     @Composable
     private fun BottomNavScreenNavigationConfig(
         navController: NavHostController
