@@ -1,27 +1,27 @@
 package com.ryanjames.jetpackmobileordering.ui.theme
 
-import android.util.Log
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.collectIsDraggedAsState
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
@@ -30,10 +30,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
-import kotlinx.coroutines.flow.collect
+import com.ryanjames.jetpackmobileordering.features.bag.ButtonState
 import kotlinx.coroutines.launch
-import kotlin.math.max
 
 @Composable
 fun TypeScaledTextView(
@@ -92,33 +90,36 @@ fun SingleLineTextField(
     onValueChange: (String) -> Unit,
     hintText: String,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions(),
+    keyboardActions: KeyboardActions? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
-    OutlinedTextField(
-        shape = RoundedCornerShape(16.dp),
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            focusedBorderColor = CoralRed,
-            unfocusedBorderColor = AppTheme.colors.darkTextColor,
-            cursorColor = CoralRed
-        ),
-        value = value,
-        onValueChange = onValueChange,
-        singleLine = true,
-        modifier = modifier
-            .fillMaxWidth(),
-        placeholder = {
-            Text(
-                text = hintText,
-                color = AppTheme.colors.hintTextColor,
-                fontFamily = FreeSans
-            )
-        },
-        keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
-        visualTransformation = visualTransformation,
-        textStyle = TextStyle(color = AppTheme.colors.darkTextColor)
-    )
+    val focusManager = LocalFocusManager.current
+        OutlinedTextField(
+            shape = RoundedCornerShape(16.dp),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = CoralRed,
+                unfocusedBorderColor = AppTheme.colors.darkTextColor,
+                cursorColor = CoralRed
+            ),
+            value = value,
+            onValueChange = onValueChange,
+            singleLine = true,
+            modifier = modifier
+                .fillMaxWidth(),
+            placeholder = {
+                Text(
+                    text = hintText,
+                    color = AppTheme.colors.hintTextColor,
+                    fontFamily = FreeSans
+                )
+            },
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions ?: KeyboardActions(onAny = { focusManager.clearFocus() }),
+            visualTransformation = visualTransformation,
+            textStyle = TextStyle(color = AppTheme.colors.darkTextColor)
+        )
+
+
 }
 
 @Composable
@@ -131,17 +132,59 @@ fun AccentButton(onClick: () -> Unit, label: String, modifier: Modifier = Modifi
         shape = RoundedCornerShape(8.dp)
     ) {
 
-        Text(
-            text = label,
-            fontFamily = FreeSans,
-            color = Color.White,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
+        Box(modifier = Modifier.padding(horizontal = 8.dp)) {
+            Text(
+                text = label,
+                fontFamily = FreeSans,
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = modifier
+            )
+        }
+
+    }
+}
+
+@Composable
+fun OutlinedAccentButton(onClick: () -> Unit, label: String, modifier: Modifier = Modifier) {
+
+    OutlinedButton(
+        onClick = onClick,
+        contentPadding = PaddingValues(horizontal = 8.dp),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(width = 2.dp, color = CoralRed),
+        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Transparent)
+    ) {
+
+        TypeScaledTextView(
+            label = label,
+            color = TextColor.DarkTextColor,
             textAlign = TextAlign.Center,
             modifier = modifier
         )
+    }
+}
 
+@Composable
+fun AccentTextButton(onClick: () -> Unit, label: String, modifier: Modifier = Modifier, buttonState: ButtonState? = ButtonState(true, true)) {
 
+    if (buttonState?.visible == true) {
+        TextButton(
+            onClick = onClick,
+            colors = ButtonDefaults.textButtonColors(),
+            enabled = buttonState.enabled
+        ) {
+
+            TypeScaledTextView(
+                label = label,
+                color = if (buttonState.enabled) TextColor.StaticColor(CoralRed) else TextColor.LightTextColor,
+                textAlign = TextAlign.Center,
+                modifier = modifier,
+                overrideFontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 
@@ -228,3 +271,35 @@ fun TextTabs(
         }
     }
 }
+
+@Composable
+fun HorizontalLine() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(AppTheme.colors.placeholderColor)
+    )
+}
+
+@Composable
+fun DashedHorizontalLine() {
+    val pathEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 10f), 0f)
+    Canvas(
+        Modifier.fillMaxWidth()
+
+    ) {
+        drawLine(
+            strokeWidth = 8f,
+            color = Color.LightGray,
+            start = Offset(0f, 0f),
+            end = Offset(size.width, 0f),
+            pathEffect = pathEffect
+        )
+    }
+}
+
+val customTextSelectionColors = TextSelectionColors(
+    handleColor = CoralRed,
+    backgroundColor = CoralRed.copy(alpha = 0.4f)
+)

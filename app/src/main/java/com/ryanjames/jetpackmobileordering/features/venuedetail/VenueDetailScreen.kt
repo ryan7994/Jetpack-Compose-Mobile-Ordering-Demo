@@ -35,12 +35,14 @@ import com.ryanjames.jetpackmobileordering.ui.widget.RestaurantHeader
 @Composable
 fun VenueDetailScreen(
     venueDetailViewModel: VenueDetailViewModel = hiltViewModel(),
-    onClickMenuItemCard: (productId: String, venueId: String) -> Unit = { _, _ -> }
+    onClickMenuItemCard: (productId: String, venueId: String) -> Unit = { _, _ -> },
+    onClickUpBtn: () -> Unit
 ) {
     val state = venueDetailViewModel.venueDetailScreenState.collectAsState()
     VenueDetailScreen(
         venueDetailScreenState = state.value,
-        onClickMenuItemCard = onClickMenuItemCard
+        onClickMenuItemCard = onClickMenuItemCard,
+        onClickUp = onClickUpBtn
     )
 }
 

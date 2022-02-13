@@ -8,5 +8,6 @@ data class GlobalEntity(
     @PrimaryKey()
     val id: Int,
     val currentOrderId: String?,
-    val currentVenue: String?
+    val currentVenue: String?,
+    val deliveryAddress: String?
 )

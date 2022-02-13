@@ -12,6 +12,10 @@ interface VenueDao {
     fun getHomeVenues(): Flow<List<VenueWithCategories>>
 
     @Transaction
+    @Query("SELECT * FROM VenueEntity")
+    fun getAllVenues(): Flow<List<VenueWithCategories>>
+
+    @Transaction
     @Query("SELECT  * FROM VenueEntity WHERE venueId= :id")
     fun getVenueById(id: String): Flow<VenueWithCategories?>
 

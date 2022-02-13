@@ -8,53 +8,70 @@ import com.ryanjames.jetpackmobileordering.R
 import com.ryanjames.jetpackmobileordering.TAG
 import com.ryanjames.jetpackmobileordering.core.Resource
 import com.ryanjames.jetpackmobileordering.core.StringResource
+import com.ryanjames.jetpackmobileordering.domain.BagLineItem
 import com.ryanjames.jetpackmobileordering.domain.LineItem
 import com.ryanjames.jetpackmobileordering.domain.Product
-import com.ryanjames.jetpackmobileordering.repository.MenuRepository
-import com.ryanjames.jetpackmobileordering.repository.OrderRepository
+import com.ryanjames.jetpackmobileordering.network.model.Event
+import com.ryanjames.jetpackmobileordering.repository.AbsMenuRepository
+import com.ryanjames.jetpackmobileordering.repository.AbsOrderRepository
+import com.ryanjames.jetpackmobileordering.repository.AbsVenueRepository
 import com.ryanjames.jetpackmobileordering.toTwoDigitString
 import com.ryanjames.jetpackmobileordering.ui.core.LoadingDialogState
+import com.ryanjames.jetpackmobileordering.ui.core.TwoButtonsDialogState
 import com.ryanjames.jetpackmobileordering.util.LineItemManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProductDetailViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    private val menuRepository: MenuRepository,
-    private val orderRepository: OrderRepository
+    private val savedStateHandle: SavedStateHandle,
+    private val menuRepository: AbsMenuRepository,
+    private val orderRepository: AbsOrderRepository,
+    private val venueRepository: AbsVenueRepository
 ) : ViewModel() {
 
-    private val _productDetailScreenState = MutableStateFlow(ProductDetailScreenState())
-    val productDetailScreenState: StateFlow<ProductDetailScreenState>
-        get() = _productDetailScreenState
+    private var isModifying = false
 
-    private val _onSuccessfulAddOrUpdate = MutableStateFlow(false)
-    val onSuccessfulAddOrUpdate: StateFlow<Boolean>
-        get() = _onSuccessfulAddOrUpdate
+    private val _productDetailScreenState = MutableStateFlow(ProductDetailScreenState())
+    val productDetailScreenState = _productDetailScreenState.asStateFlow()
+
+    private val _onSuccessfulAddOrUpdate = MutableStateFlow(Event(false))
+    val onSuccessfulAddOrUpdate = _onSuccessfulAddOrUpdate.asStateFlow()
 
     private val rowDataHolders = mutableListOf<ProductDetailRowData>()
     private var selectedModifierSummaryId: String = ""
     private var venueId = ""
+    private var lineItemId: String? = null
 
     private lateinit var lineItemManager: LineItemManager
 
     init {
-        Log.d(TAG, "Product Detail init()")
+        var bagLineItem: BagLineItem?
+        lineItemId = savedStateHandle.get<String>("lineItemId")
+        isModifying = lineItemId != null
 
-        val productId = savedStateHandle.get<String>("productId")
-        venueId = savedStateHandle.get<String>("venueId") ?: ""
+        val btnLabel = if (isModifying) R.string.update_item else R.string.add_to_bag
+        val addOrUpdateSuccessMessage = if (isModifying) R.string.item_updated else R.string.item_added
+        _productDetailScreenState.value = _productDetailScreenState.value.copy(
+            btnLabel = StringResource(btnLabel),
+            addOrUpdateSuccessMessage = StringResource(addOrUpdateSuccessMessage)
+        )
 
-        if (productId != null) {
-            viewModelScope.launch {
-                menuRepository.getProductById(productId).collect { resource ->
+        viewModelScope.launch {
+
+            bagLineItem = orderRepository.getLineItems().find { it.lineItemId == lineItemId }
+            val productId = savedStateHandle.get<String>("productId") ?: bagLineItem?.productId
+            venueId = savedStateHandle.get<String>("venueId") ?: venueRepository.getCurrentVenueId() ?: ""
+
+            productId?.let { id ->
+                menuRepository.getProductById(id).collect { resource ->
                     when (resource) {
                         is Resource.Success -> {
-                            setupLineItemManager(product = resource.data)
+                            setupLineItemManager(product = resource.data, bagLineItem)
                         }
                         is Resource.Error -> {
                             resource.throwable.printStackTrace()
@@ -89,14 +106,39 @@ class ProductDetailViewModel @Inject constructor(
 
     fun onClickAddToBag() {
         viewModelScope.launch {
-            orderRepository.addOrUpdateLineItem(lineItemManager.getLineItem(), venueId).collect {
-                if (it is Resource.Loading) {
-                    _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = LoadingDialogState(StringResource(R.string.adding_item_to_bag)))
-                } else if (it is Resource.Success) {
-                    _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = null)
-                    _onSuccessfulAddOrUpdate.value = true
-                }
 
+            val currentOrderVenueId = venueRepository.getCurrentVenueId()
+            if (currentOrderVenueId != null && currentOrderVenueId != venueId) {
+                val dialog = TwoButtonsDialogState(
+                    title = "You have other items from another restaurant.",
+                    message = "Adding this item will clear your bag and change the selected restaurant. Are you sure you want to proceed?",
+                    positiveButton = StringResource(R.string.yes),
+                    negativeButton = StringResource(R.string.no),
+                    onClickNegativeBtn = {
+                        _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = null)
+                    },
+                    onClickPositiveBtn = {
+                        viewModelScope.launch {
+                            orderRepository.clearBag()
+                            addOrUpdateLineItem()
+                        }
+                    }
+                )
+                _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = dialog)
+            } else {
+                addOrUpdateLineItem()
+            }
+        }
+    }
+
+    private suspend fun addOrUpdateLineItem() {
+        orderRepository.addOrUpdateLineItem(lineItemManager.getLineItem(), venueId).collect {
+            if (it is Resource.Loading) {
+                val loadingDialogLabel = if (isModifying) R.string.updating_item else R.string.adding_item_to_bag
+                _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = LoadingDialogState(StringResource(loadingDialogLabel)))
+            } else if (it is Resource.Success) {
+                _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = null)
+                _onSuccessfulAddOrUpdate.value = Event(true)
             }
         }
     }
@@ -132,10 +174,10 @@ class ProductDetailViewModel @Inject constructor(
         }
     }
 
-    private fun setupLineItemManager(product: Product) {
+    private fun setupLineItemManager(product: Product, bagLineItem: BagLineItem?) {
         lineItemManager = LineItemManager(product, listener = { lineItem ->
             updateData(product = product, lineItem)
-        }, bagLineItem = null)
+        }, bagLineItem = bagLineItem)
     }
 
     private fun updateData(product: Product, lineItem: LineItem) {

@@ -14,9 +14,9 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -24,34 +24,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ryanjames.jetpackmobileordering.R
 import com.ryanjames.jetpackmobileordering.features.login.LoginFormField
-import com.ryanjames.jetpackmobileordering.features.login.LoginViewModel
 import com.ryanjames.jetpackmobileordering.features.login.LoginScreenState
+import com.ryanjames.jetpackmobileordering.features.login.LoginViewModel
 import com.ryanjames.jetpackmobileordering.ui.core.Dialog
 import com.ryanjames.jetpackmobileordering.ui.theme.*
 
 @Composable
 fun LoginScreen(loginViewModel: LoginViewModel) {
     val state = loginViewModel.loginScreenState.collectAsState()
-    LoginScreenSurface(
+    LoginScreenLayout(
         loginScreenState = state.value,
         onValueChange = loginViewModel::onValueChange,
         onClickSignIn = loginViewModel::onClickSignIn
     )
 }
 
-@Composable
-fun LoginScreen(loginViewModel: LoginViewModel, onClick : () -> Unit) {
-    val state = loginViewModel.loginScreenState.collectAsState()
-    LoginScreenSurface(
-        loginScreenState = state.value,
-        onValueChange = loginViewModel::onValueChange,
-        onClickSignIn = onClick
-    )
-}
-
 
 @Composable
-fun LoginScreenSurface(
+fun LoginScreenLayout(
     loginScreenState: LoginScreenState,
     onValueChange: (String, LoginFormField) -> Unit = { _, _ -> },
     onClickSignIn: () -> Unit = {}
@@ -81,7 +71,7 @@ fun LoginScreenSurface(
                 )
                 Spacer(modifier = Modifier.size(16.dp))
                 TypeScaledTextView(
-                    label = "Let's get started.",
+                    label = stringResource(R.string.lets_get_started),
                     modifier = Modifier.align(CenterHorizontally),
                     typeScale = TypeScaleCategory.H3
                 )
@@ -89,7 +79,7 @@ fun LoginScreenSurface(
                 SingleLineTextField(
                     value = loginScreenState.username,
                     onValueChange = { onValueChange.invoke(it, LoginFormField.Username) },
-                    hintText = "Username",
+                    hintText = stringResource(R.string.username),
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Next,
                         autoCorrect = false
@@ -100,7 +90,7 @@ fun LoginScreenSurface(
                 SingleLineTextField(
                     value = loginScreenState.password,
                     onValueChange = { onValueChange.invoke(it, LoginFormField.Password) },
-                    hintText = "Password",
+                    hintText = stringResource(R.string.password),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done,
@@ -112,16 +102,16 @@ fun LoginScreenSurface(
                 Spacer(modifier = Modifier.size(32.dp))
                 FullWidthButton(
                     onClick = { onClickSignIn.invoke() },
-                    label = "Sign In"
+                    label = stringResource(R.string.sign_in)
                 )
                 Spacer(modifier = Modifier.size(16.dp))
                 TypeScaledTextView(
-                    label = "Mobile Ordering Demo",
+                    label = stringResource(R.string.mobile_ordering_demo),
                     color = TextColor.LightTextColor,
                     typeScale = TypeScaleCategory.Subtitle1
                 )
                 TypeScaledTextView(
-                    label = "Using Jetpack Compose",
+                    label = stringResource(R.string.using_jetpack_compose),
                     color = TextColor.LightTextColor,
                     typeScale = TypeScaleCategory.Subtitle1
                 )
@@ -138,13 +128,13 @@ fun LoginScreenSurface(
 @Preview
 @Composable
 fun PreviewLoginScreen() {
-    LoginScreenSurface(LoginScreenState())
+    LoginScreenLayout(LoginScreenState())
 }
 
 @Preview
 @Composable
 fun PreviewLoginScreenDarkMode() {
     MyComposeAppTheme(darkTheme = true) {
-        LoginScreenSurface(LoginScreenState())
+        LoginScreenLayout(LoginScreenState())
     }
 }

@@ -1,44 +1,67 @@
 package com.ryanjames.jetpackmobileordering.features.bottomnav
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NavType
+import androidx.navigation.compose.NamedNavArgument
+import androidx.navigation.compose.navArgument
 import com.ryanjames.jetpackmobileordering.R
 
-private const val ROUTE_BROWSE_TAB = "HomeTab"
-private const val ROUTE_ORDER_TAB = "OrderTab"
-private const val ROUTE_BAG_TAB = "BagTab"
+private const val TAB_ROUTE_BROWSE = "tabBrowse"
+private const val TAB_ROUTE_BAG = "tabBag"
+private const val TAB_ROUTE_MAP = "tabMap"
+private const val SCREEN_ROUTE_VENUE_DETAIL = "venueDetail"
+private const val SCREEN_ROUTE_PRODUCT_DETAIL = "productDetail"
+private const val SCREEN_ROUTE_PRODUCT_DETAIL_FROM_BAG = "productDetailFromBag"
+private const val SCREEN_ROUTE_HOME = "screenHome"
+private const val SCREEN_ROUTE_BAG = "screenBag"
+private const val SCREEN_ROUTE_MAP = "screenVenueFinder"
 
-private val VENUE_DETAIL_ROUTE = "venueDetail"
-private val PRODUCT_DETAIL_ROUTE = "productDetail"
+sealed class BottomNavTabs(open val tabRoute: String, val labelResId: Int = -1, val icon: ImageVector? = null, val drawableId: Int? = null) {
+    object BrowseTab : BottomNavTabs(TAB_ROUTE_BROWSE, R.string.bottom_nav_browse, drawableId = R.drawable.search)
+    object BagTab : BottomNavTabs(TAB_ROUTE_BAG, R.string.bottom_nav_bag, drawableId = R.drawable.shopping_bag_svgrepo_com)
+    object MapTab : BottomNavTabs(TAB_ROUTE_MAP, R.string.map, drawableId = R.drawable.map)
+}
 
-sealed class BottomNavScreen(open val route: String, val rootTab: String, val labelResId: Int = -1, val icon: ImageVector? = null) {
-    object Home : BottomNavScreen("Home", ROUTE_BROWSE_TAB, R.string.bottom_nav_browse, Icons.Default.ArrowBack)
-    object Login : BottomNavScreen("Login", ROUTE_ORDER_TAB, R.string.bottom_nav_bag, Icons.Default.ThumbUp)
-    object Random : BottomNavScreen("Random", ROUTE_BAG_TAB, R.string.bottom_nav_order, Icons.Default.Lock)
+sealed class BottomNavScreens(open val route: String) {
+    object Home : BottomNavScreens(SCREEN_ROUTE_HOME)
+    object Bag : BottomNavScreens(SCREEN_ROUTE_BAG)
 
-    object VenueDetail : BottomNavScreen("$VENUE_DETAIL_ROUTE/{venueId}", ROUTE_BROWSE_TAB) {
-        fun routeWithArgs(venueId: String): String {
-            return "$VENUE_DETAIL_ROUTE/$venueId"
+    object VenueDetail : BottomNavScreens("$SCREEN_ROUTE_VENUE_DETAIL/{venueId}") {
+        fun routeWithArgs(venueId: String, rootTab: String? = null): String {
+            return "$SCREEN_ROUTE_VENUE_DETAIL/$venueId"
         }
     }
 
-    object ProductDetailModal : BottomNavScreen("$PRODUCT_DETAIL_ROUTE/{productId}/{venueId}", ROUTE_BROWSE_TAB) {
+    object VenueFinder: BottomNavScreens(SCREEN_ROUTE_MAP)
+
+
+    object ProductDetailModal : BottomNavScreens("$SCREEN_ROUTE_PRODUCT_DETAIL/{productId}/{venueId}") {
         fun routeWithArgs(productId: String, venueId: String): String {
-            return "$PRODUCT_DETAIL_ROUTE/$productId/$venueId"
+            return "$SCREEN_ROUTE_PRODUCT_DETAIL/$productId/$venueId"
         }
     }
 
-    object VenueDetail2 : BottomNavScreen("Venue Detail2", ROUTE_ORDER_TAB)
+    object ProductDetailFromBag : BottomNavScreens("$SCREEN_ROUTE_PRODUCT_DETAIL_FROM_BAG?productId={productId}&venueId={venueId}&lineItemId={lineItemId}") {
 
-    companion object {
-        fun getTabRoute(route: String): String {
-            return BottomNavScreen::class.sealedSubclasses
-                .firstOrNull { it.objectInstance?.route == route }
-                ?.objectInstance
-                ?.rootTab ?: ""
+        fun routeWithArgs(lineItemId: String): String {
+            return "$SCREEN_ROUTE_PRODUCT_DETAIL_FROM_BAG?lineItemId=$lineItemId"
+        }
+
+        fun navArguments(): List<NamedNavArgument> {
+            return listOf(
+                navArgument("productId") {
+                    nullable = true
+                    defaultValue = null
+                    type = NavType.StringType
+                }, navArgument("venueId") {
+                    nullable = true
+                    defaultValue = null
+                    type = NavType.StringType
+                }, navArgument("lineItemId") {
+                    nullable = true
+                    defaultValue = null
+                    type = NavType.StringType
+                })
         }
     }
 }

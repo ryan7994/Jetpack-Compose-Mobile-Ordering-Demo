@@ -8,8 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.ryanjames.jetpackmobileordering.TAG
 import com.ryanjames.jetpackmobileordering.core.Resource
 import com.ryanjames.jetpackmobileordering.domain.EmptyVenue
-import com.ryanjames.jetpackmobileordering.repository.MenuRepository
-import com.ryanjames.jetpackmobileordering.repository.VenueRepository
+import com.ryanjames.jetpackmobileordering.repository.AbsMenuRepository
+import com.ryanjames.jetpackmobileordering.repository.AbsVenueRepository
 import com.ryanjames.jetpackmobileordering.ui.toCategoryViewStateList
 import com.ryanjames.jetpackmobileordering.ui.toRestaurantHeaderState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,8 +23,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VenueDetailViewModel @Inject constructor(
-    private val venueRepository: VenueRepository,
-    private val menuRepository: MenuRepository,
+    private val venueRepository: AbsVenueRepository,
+    private val menuRepository: AbsMenuRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -75,8 +75,6 @@ class VenueDetailViewModel @Inject constructor(
                             resource.throwable.printStackTrace()
                             _venueDetailScreenState.value = _venueDetailScreenState.value.copy(menuCategoriesResource = Resource.Error(resource.throwable))
                         }
-
-
                     }
                 })
             }

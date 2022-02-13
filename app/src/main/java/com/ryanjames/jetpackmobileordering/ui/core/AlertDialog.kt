@@ -35,7 +35,7 @@ fun Dialog(alertDialogState: AlertDialogState?) {
                 ) {
                     CircularProgressIndicator(color = CoralRed)
                     Spacer(modifier = Modifier.size(16.dp))
-                    TypeScaledTextView(label = stringResource(id =  alertDialogState.loadingText.id), typeScale = TypeScaleCategory.Subtitle1)
+                    TypeScaledTextView(label = stringResource(id = alertDialogState.loadingText.id), typeScale = TypeScaleCategory.Subtitle1)
                 }
             }
 
@@ -55,13 +55,30 @@ fun Dialog(alertDialogState: AlertDialogState?) {
         },
         buttons = {
             Column {
-                Row(modifier = Modifier
-                    .padding(end = 16.dp)
-                    .fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                Row(
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .fillMaxWidth(), horizontalArrangement = Arrangement.End
+                ) {
 
-                    AccentButton(onClick = {
-                        alertDialogState.dismissDialog()
-                    }, label = "OK")
+                    if (alertDialogState is TwoButtonsDialogState) {
+
+                        AccentButton(onClick = {
+                            alertDialogState.onClickNegativeBtn.invoke()
+                        }, label = stringResource(alertDialogState.negativeButton.id))
+
+                        Spacer(modifier = Modifier.size(8.dp))
+
+                        AccentButton(onClick = {
+                            alertDialogState.onClickPositiveBtn.invoke()
+                        }, label = stringResource(alertDialogState.positiveButton.id))
+
+
+                    } else {
+                        AccentButton(onClick = {
+                            alertDialogState.dismissDialog()
+                        }, label = "OK")
+                    }
                 }
 
 
@@ -84,6 +101,15 @@ open class AlertDialogState(
     }
 
 }
+
+class TwoButtonsDialogState(
+    title: String,
+    message: String,
+    val positiveButton: StringResource,
+    val negativeButton: StringResource,
+    val onClickPositiveBtn: () -> Unit,
+    val onClickNegativeBtn: () -> Unit
+) : AlertDialogState(title, message)
 
 class LoadingDialogState(
     val loadingText: StringResource = StringResource(R.string.please_wait)

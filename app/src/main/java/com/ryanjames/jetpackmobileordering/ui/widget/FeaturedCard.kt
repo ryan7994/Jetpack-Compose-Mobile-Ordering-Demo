@@ -69,7 +69,7 @@ fun FeaturedRestaurantCard(
     Card(
         shape = RoundedCornerShape(12.dp),
         elevation = 4.dp,
-        modifier = modifier
+        modifier = modifier,
     ) {
         ConstraintLayout(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             val (btnHeart, tvName, tvSubtitle, tvPrice, divider, rating, deliveryTime) = createRefs()

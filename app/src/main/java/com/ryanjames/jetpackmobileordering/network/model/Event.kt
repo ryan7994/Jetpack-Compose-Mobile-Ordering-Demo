@@ -1,7 +1,7 @@
 package com.ryanjames.jetpackmobileordering.network.model
 
 /**
- * Used as a wrapper for data that is exposed via a LiveData that represents an event.
+ * Used as a wrapper for data that is exposed via a LiveData / State Flow that represents an event.
  */
 open class Event<out T>(private val content: T) {
 
@@ -29,6 +29,13 @@ open class Event<out T>(private val content: T) {
      * Accepts a functional block and only executes it on first invocation of handleEvent() function
      */
     fun handleEvent(block: (T) -> Unit) {
+        if (!hasBeenHandled) {
+            hasBeenHandled = true
+            block.invoke(content)
+        }
+    }
+
+    suspend fun handleSuspendingEvent(block: suspend (T) -> Unit) {
         if (!hasBeenHandled) {
             hasBeenHandled = true
             block.invoke(content)

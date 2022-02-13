@@ -1,6 +1,7 @@
 package com.ryanjames.jetpackmobileordering.domain
 
 import android.os.Parcelable
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -20,3 +21,7 @@ data class Venue(
 ) : Parcelable
 
 val EmptyVenue = Venue("", "", null, 0f, 0f, 0f, 0, 0, 0, "", listOf(), null)
+
+fun Venue.getLatLng(): LatLng {
+    return LatLng(lat.toDouble(), long.toDouble())
+}

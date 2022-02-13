@@ -6,6 +6,7 @@ import com.ryanjames.jetpackmobileordering.db.VenueEntityType
 import com.ryanjames.jetpackmobileordering.db.VenueWithCategories
 import com.ryanjames.jetpackmobileordering.db.model.*
 import com.ryanjames.jetpackmobileordering.domain.*
+import com.ryanjames.jetpackmobileordering.features.bag.BagItemRowDisplayModel
 import com.ryanjames.jetpackmobileordering.features.home.FeaturedRestaurantCardState
 import com.ryanjames.jetpackmobileordering.features.home.RestaurantCardState
 import com.ryanjames.jetpackmobileordering.features.venuedetail.CategoryViewState
@@ -222,7 +223,7 @@ private fun String?.toModifierGroupAction(): ModifierGroupAction {
     }
 }
 
-fun LineItemWithProducts.toLineItemRequest(): LineItemRequestBody {
+fun LineItemEntityWithProducts.toLineItemRequest(): LineItemRequestBody {
     val productInOrderRequestList = mutableListOf<ProductInOrderRequestBody>()
 
     // Base Product
@@ -368,7 +369,8 @@ fun GetOrderProductResponse.toEntity(lineItemId: String): LineItemProductEntity 
         productItemId = productItemId,
         productId = productId,
         productGroupId = productGroupId,
-        lineItemId = lineItemId
+        lineItemId = lineItemId,
+        productName = productName
     )
 }
 
@@ -376,13 +378,14 @@ fun GetOrderModifierResponse.toEntity(modifierGroupId: String): LineItemModifier
     return LineItemModifierInfoEntity(
         id = UUID.randomUUID().toString(),
         modifierId = modifierId,
-        modifierGroupId = modifierGroupId
+        modifierGroupId = modifierGroupId,
+        modifierName = modifierName
     )
 }
 
-fun GetOrderModifierSelectionResponse.toEntity(productItemId: String): LineItemModifierGroupWithModifiers {
+fun GetOrderModifierSelectionResponse.toEntity(productItemId: String): LineItemModifierGroupEntityWithModifiers {
     val id = UUID.randomUUID().toString()
-    return LineItemModifierGroupWithModifiers(
+    return LineItemModifierGroupEntityWithModifiers(
         modifierGroup = LineItemModifierGroupEntity(
             id = id,
             modifierGroupId = this.modifierGroupId,
@@ -392,24 +395,32 @@ fun GetOrderModifierSelectionResponse.toEntity(productItemId: String): LineItemM
     )
 }
 
-fun GetOrderResponse.toEntity(): List<LineItemWithProducts> {
-    return this.lineItems.map { it.toEntity() }
+fun GetOrderResponse.toOrderEntity(): CurrentOrderEntityWithLineItems {
+    val bagSummary = this.toBagSummary()
+    return CurrentOrderEntityWithLineItems(
+        order = CurrentOrderEntity(orderId = orderId, subtotal = bagSummary.subtotal(), tax = bagSummary.tax(), total = bagSummary.price),
+        lineItems = this.lineItems.map { it.toEntity() }
+    )
 }
 
-fun GetOrderLineItemResponse.toEntity(): LineItemWithProducts {
+
+fun GetOrderLineItemResponse.toEntity(): LineItemEntityWithProducts {
     val lineItemEntity = LineItemEntity(
         lineItemId = lineItemId,
         productId = baseProduct,
         bundleId = bundleId,
-        quantity = quantity
+        quantity = quantity,
+        lineItemName = lineItemName,
+        price = price,
+        currentOrderId = 0
     )
     val productEntityList = products.map { productResponse ->
-        LineItemProductWithModifiers(
+        LineItemProductEntityWithModifiers(
             product = productResponse.toEntity(this.lineItemId),
             modifiers = productResponse.modifierSelections.map { it.toEntity(productResponse.productItemId) }
         )
     }
-    return LineItemWithProducts(
+    return LineItemEntityWithProducts(
         lineItem = lineItemEntity,
         products = productEntityList
     )
@@ -451,5 +462,54 @@ fun GetOrderLineItemResponse.toBagLineItem(): BagLineItem {
         modifiers = HashMap(modifierSelections),
         quantity = quantity,
         modifiersDisplay = modifiersDisplay.trim()
+    )
+}
+
+fun LineItemEntityWithProducts.toDomain(): BagLineItem {
+
+    val productsInBundle = HashMap(products.groupBy({ it.product.productGroupId }, { it.product.productId }))
+
+    val modifierSelections = mutableMapOf<ProductIdModifierGroupIdKey, List<String>>()
+    var modifiersDisplay = ""
+
+    this.products.forEach { productEntity ->
+
+        if (productEntity.modifiers.isEmpty() && this.lineItem.bundleId != null) {
+            modifiersDisplay += productEntity.product.productName + "\n"
+        }
+
+        productEntity.modifiers.forEach { modifierGroupEnity ->
+            val key = ProductIdModifierGroupIdKey(productId = productEntity.product.productId, modifierGroupId = modifierGroupEnity.modifierGroup.modifierGroupId)
+            modifierSelections[key] = modifierGroupEnity.modifierIds.map { it.modifierId }
+
+            if (modifierGroupEnity.modifierIds.isNotEmpty()) {
+                modifiersDisplay += modifierGroupEnity.modifierIds.joinToString(",") { it.modifierName }.plus("\n")
+            }
+
+        }
+    }
+
+    val lineItemEntity = this.lineItem
+    return BagLineItem(
+        lineItemId = lineItemEntity.lineItemId,
+        productId = lineItemEntity.productId,
+        bundleId = lineItemEntity.bundleId,
+        lineItemName = lineItemEntity.lineItemName,
+        modifiersDisplay = modifiersDisplay.trim(),
+        price = lineItemEntity.price,
+        productsInBundle = productsInBundle,
+        modifiers = HashMap(modifierSelections),
+        quantity = lineItemEntity.quantity
+    )
+}
+
+fun BagLineItem.toDisplayModel(): BagItemRowDisplayModel {
+    return BagItemRowDisplayModel(
+        lineItemId = lineItemId,
+        qty = quantity.toString(),
+        itemName = lineItemName,
+        itemModifier = modifiersDisplay,
+        price = "$" + price.toTwoDigitString(),
+        forRemoval = false
     )
 }

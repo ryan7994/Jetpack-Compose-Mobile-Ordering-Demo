@@ -20,7 +20,8 @@ import com.ryanjames.jetpackmobileordering.db.model.*
         LineItemProductEntity::class,
         LineItemModifierGroupEntity::class,
         LineItemModifierInfoEntity::class,
-        GlobalEntity::class
+        GlobalEntity::class,
+        CurrentOrderEntity::class
     ],
     version = 1
 )
