@@ -6,6 +6,6 @@
 
     <activity
         android:id="@+id/loginActivity"
-        android:name="com.ryanjames.jetpackmobileordering.features.login.LoginActivity"
+        android:name="com.ryanjames.composemobileordering.features.login.LoginActivity"
         android:label="LoginActivity" />
 </navigation>

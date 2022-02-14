@@ -13,10 +13,10 @@ android {
     compileSdk 31
 
     defaultConfig {
-        applicationId "com.ryanjames.jetpackmobileordering"
+        applicationId "com.ryanjames.composemobileordering"
         minSdk 26
         targetSdk 31
-        versionCode 1
+        versionCode 5
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -29,6 +29,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
         }
     }
     compileOptions {
