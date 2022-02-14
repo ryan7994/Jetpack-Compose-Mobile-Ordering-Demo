@@ -1,9 +1,11 @@
 package com.ryanjames.composemobileordering.features.home
 
-data class HomeViewState(
+data class HomeScreenState(
     val featuredList: List<FeaturedRestaurantCardState>,
     val restaurantList: List<RestaurantCardState>,
-    val dataState: HomeScreenDataState
+    val dataState: HomeScreenDataState,
+    val deliveryAddressInput: String,
+    val deliveryAddress: String? = null
 )
 
 sealed class HomeScreenDataState {

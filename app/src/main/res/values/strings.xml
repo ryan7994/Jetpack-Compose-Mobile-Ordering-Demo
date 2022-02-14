@@ -39,7 +39,6 @@
     <string name="address">Address</string>
     <string name="save">Save</string>
     <string name="password">Password</string>
-    <string name="username">Username</string>
     <string name="mobile_ordering_demo">Mobile Ordering Demo</string>
     <string name="using_jetpack_compose">Using Jetpack Compose</string>
     <string name="lets_get_started">Let\'s get started.</string>
@@ -47,4 +46,6 @@
     <string name="edit">Edit</string>
     <string name="map">Map</string>
     <string name="restaurants">Restaurants</string>
+    <string name="set_delivery_address">Set delivery address</string>
+    <string name="username">Username</string>
 </resources>

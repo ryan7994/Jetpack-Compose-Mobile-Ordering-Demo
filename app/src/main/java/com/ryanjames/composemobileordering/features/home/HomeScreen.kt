@@ -1,5 +1,6 @@
 package com.ryanjames.composemobileordering.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
@@ -9,14 +10,16 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Surface
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -27,38 +30,88 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 import com.ryanjames.composemobileordering.R
-import com.ryanjames.composemobileordering.features.home.FeaturedRestaurantCardState
-import com.ryanjames.composemobileordering.features.home.HomeScreenDataState
-import com.ryanjames.composemobileordering.features.home.HomeViewModel
-import com.ryanjames.composemobileordering.features.home.RestaurantCardState
+import com.ryanjames.composemobileordering.features.home.*
 import com.ryanjames.composemobileordering.ui.theme.*
-import com.ryanjames.composemobileordering.ui.widget.EditAddress
-import com.ryanjames.composemobileordering.ui.widget.FeaturedCard
-import com.ryanjames.composemobileordering.ui.widget.ShimmerItem
-import com.ryanjames.composemobileordering.ui.widget.featuredCard
+import com.ryanjames.composemobileordering.ui.widget.*
+import kotlinx.coroutines.launch
 
 
+@ExperimentalMaterialApi
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, onClickCard: (id: String) -> Unit = {}) {
+fun HomeScreenLayout(viewModel: HomeViewModel, onClickCard: (id: String) -> Unit = {}) {
     val state = viewModel.homeViewState.collectAsState()
-    HomeScreen(
-        featuredList = state.value.featuredList,
-        restaurantList = state.value.restaurantList,
-        dataState = state.value.dataState,
-        onClickCard = onClickCard
+    HomeScreenLayout(
+        homeScreenState = state.value,
+        onClickCard = onClickCard,
+        onDeliveryAddressValueChange = viewModel::onDeliveryAddressInputChange,
+        onClickSaveDeliveryAddress = viewModel::updateDeliveryAddress
     )
 }
 
+@ExperimentalMaterialApi
 @ExperimentalPagerApi
 @Composable
-fun HomeScreen(
+fun HomeScreenLayout(
+    homeScreenState: HomeScreenState,
+    onClickCard: (id: String) -> Unit = {},
+    onClickSaveDeliveryAddress: () -> Unit,
+    onDeliveryAddressValueChange: (String) -> Unit
+) {
+
+    val modalBottomSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden
+    )
+
+    val scope = rememberCoroutineScope()
+
+    ModalBottomSheetLayout(
+        sheetContent = {
+            DeliveryAddressBottomSheetLayout(value = homeScreenState.deliveryAddressInput, onValueChange = onDeliveryAddressValueChange, onClickSave = {
+                onClickSaveDeliveryAddress.invoke()
+                scope.launch {
+                    modalBottomSheetState.hide()
+                }
+            })
+        },
+        sheetState = modalBottomSheetState,
+        scrimColor = Color.Transparent,
+        sheetBackgroundColor = AppTheme.colors.bottomNavBackground,
+        sheetShape = RoundedCornerShape(topEnd = 32.dp, topStart = 32.dp),
+        sheetElevation = 8.dp,
+    ) {
+        HomeScreenContent(
+            featuredList = homeScreenState.featuredList,
+            restaurantList = homeScreenState.restaurantList,
+            dataState = homeScreenState.dataState,
+            onClickCard = onClickCard,
+            deliveryAddress = homeScreenState.deliveryAddress,
+            modalBottomSheetState = modalBottomSheetState
+        )
+    }
+
+    BackHandler {
+        if (modalBottomSheetState.isVisible) {
+            scope.launch {
+                modalBottomSheetState.hide()
+            }
+        }
+    }
+
+}
+
+@ExperimentalMaterialApi
+@ExperimentalPagerApi
+@Composable
+fun HomeScreenContent(
     featuredList: List<FeaturedRestaurantCardState>,
     restaurantList: List<RestaurantCardState>,
     dataState: HomeScreenDataState,
-    onClickCard: (id: String) -> Unit = {}
+    onClickCard: (id: String) -> Unit = {},
+    deliveryAddress: String?,
+    modalBottomSheetState: ModalBottomSheetState
 ) {
-
+    val scope = rememberCoroutineScope()
     Surface(
         color = AppTheme.colors.materialColors.background,
         modifier = Modifier.fillMaxSize()
@@ -86,7 +139,15 @@ fun HomeScreen(
                             )
 
                             Column {
-                                EditAddress(modifier = Modifier.padding(horizontal = 32.dp))
+                                EditAddress(
+                                    modifier = Modifier.padding(horizontal = 32.dp),
+                                    address = deliveryAddress,
+                                    onClick = {
+                                        scope.launch {
+                                            modalBottomSheetState.show()
+                                        }
+                                    }
+                                )
                                 Spacer(modifier = Modifier.size(16.dp))
 
                                 val pagerState = rememberPagerState(pageCount = featuredList.size)
@@ -229,18 +290,30 @@ fun HomeScreenShimmer() {
 
 }
 
+@ExperimentalMaterialApi
 @ExperimentalPagerApi
 @Preview
 @Composable
 fun PreviewHomeScreen() {
-    HomeScreen(listOf(featuredCard), listOf(venue1, venue2), HomeScreenDataState.Success)
+    HomeScreenLayout(homeScreenState = HomeScreenState(
+        listOf(featuredCard),
+        listOf(venue1, venue2),
+        HomeScreenDataState.Success,
+        ""
+    ), {}, {}, {})
 }
 
+@ExperimentalMaterialApi
 @ExperimentalPagerApi
 @Preview
 @Composable
 fun PreviewHomeScreenDarkMode() {
     MyComposeAppTheme(darkTheme = true) {
-        HomeScreen(listOf(featuredCard), listOf(venue1, venue2), HomeScreenDataState.Success)
+        HomeScreenLayout(homeScreenState = HomeScreenState(
+            listOf(featuredCard),
+            listOf(venue1, venue2),
+            HomeScreenDataState.Success,
+            ""
+        ), {}, {}, {})
     }
 }

@@ -66,7 +66,7 @@ class BagViewModel @Inject constructor(
     private suspend fun getDeliveryAddress() {
         _bagItemScreenState.update { it.copy(deliveryAddressInput = orderRepository.getDeliveryAddressFlow().first() ?: "") }
         orderRepository.getDeliveryAddressFlow().collect { deliveryAddress ->
-            _bagItemScreenState.update { it.copy(deliveryAddress = deliveryAddress) }
+            _bagItemScreenState.update { it.copy(deliveryAddress = deliveryAddress, deliveryAddressInput = deliveryAddress ?: "") }
         }
     }
 

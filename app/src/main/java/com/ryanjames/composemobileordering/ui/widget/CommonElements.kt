@@ -2,6 +2,7 @@ package com.ryanjames.composemobileordering.ui.widget
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
@@ -58,8 +59,10 @@ fun StarRatingWithReviews(
 }
 
 @Composable
-fun EditAddress(modifier: Modifier = Modifier) {
-    Row(modifier = modifier) {
+fun EditAddress(modifier: Modifier = Modifier, address: String?, onClick: () -> Unit) {
+    Row(modifier = modifier.clickable {
+        onClick.invoke()
+    }) {
         Image(
             painter = painterResource(id = R.drawable.edit),
             contentDescription = stringResource(R.string.edit_address),
@@ -68,8 +71,12 @@ fun EditAddress(modifier: Modifier = Modifier) {
                 .align(Alignment.CenterVertically)
         )
         Column(modifier = Modifier.padding(8.dp)) {
-            TypeScaledTextView(label = stringResource(R.string.delivering_to), color = TextColor.StaticColor(Color.White), typeScale = TypeScaleCategory.H6)
-            TypeScaledTextView(label = "15415 Cantrece Ln Cerritos CA", color = TextColor.StaticColor(Color.White), typeScale = TypeScaleCategory.Subtitle2)
+            if (address != null) {
+                TypeScaledTextView(label = stringResource(R.string.delivering_to), color = TextColor.StaticColor(Color.White), typeScale = TypeScaleCategory.H6)
+                TypeScaledTextView(label = address, color = TextColor.StaticColor(Color.White), typeScale = TypeScaleCategory.Subtitle2)
+            } else {
+                TypeScaledTextView(label = stringResource(R.string.set_delivery_address), color = TextColor.StaticColor(Color.White), typeScale = TypeScaleCategory.H6)
+            }
         }
     }
 }
@@ -97,7 +104,7 @@ fun PreviewDisplayChip() {
 @Composable
 fun PreviewEditAddress() {
     Box(modifier = Modifier.background(DarkBlueGray)) {
-        EditAddress()
+        EditAddress(address = "Address", onClick = {})
     }
 }
 

@@ -29,6 +29,34 @@ interface GlobalDao {
     suspend fun updateDeliveryAddress(deliveryAddress: String?)
 
     @Transaction
+    suspend fun createGlobalEntityWithAddress(address: String?) {
+        val globalEntity = getGlobalValues()
+        if (globalEntity == null) {
+            insertGlobalEntity(
+                GlobalEntity(
+                    id = 0,
+                    currentOrderId = null,
+                    currentVenue = null,
+                    deliveryAddress = address
+                )
+            )
+        }
+    }
+
+    @Transaction
+    suspend fun clearLocalBag() {
+        val globalEntity = getGlobalValues()
+        insertGlobalEntity(
+            GlobalEntity(
+                id = 0,
+                currentOrderId = null,
+                currentVenue = null,
+                deliveryAddress = globalEntity?.deliveryAddress
+            )
+        )
+    }
+
+    @Transaction
     suspend fun createLocalBagOrderId(orderId: String, venueId: String) {
         val globalEntity = getGlobalValues()
         insertGlobalEntity(

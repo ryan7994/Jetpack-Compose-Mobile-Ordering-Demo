@@ -74,7 +74,11 @@ class OrderRepository(
                         )
                     )
                 roomDb.orderDao().updateLocalBag(getOrderResponse.toOrderEntity())
-                send(Resource.Success(getOrderResponse.toBagSummary()))
+                val bagSummary = getOrderResponse.toBagSummary()
+                send(Resource.Success(bagSummary))
+                if (bagSummary.lineItems.isEmpty()) {
+                    roomDb.globalDao().clearLocalBag()
+                }
             }
         } catch (t: Throwable) {
             send(Resource.Error(t))
@@ -134,7 +138,9 @@ class OrderRepository(
     }
 
     override suspend fun updateDeliveryAddress(address: String?) {
-        roomDb.globalDao().updateDeliveryAddress(address)
+        roomDb.globalDao().createGlobalEntityWithAddress(address)
+        val a = if (address?.isNotBlank() == true) address else null
+        roomDb.globalDao().updateDeliveryAddress(a)
     }
 
 

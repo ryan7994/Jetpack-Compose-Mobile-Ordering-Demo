@@ -32,7 +32,7 @@ import com.ryanjames.composemobileordering.features.productdetail.ProductDetailS
 import com.ryanjames.composemobileordering.features.venuedetail.VenueDetailScreen
 import com.ryanjames.composemobileordering.features.venuemapfinder.VenueFinderScreen
 import com.ryanjames.composemobileordering.ui.core.CustomSnackbar
-import com.ryanjames.composemobileordering.ui.screens.HomeScreen
+import com.ryanjames.composemobileordering.ui.screens.HomeScreenLayout
 import com.ryanjames.composemobileordering.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -165,7 +165,7 @@ class BottomNavActivity : ComponentActivity() {
         navigation(startDestination = BottomNavScreens.Home.route, route = BottomNavTabs.BrowseTab.tabRoute) {
 
             composable(BottomNavScreens.Home.route) {
-                HomeScreen(viewModel = hiltViewModel(),
+                HomeScreenLayout(viewModel = hiltViewModel(),
                     onClickCard = { venueId ->
                         navController.navigate(BottomNavScreens.VenueDetail.routeWithArgs(venueId))
                     })
