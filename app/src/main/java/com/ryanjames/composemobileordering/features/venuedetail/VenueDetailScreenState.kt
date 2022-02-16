@@ -13,7 +13,8 @@ data class VenueDetailScreenState(
     val phoneUri: Uri? = null,
     val email: String? = null,
     val addressUri: Uri? = null,
-    val venueId: String = ""
+    val venueId: String = "",
+    val isLoadingMenu: Boolean = true
 )
 
 data class CategoryViewState(

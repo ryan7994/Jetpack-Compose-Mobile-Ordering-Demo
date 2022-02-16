@@ -74,6 +74,8 @@ class VenueDetailViewModel @Inject constructor(
                         } else if (resource is Resource.Error) {
                             resource.throwable.printStackTrace()
                             _venueDetailScreenState.value = _venueDetailScreenState.value.copy(menuCategoriesResource = Resource.Error(resource.throwable))
+                        } else if (resource is Resource.Loading) {
+                            _venueDetailScreenState.value = _venueDetailScreenState.value.copy(menuCategoriesResource = Resource.Loading)
                         }
                     }
                 })

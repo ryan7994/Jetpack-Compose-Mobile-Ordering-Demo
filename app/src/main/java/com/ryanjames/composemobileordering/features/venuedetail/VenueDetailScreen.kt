@@ -27,10 +27,7 @@ import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.R.drawable
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.ui.theme.*
-import com.ryanjames.composemobileordering.ui.widget.CircularInfoButton
-import com.ryanjames.composemobileordering.ui.widget.MenuItemCard
-import com.ryanjames.composemobileordering.ui.widget.MenuItemCardDisplayModel
-import com.ryanjames.composemobileordering.ui.widget.RestaurantHeader
+import com.ryanjames.composemobileordering.ui.widget.*
 
 @Composable
 fun VenueDetailScreen(
@@ -64,7 +61,7 @@ fun VenueDetailScreen(
 
             when (venueDetailScreenState.menuCategoriesResource) {
                 is Resource.Loading -> {
-
+                    LoadingSpinnerWithText(text = stringResource(R.string.loading_menu))
                 }
                 is Resource.Success -> {
                     val menuCategories = venueDetailScreenState.menuCategoriesResource.data
