@@ -19,7 +19,6 @@ data class BagScreenState(
     val venueAddress: String = "",
     val isPickupSelected: Boolean = true,
     val deliveryAddress: String? = null,
-    val deliveryAddressInput: String = "",
     val isBagEmpty: Boolean = false,
     val isLoading: Boolean = true
 )

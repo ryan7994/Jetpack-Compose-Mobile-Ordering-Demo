@@ -32,7 +32,7 @@ import com.ryanjames.composemobileordering.features.productdetail.ProductDetailS
 import com.ryanjames.composemobileordering.features.venuedetail.VenueDetailScreen
 import com.ryanjames.composemobileordering.features.venuemapfinder.VenueFinderScreen
 import com.ryanjames.composemobileordering.ui.core.CustomSnackbar
-import com.ryanjames.composemobileordering.ui.screens.HomeScreenLayout
+import com.ryanjames.composemobileordering.ui.screens.HomeScreen
 import com.ryanjames.composemobileordering.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -104,7 +104,8 @@ class BottomNavActivity : ComponentActivity() {
 
         navigation(startDestination = BottomNavScreens.Bag.route, route = BottomNavTabs.BagTab.tabRoute) {
             composable(BottomNavScreens.Bag.route) {
-                BagScreen(hiltViewModel(),
+                BagScreen(bagViewModel = hiltViewModel(),
+                    editDeliveryAddressViewModel = hiltViewModel(),
                     onClickAddMoreItems = { venueId ->
                         navController.navigateToAnotherTab(BottomNavTabs.BrowseTab, BottomNavScreens.Home.route)
                         navController.navigate(BottomNavScreens.VenueDetail.routeWithArgs(venueId))
@@ -165,7 +166,8 @@ class BottomNavActivity : ComponentActivity() {
         navigation(startDestination = BottomNavScreens.Home.route, route = BottomNavTabs.BrowseTab.tabRoute) {
 
             composable(BottomNavScreens.Home.route) {
-                HomeScreenLayout(viewModel = hiltViewModel(),
+                HomeScreen(homeViewModel = hiltViewModel(),
+                    editDeliveryAddressViewModel = hiltViewModel(),
                     onClickCard = { venueId ->
                         navController.navigate(BottomNavScreens.VenueDetail.routeWithArgs(venueId))
                     })

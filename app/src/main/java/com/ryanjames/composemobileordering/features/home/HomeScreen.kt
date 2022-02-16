@@ -30,6 +30,8 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 import com.ryanjames.composemobileordering.R
+import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.DeliveryAddressState
+import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.EditDeliveryAddressViewModel
 import com.ryanjames.composemobileordering.features.home.*
 import com.ryanjames.composemobileordering.ui.theme.*
 import com.ryanjames.composemobileordering.ui.widget.*
@@ -39,13 +41,19 @@ import kotlinx.coroutines.launch
 @ExperimentalMaterialApi
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun HomeScreenLayout(viewModel: HomeViewModel, onClickCard: (id: String) -> Unit = {}) {
-    val state = viewModel.homeViewState.collectAsState()
+fun HomeScreen(
+    homeViewModel: HomeViewModel,
+    editDeliveryAddressViewModel: EditDeliveryAddressViewModel,
+    onClickCard: (id: String) -> Unit = {}
+) {
+    val homeScreenState = homeViewModel.homeViewState.collectAsState()
+    val editDeliveryAddressState = editDeliveryAddressViewModel.deliveryAddressState.collectAsState()
     HomeScreenLayout(
-        homeScreenState = state.value,
+        homeScreenState = homeScreenState.value,
         onClickCard = onClickCard,
-        onDeliveryAddressValueChange = viewModel::onDeliveryAddressInputChange,
-        onClickSaveDeliveryAddress = viewModel::updateDeliveryAddress
+        onDeliveryAddressValueChange = editDeliveryAddressViewModel::onDeliveryAddressInputChange,
+        onClickSaveDeliveryAddress = editDeliveryAddressViewModel::updateDeliveryAddress,
+        deliveryAddressState = editDeliveryAddressState.value
     )
 }
 
@@ -54,6 +62,7 @@ fun HomeScreenLayout(viewModel: HomeViewModel, onClickCard: (id: String) -> Unit
 @Composable
 fun HomeScreenLayout(
     homeScreenState: HomeScreenState,
+    deliveryAddressState: DeliveryAddressState,
     onClickCard: (id: String) -> Unit = {},
     onClickSaveDeliveryAddress: () -> Unit,
     onDeliveryAddressValueChange: (String) -> Unit
@@ -67,7 +76,7 @@ fun HomeScreenLayout(
 
     ModalBottomSheetLayout(
         sheetContent = {
-            DeliveryAddressBottomSheetLayout(value = homeScreenState.deliveryAddressInput, onValueChange = onDeliveryAddressValueChange, onClickSave = {
+            DeliveryAddressBottomSheetLayout(value = deliveryAddressState.deliveryAddressInput, onValueChange = onDeliveryAddressValueChange, onClickSave = {
                 onClickSaveDeliveryAddress.invoke()
                 scope.launch {
                     modalBottomSheetState.hide()
@@ -300,7 +309,8 @@ fun PreviewHomeScreen() {
         listOf(venue1, venue2),
         HomeScreenDataState.Success,
         ""
-    ), {}, {}, {})
+    ), deliveryAddressState = DeliveryAddressState(""),
+        {}, {}, {})
 }
 
 @ExperimentalMaterialApi
@@ -314,6 +324,8 @@ fun PreviewHomeScreenDarkMode() {
             listOf(venue1, venue2),
             HomeScreenDataState.Success,
             ""
-        ), {}, {}, {})
+        ),
+            deliveryAddressState = DeliveryAddressState(""),
+            {}, {}, {})
     }
 }

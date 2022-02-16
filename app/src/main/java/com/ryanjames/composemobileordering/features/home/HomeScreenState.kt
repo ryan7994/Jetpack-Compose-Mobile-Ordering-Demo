@@ -4,7 +4,6 @@ data class HomeScreenState(
     val featuredList: List<FeaturedRestaurantCardState>,
     val restaurantList: List<RestaurantCardState>,
     val dataState: HomeScreenDataState,
-    val deliveryAddressInput: String,
     val deliveryAddress: String? = null
 )
 
