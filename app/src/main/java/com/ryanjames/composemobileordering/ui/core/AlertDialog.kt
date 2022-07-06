@@ -48,10 +48,12 @@ fun Dialog(alertDialogState: AlertDialogState?) {
         shape = RoundedCornerShape(8.dp),
         onDismissRequest = {},
         title = {
-            TypeScaledTextView(label = alertDialogState.title, typeScale = TypeScaleCategory.H6)
+            if (alertDialogState.title != null) {
+                TypeScaledTextView(label = stringResource(id = alertDialogState.title.id), typeScale = TypeScaleCategory.H6)
+            }
         },
         text = {
-            TypeScaledTextView(label = alertDialogState.message, typeScale = TypeScaleCategory.Subtitle1)
+            TypeScaledTextView(label = stringResource(alertDialogState.message.id), typeScale = TypeScaleCategory.Subtitle1)
         },
         buttons = {
             Column {
@@ -91,8 +93,8 @@ fun Dialog(alertDialogState: AlertDialogState?) {
 }
 
 open class AlertDialogState(
-    val title: String = "",
-    val message: String = "",
+    val title: StringResource?,
+    val message: StringResource,
     private val onDismiss: () -> Unit = {}
 ) {
 
@@ -103,8 +105,8 @@ open class AlertDialogState(
 }
 
 class TwoButtonsDialogState(
-    title: String,
-    message: String,
+    title: StringResource,
+    message: StringResource,
     val positiveButton: StringResource,
     val negativeButton: StringResource,
     val onClickPositiveBtn: () -> Unit,
@@ -113,4 +115,4 @@ class TwoButtonsDialogState(
 
 class LoadingDialogState(
     val loadingText: StringResource = StringResource(R.string.please_wait)
-) : AlertDialogState()
+) : AlertDialogState(title = null, message = loadingText)

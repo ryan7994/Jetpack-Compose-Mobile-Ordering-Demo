@@ -12,7 +12,14 @@ data class VenueResponse(
     val prepMin: Int?,
     val prepMax: Int?,
     val categories: List<String>?,
-    val featuredImage: String?
+    val featuredImage: String?,
+    val storeHours: List<StoreHoursResponse>?
+)
+
+data class StoreHoursResponse(
+    val openingTime: String,
+    val closingTime: String,
+    val day: String
 )
 
 data class VenueListResponse(val stores: List<VenueResponse>)

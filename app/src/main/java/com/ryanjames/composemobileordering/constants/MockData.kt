@@ -16,7 +16,8 @@ val mockVenueList = listOf(
         30,
         "$",
         listOf("Filipino", "Fast Food", "Non-Traditional", "Fusion"),
-        ""
+        "",
+        listOf()
     ),
     Venue(
         "B",
@@ -30,7 +31,8 @@ val mockVenueList = listOf(
         45,
         "$$$",
         listOf("Thai", "Gourmet"),
-        ""
+        "",
+        listOf()
     )
 
 )
@@ -59,7 +61,16 @@ private val SMALL_FRIES
 private val LARGE_FRIES
     get() = ModifierInfo("M3001", "Large Fries", 0f, "LRF")
 val PRODUCT_COKE
-    get() = Product("D4000", "Coke", "Take a sip of this ice cold Coke and be refreshed.", 0f, "CKE", listOf(), listOf(),  "https://images.unsplash.com/photo-1591254467235-a82a70c915ee?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80")
+    get() = Product(
+        "D4000",
+        "Coke",
+        "Take a sip of this ice cold Coke and be refreshed.",
+        0f,
+        "CKE",
+        listOf(),
+        listOf(),
+        "https://images.unsplash.com/photo-1591254467235-a82a70c915ee?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80"
+    )
 private val PRODUCT_PEPSI
     get() = Product("D4001", "Pepsi", "", 0f, "PEP", listOf(), listOf(), null)
 private val PRODUCT_DR_PEPPER
@@ -67,9 +78,27 @@ private val PRODUCT_DR_PEPPER
 private val MODIFIER_GROUP_FRIES
     get() = ModifierGroup("MG3000", "Size", ModifierGroupAction.Required, SMALL_FRIES, listOf(SMALL_FRIES, LARGE_FRIES), 1, 1)
 private val PRODUCT_FRIES
-    get() = Product("F1000", "Fries", "Description", 3f, "", listOf(), listOf(MODIFIER_GROUP_FRIES), "https://images.unsplash.com/photo-1526230427044-d092040d48dc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80")
+    get() = Product(
+        "F1000",
+        "Fries",
+        "Description",
+        3f,
+        "",
+        listOf(),
+        listOf(MODIFIER_GROUP_FRIES),
+        "https://images.unsplash.com/photo-1526230427044-d092040d48dc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80"
+    )
 private val PRODUCTS_TOTS
-    get() = Product("T1000", "Tots", "Description", 3f, "", listOf(), listOf(), "https://media2.s-nbcnews.com/i/newscms/2017_08/1196437/tater-tot-today-170220-tease_80ee09e7dd2206c759e9cd903cc64ca8.jpg")
+    get() = Product(
+        "T1000",
+        "Tots",
+        "Description",
+        3f,
+        "",
+        listOf(),
+        listOf(),
+        "https://media2.s-nbcnews.com/i/newscms/2017_08/1196437/tater-tot-today-170220-tease_80ee09e7dd2206c759e9cd903cc64ca8.jpg"
+    )
 private val PRODUCT_GROUP_DRINKS
     get() = ProductGroup("PG1000", "Drinks", PRODUCT_COKE, listOf(PRODUCT_COKE, PRODUCT_PEPSI, PRODUCT_DR_PEPPER), 1, 1)
 private val PRODUCT_GROUP_SIDES

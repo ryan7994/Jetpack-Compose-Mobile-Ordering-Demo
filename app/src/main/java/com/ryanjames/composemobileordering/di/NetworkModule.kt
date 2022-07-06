@@ -1,6 +1,7 @@
 package com.ryanjames.composemobileordering.di
 
 import android.content.SharedPreferences
+import com.ryanjames.composemobileordering.BuildConfig
 import com.ryanjames.composemobileordering.core.LoginManager
 import com.ryanjames.composemobileordering.network.ApiService
 import com.ryanjames.composemobileordering.network.MobilePosApi
@@ -31,7 +32,7 @@ open class NetworkModule {
     @Provides
     open fun provideRetrofitBuilder(): Retrofit.Builder {
         val apiBaseUrl = "https://test-swabergers.herokuapp.com/"
-//        val apiBaseUrl = "http://192.168.1.234:5000/"
+//        val apiBaseUrl = "http://192.168.254.18:5000/"
 //        val apiBaseUrl = "http://10.0.2.2:5000/"
         return Retrofit.Builder()
             .baseUrl(apiBaseUrl)
@@ -64,9 +65,11 @@ open class NetworkModule {
             .addInterceptor(authTokenInterceptor)
             .authenticator(tokenAuthenticator)
 
-        val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-        httpClientBuilder.addInterceptor(loggingInterceptor)
+        if (BuildConfig.DEBUG) {
+            val loggingInterceptor = HttpLoggingInterceptor()
+            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+            httpClientBuilder.addInterceptor(loggingInterceptor)
+        }
 
         val client = httpClientBuilder.build()
 

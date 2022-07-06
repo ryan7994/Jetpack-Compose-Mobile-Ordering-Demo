@@ -30,6 +30,8 @@ import com.google.maps.android.compose.Marker
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.features.bottomnav.LocalCoroutineScope
 import com.ryanjames.composemobileordering.features.bottomnav.LocalSnackbarHostState
+import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.DeliveryAddressState
+import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.EditDeliveryAddressViewModel
 import com.ryanjames.composemobileordering.ui.core.Dialog
 import com.ryanjames.composemobileordering.ui.theme.*
 import com.ryanjames.composemobileordering.ui.widget.DeliveryAddressBottomSheetLayout
@@ -42,12 +44,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun BagScreen(
     bagViewModel: BagViewModel,
+    editDeliveryAddressViewModel: EditDeliveryAddressViewModel,
     onClickAddMoreItems: (venueId: String) -> Unit,
     onClickLineItem: (lineItemId: String) -> Unit,
     onClickBrowseRestaurants: () -> Unit
 ) {
     BagLayout(
         bagScreenState = bagViewModel.bagScreenState.collectAsState().value,
+        deliveryAddressState = editDeliveryAddressViewModel.deliveryAddressState.collectAsState().value,
         onClickAddMoreItems = onClickAddMoreItems,
         onClickLineItem = onClickLineItem,
         onClickRemove = bagViewModel::onClickRemove,
@@ -56,8 +60,8 @@ fun BagScreen(
         onCheckChanged = bagViewModel::onRemoveCbCheckChanged,
         onClickPickup = bagViewModel::onClickPickup,
         onClickDelivery = bagViewModel::onClickDelivery,
-        onDeliveryAddressValueChange = bagViewModel::onDeliveryAddressInputChange,
-        onClickSaveDeliveryAddress = bagViewModel::updateDeliveryAddress,
+        onDeliveryAddressValueChange = editDeliveryAddressViewModel::onDeliveryAddressInputChange,
+        onClickSaveDeliveryAddress = editDeliveryAddressViewModel::updateDeliveryAddress,
         onClickBrowseRestaurants = onClickBrowseRestaurants
     )
     val globalScope = LocalCoroutineScope.current
@@ -83,6 +87,7 @@ fun BagScreen(
 @Composable
 fun BagLayout(
     bagScreenState: BagScreenState,
+    deliveryAddressState: DeliveryAddressState,
     onClickAddMoreItems: (venueId: String) -> Unit,
     onClickLineItem: (lineItemId: String) -> Unit,
     onClickRemove: () -> Unit,
@@ -102,18 +107,16 @@ fun BagLayout(
 
     val scope = rememberCoroutineScope()
 
-    BackHandler {
-        if (modalBottomSheetState.isVisible) {
-            scope.launch {
-                modalBottomSheetState.hide()
-            }
+    BackHandler(enabled = modalBottomSheetState.isVisible) {
+        scope.launch {
+            modalBottomSheetState.hide()
         }
     }
 
 
     ModalBottomSheetLayout(
         sheetContent = {
-            DeliveryAddressBottomSheetLayout(value = bagScreenState.deliveryAddressInput, onValueChange = onDeliveryAddressValueChange, onClickSave = {
+            DeliveryAddressBottomSheetLayout(value = deliveryAddressState.deliveryAddressInput, onValueChange = onDeliveryAddressValueChange, onClickSave = {
                 onClickSaveDeliveryAddress.invoke()
                 scope.launch {
                     modalBottomSheetState.hide()

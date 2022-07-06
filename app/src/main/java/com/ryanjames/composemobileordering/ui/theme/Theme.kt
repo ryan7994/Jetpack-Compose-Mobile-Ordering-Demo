@@ -1,12 +1,12 @@
 package com.ryanjames.composemobileordering.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.Colors
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 private val DarkThemeMaterialColors = darkColors(
     primary = PrimaryDark,
@@ -52,7 +52,8 @@ data class AppColors(
     val materialColors: Colors,
     val hintTextColor: Color,
     val bottomNavBackground: Color,
-    val placeholderColor: Color
+    val placeholderColor: Color,
+    val textBackground: Color
 )
 
 private val lightThemeColors = AppColors(
@@ -61,7 +62,8 @@ private val lightThemeColors = AppColors(
     materialColors = LightThemeMaterialColors,
     hintTextColor = HintGray,
     bottomNavBackground = Color.White,
-    placeholderColor = PlaceholderGray
+    placeholderColor = PlaceholderGray,
+    textBackground = LighterGray
 )
 
 private val darkThemeColors = AppColors(
@@ -70,7 +72,8 @@ private val darkThemeColors = AppColors(
     materialColors = DarkThemeMaterialColors,
     hintTextColor = HintGray,
     bottomNavBackground = BlueGray,
-    placeholderColor = PlaceholderBlueGray
+    placeholderColor = PlaceholderBlueGray,
+    textBackground = PlaceholderBlueGray
 )
 
 @Composable
@@ -85,10 +88,21 @@ fun MyComposeAppTheme(
     ) {
         MaterialTheme(
             colors = colors.materialColors,
-            typography = Typography,
+            typography = appTypography,
             shapes = Shapes,
             content = content,
         )
     }
 }
 
+val appTypography = Typography(
+    h1 = TextStyle(fontSize = 42.sp, fontWeight = FontWeight.Bold),
+    h2 = TextStyle(fontSize = 38.sp, fontWeight = FontWeight.Bold),
+    h3 = TextStyle(fontSize = 34.sp, fontWeight = FontWeight.Bold),
+    h4 = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold),
+    h5 = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
+    h6 = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
+    subtitle1 = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.W500),
+    subtitle2 = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.W500),
+    body1 = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.W500),
+)

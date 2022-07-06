@@ -4,7 +4,7 @@ import androidx.room.*
 
 
 @Entity(tableName = "VenueEntity")
-data class VenueEntity (
+data class VenueEntity(
     @PrimaryKey
     val venueId: String,
     val name: String,
@@ -18,6 +18,17 @@ data class VenueEntity (
     val priceIndicator: String,
     val featuredImage: String?,
     val type: String?
+)
+
+@Entity(tableName = "StoreHoursEntity")
+data class StoreHoursEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val venueId: String,
+    val isClosed: Boolean,
+    val day: String,
+    val openingTime: String?,
+    val closingTime: String?
 )
 
 object VenueEntityType {
@@ -36,6 +47,12 @@ data class VenueCategoryEntity(
 data class VenueCategoryCrossRef(
     val venueId: String,
     val categoryName: String
+)
+
+data class VenueDbModel(
+    val venueEntity: VenueEntity,
+    val categories: List<VenueCategoryEntity>,
+    val storeHours: List<StoreHoursEntity>
 )
 
 data class VenueWithCategories(

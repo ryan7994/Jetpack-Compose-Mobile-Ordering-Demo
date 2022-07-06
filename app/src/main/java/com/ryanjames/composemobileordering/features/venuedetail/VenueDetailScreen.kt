@@ -2,19 +2,22 @@ package com.ryanjames.composemobileordering.features.venuedetail
 
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -27,10 +30,8 @@ import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.R.drawable
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.ui.theme.*
-import com.ryanjames.composemobileordering.ui.widget.CircularInfoButton
-import com.ryanjames.composemobileordering.ui.widget.MenuItemCard
-import com.ryanjames.composemobileordering.ui.widget.MenuItemCardDisplayModel
-import com.ryanjames.composemobileordering.ui.widget.RestaurantHeader
+import com.ryanjames.composemobileordering.ui.widget.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun VenueDetailScreen(
@@ -54,63 +55,93 @@ fun VenueDetailScreen(
     onClickMenuItemCard: (productId: String, venueId: String) -> Unit
 ) {
 
-    Box {
-        Column {
-            venueDetailScreenState.header?.let {
-                RestaurantHeader(state = venueDetailScreenState.header, onClickUp)
-            }
+    val modalBottomSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden
+    )
+    val scope = rememberCoroutineScope()
 
-            val listState = rememberLazyListState()
-
-            when (venueDetailScreenState.menuCategoriesResource) {
-                is Resource.Loading -> {
-
-                }
-                is Resource.Success -> {
-                    val menuCategories = venueDetailScreenState.menuCategoriesResource.data
-
-                    if (menuCategories.isNotEmpty()) {
-                        TextTabs(
-                            tabs = menuCategories.map { it.categoryName },
-                            selectedIndex = listState.firstVisibleItemIndex,
-                            listState = listState,
-                            selectedContent = { tabText ->
-                                TypeScaledTextView(label = tabText, typeScale = TypeScaleCategory.Subtitle1, overrideFontWeight = FontWeight.Bold, color = TextColor.StaticColor(CoralRed))
-                            },
-                            unselectedContent = { tabText ->
-                                TypeScaledTextView(label = tabText, typeScale = TypeScaleCategory.Subtitle1, overrideFontWeight = FontWeight.Bold, color = TextColor.StaticColor(HintGray))
-                            }
-                        )
-
-                        LazyColumn(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            state = listState
-                        ) {
-                            items(count = menuCategories.size) { index ->
-                                if (index == 0) {
-                                    Spacer(modifier = Modifier.size(16.dp))
-                                }
-                                val category = menuCategories[index]
-                                CategoryItems(category = category.categoryName, items = category.menuItems, onClickMenuItemCard = onClickMenuItemCard, venueId = venueDetailScreenState.venueId)
-
-                                if (index == menuCategories.size - 1) {
-                                    Spacer(modifier = Modifier.size(64.dp))
-                                }
-                            }
-                        }
-                    } else {
-                        NoMenuView(
-                            phoneUri = venueDetailScreenState.phoneUri,
-                            email = venueDetailScreenState.email,
-                            addressUri = venueDetailScreenState.addressUri
-                        )
-                    }
-                }
-                is Resource.Error -> TODO()
-            }
-
+    BackHandler(enabled = modalBottomSheetState.isVisible) {
+        scope.launch {
+            modalBottomSheetState.hide()
         }
     }
+
+    ModalBottomSheetLayout(
+        sheetContent = {
+            Spacer(modifier = Modifier.size(32.dp))
+            StoreInfoBottomSheetLayout(venueDetailScreenState.storeInfoDisplayModel)
+
+        },
+        sheetState = modalBottomSheetState,
+        scrimColor = Color.Transparent,
+        sheetBackgroundColor = AppTheme.colors.bottomNavBackground,
+        sheetShape = RoundedCornerShape(topEnd = 32.dp, topStart = 32.dp),
+        sheetElevation = 8.dp
+    ) {
+        Box {
+            Column {
+                venueDetailScreenState.header?.let {
+                    RestaurantHeader(state = venueDetailScreenState.header, onClickUp, onClickInfo = {
+                        scope.launch {
+                            modalBottomSheetState.show()
+                        }
+                    })
+                }
+
+                val listState = rememberLazyListState()
+
+                when (venueDetailScreenState.menuCategoriesResource) {
+                    is Resource.Loading -> {
+                        LoadingSpinnerWithText(text = stringResource(R.string.loading_menu))
+                    }
+                    is Resource.Success -> {
+                        val menuCategories = venueDetailScreenState.menuCategoriesResource.data
+
+                        if (menuCategories.isNotEmpty()) {
+                            TextTabs(
+                                tabs = menuCategories.map { it.categoryName },
+                                selectedIndex = listState.firstVisibleItemIndex,
+                                listState = listState,
+                                selectedContent = { tabText ->
+                                    TypeScaledTextView(label = tabText, typeScale = TypeScaleCategory.Subtitle1, overrideFontWeight = FontWeight.Bold, color = TextColor.StaticColor(CoralRed))
+                                },
+                                unselectedContent = { tabText ->
+                                    TypeScaledTextView(label = tabText, typeScale = TypeScaleCategory.Subtitle1, overrideFontWeight = FontWeight.Bold, color = TextColor.StaticColor(HintGray))
+                                }
+                            )
+
+                            LazyColumn(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                state = listState
+                            ) {
+                                items(count = menuCategories.size) { index ->
+                                    if (index == 0) {
+                                        Spacer(modifier = Modifier.size(16.dp))
+                                    }
+                                    val category = menuCategories[index]
+                                    CategoryItems(category = category.categoryName, items = category.menuItems, onClickMenuItemCard = onClickMenuItemCard, venueId = venueDetailScreenState.venueId)
+
+                                    if (index == menuCategories.size - 1) {
+                                        Spacer(modifier = Modifier.size(64.dp))
+                                    }
+                                }
+                            }
+                        } else {
+                            NoMenuView(
+                                phoneUri = venueDetailScreenState.phoneUri,
+                                email = venueDetailScreenState.email,
+                                addressUri = venueDetailScreenState.addressUri
+                            )
+                        }
+                    }
+                    is Resource.Error -> TODO()
+                }
+
+            }
+        }
+    }
+
+
 }
 
 

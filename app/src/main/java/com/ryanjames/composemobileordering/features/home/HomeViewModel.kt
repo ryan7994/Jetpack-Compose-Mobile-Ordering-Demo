@@ -15,7 +15,10 @@ import com.ryanjames.composemobileordering.ui.toRestaurantCardState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -60,19 +63,8 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun getDeliveryAddress() {
-        _homeViewState.update { it.copy(deliveryAddressInput = orderRepository.getDeliveryAddressFlow().first() ?: "") }
         orderRepository.getDeliveryAddressFlow().collect { deliveryAddress ->
-            _homeViewState.update { it.copy(deliveryAddress = deliveryAddress, deliveryAddressInput = deliveryAddress ?: "") }
-        }
-    }
-
-    fun onDeliveryAddressInputChange(newValue: String) {
-        _homeViewState.value = _homeViewState.value.copy(deliveryAddressInput = newValue)
-    }
-
-    fun updateDeliveryAddress() {
-        viewModelScope.launch {
-            orderRepository.updateDeliveryAddress(_homeViewState.value.deliveryAddressInput)
+            _homeViewState.update { it.copy(deliveryAddress = deliveryAddress) }
         }
     }
 

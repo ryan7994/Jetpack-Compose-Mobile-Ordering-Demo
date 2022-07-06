@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
@@ -41,8 +42,10 @@ fun TypeScaledTextView(
     maxLines: Int = Int.MAX_VALUE,
     typeScale: TypeScaleCategory = TypeScaleCategory.Subtitle2,
     overrideFontWeight: FontWeight? = null,
-    textAlign: TextAlign? = null
+    textAlign: TextAlign? = null,
+    textStyle: TextStyle? = null
 ) {
+
     val textColor = when (color) {
         is TextColor.DarkTextColor -> AppTheme.colors.darkTextColor
         is TextColor.LightTextColor -> AppTheme.colors.lightTextColor
@@ -59,7 +62,8 @@ fun TypeScaledTextView(
         modifier = modifier,
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
-        textAlign = textAlign
+        textAlign = textAlign,
+        style = textStyle ?: LocalTextStyle.current
     )
 }
 
@@ -94,30 +98,30 @@ fun SingleLineTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
     val focusManager = LocalFocusManager.current
-        OutlinedTextField(
-            shape = RoundedCornerShape(16.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = CoralRed,
-                unfocusedBorderColor = AppTheme.colors.darkTextColor,
-                cursorColor = CoralRed
-            ),
-            value = value,
-            onValueChange = onValueChange,
-            singleLine = true,
-            modifier = modifier
-                .fillMaxWidth(),
-            placeholder = {
-                Text(
-                    text = hintText,
-                    color = AppTheme.colors.hintTextColor,
-                    fontFamily = FreeSans
-                )
-            },
-            keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions ?: KeyboardActions(onAny = { focusManager.clearFocus() }),
-            visualTransformation = visualTransformation,
-            textStyle = TextStyle(color = AppTheme.colors.darkTextColor)
-        )
+    OutlinedTextField(
+        shape = RoundedCornerShape(16.dp),
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            focusedBorderColor = CoralRed,
+            unfocusedBorderColor = AppTheme.colors.darkTextColor,
+            cursorColor = CoralRed
+        ),
+        value = value,
+        onValueChange = onValueChange,
+        singleLine = true,
+        modifier = modifier
+            .fillMaxWidth(),
+        placeholder = {
+            Text(
+                text = hintText,
+                color = AppTheme.colors.hintTextColor,
+                fontFamily = FreeSans
+            )
+        },
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions ?: KeyboardActions(onAny = { focusManager.clearFocus() }),
+        visualTransformation = visualTransformation,
+        textStyle = TextStyle(color = AppTheme.colors.darkTextColor)
+    )
 
 
 }
@@ -189,14 +193,15 @@ fun AccentTextButton(onClick: () -> Unit, label: String, modifier: Modifier = Mo
 }
 
 @Composable
-fun FullWidthButton(onClick: () -> Unit, label: String) {
+fun FullWidthButton(onClick: () -> Unit, label: String, tag: String? = null) {
     val gradient = Brush.horizontalGradient(listOf(CoralRed, CoralRedGradientEnd))
 
     Button(
         onClick = onClick,
         contentPadding = PaddingValues(),
         colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.testTag(tag ?: label)
     ) {
         Box(
             modifier = Modifier

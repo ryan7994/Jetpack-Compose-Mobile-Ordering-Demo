@@ -1,9 +1,8 @@
 package com.ryanjames.composemobileordering.domain
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import java.util.*
-import kotlin.collections.HashMap
 
 @Parcelize
 data class LineItem(

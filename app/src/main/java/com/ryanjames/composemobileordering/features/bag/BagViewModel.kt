@@ -53,20 +53,10 @@ class BagViewModel @Inject constructor(
         }
     }
 
-    fun updateDeliveryAddress() {
-        viewModelScope.launch {
-            orderRepository.updateDeliveryAddress(_bagItemScreenState.value.deliveryAddressInput)
-        }
-    }
-
-    fun onDeliveryAddressInputChange(newValue: String) {
-        _bagItemScreenState.value = _bagItemScreenState.value.copy(deliveryAddressInput = newValue)
-    }
 
     private suspend fun getDeliveryAddress() {
-        _bagItemScreenState.update { it.copy(deliveryAddressInput = orderRepository.getDeliveryAddressFlow().first() ?: "") }
         orderRepository.getDeliveryAddressFlow().collect { deliveryAddress ->
-            _bagItemScreenState.update { it.copy(deliveryAddress = deliveryAddress, deliveryAddressInput = deliveryAddress ?: "") }
+            _bagItemScreenState.update { it.copy(deliveryAddress = deliveryAddress) }
         }
     }
 
