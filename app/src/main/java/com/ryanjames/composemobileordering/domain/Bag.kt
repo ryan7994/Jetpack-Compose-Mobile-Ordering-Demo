@@ -1,8 +1,7 @@
 package com.ryanjames.composemobileordering.domain
 
 import android.os.Parcelable
-import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class BagSummary(
@@ -41,9 +40,6 @@ data class BagLineItem(
     val modifiers: HashMap<ProductIdModifierGroupIdKey, List<String>>,
     val quantity: Int
 ) : Parcelable {
-
-    @IgnoredOnParcel
-    var product: Product = Product.EMPTY
 
     fun deepCopy(): BagLineItem {
         return this.copy(productsInBundle = HashMap(this.productsInBundle), modifiers = HashMap(this.modifiers))

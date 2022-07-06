@@ -21,7 +21,7 @@ import com.ryanjames.composemobileordering.ui.theme.TypeScaleCategory
 import com.ryanjames.composemobileordering.ui.theme.TypeScaledTextView
 
 @Composable
-fun RestaurantHeader(state: RestaurantDisplayModel, onClickUp: () -> Unit) {
+fun RestaurantHeader(state: RestaurantDisplayModel, onClickUp: () -> Unit, onClickInfo: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -44,15 +44,28 @@ fun RestaurantHeader(state: RestaurantDisplayModel, onClickUp: () -> Unit) {
 
         Column(modifier = Modifier.padding(16.dp)) {
 
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Image(
+                    painter = painterResource(id = R.drawable.circle_up), contentDescription = "Back button",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clickable(interactionSource = MutableInteractionSource(), indication = null) {
+                            onClickUp.invoke()
+                        }
+                )
 
-            Image(
-                painter = painterResource(id = R.drawable.circle_up), contentDescription = "Back button",
-                modifier = Modifier
-                    .size(32.dp)
-                    .clickable(interactionSource = MutableInteractionSource(), indication = null) {
-                        onClickUp.invoke()
-                    }
-            )
+                Image(
+                    painter = painterResource(id = R.drawable.information), contentDescription = "Info",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clickable(interactionSource = MutableInteractionSource(), indication = null) {
+                            onClickInfo.invoke()
+                        }
+                )
+
+            }
+
+
 
 
             Spacer(modifier = Modifier.size(12.dp))

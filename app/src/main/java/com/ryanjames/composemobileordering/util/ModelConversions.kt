@@ -1,9 +1,6 @@
 package com.ryanjames.composemobileordering.ui
 
-import com.ryanjames.composemobileordering.db.VenueCategoryEntity
-import com.ryanjames.composemobileordering.db.VenueEntity
-import com.ryanjames.composemobileordering.db.VenueEntityType
-import com.ryanjames.composemobileordering.db.VenueWithCategories
+import com.ryanjames.composemobileordering.db.*
 import com.ryanjames.composemobileordering.db.model.*
 import com.ryanjames.composemobileordering.domain.*
 import com.ryanjames.composemobileordering.features.bag.BagItemRowDisplayModel
@@ -14,6 +11,9 @@ import com.ryanjames.composemobileordering.network.model.*
 import com.ryanjames.composemobileordering.toTwoDigitString
 import com.ryanjames.composemobileordering.ui.widget.MenuItemCardDisplayModel
 import com.ryanjames.composemobileordering.ui.widget.RestaurantDisplayModel
+import com.ryanjames.composemobileordering.ui.widget.StoreInfoDisplayModel
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 fun HomeResponse.toDomain(): Pair<List<Venue>, List<Venue>> {
@@ -38,7 +38,8 @@ fun VenueResponse.toDomain(): Venue? {
         deliveryTimeInMinsLow = prepMin ?: 0,
         priceIndicator = priceLevel ?: "",
         categories = categories.orEmpty(),
-        featuredImage = featuredImage
+        featuredImage = featuredImage,
+        storeHours = listOf()
     )
 }
 
@@ -63,12 +64,17 @@ fun Venue.toFeaturedRestaurantCardState(): FeaturedRestaurantCardState =
         imageUrl = featuredImage
     )
 
-fun Venue.toRestaurantHeaderState() = RestaurantDisplayModel(
+fun Venue.toRestaurantDisplayModel() = RestaurantDisplayModel(
     venueName = name,
     venueAddress = address ?: "",
     categories = categories,
     rating = rating.toTwoDigitString(),
     noOfReviews = "($numberOfRatings ratings)"
+)
+
+fun Venue.toStoreInfoDisplayModel() = StoreInfoDisplayModel(
+    address = address,
+    phone = "+500-000-0000"
 )
 
 fun BasicMenuResponse.toCategoryViewStateList() = this.categories.map {
@@ -112,6 +118,14 @@ fun HomeResponse.toEntity(): List<Pair<VenueEntity, List<VenueCategoryEntity>>> 
     return list
 }
 
+fun VenueResponse.toStoreHoursEntity(): List<StoreHoursEntity> {
+    return storeId?.let {
+        storeHours?.map {
+            it.toEntity(storeId)
+        }
+    } ?: listOf()
+}
+
 fun VenueResponse.toEntity(type: String): Pair<VenueEntity, List<VenueCategoryEntity>> {
     val venueEntity = VenueEntity(
         venueId = storeId ?: "",
@@ -127,8 +141,45 @@ fun VenueResponse.toEntity(type: String): Pair<VenueEntity, List<VenueCategoryEn
         featuredImage = featuredImage,
         type = type
     )
+
     val categoryEntities = categories?.map { VenueCategoryEntity(it) } ?: listOf()
     return Pair(venueEntity, categoryEntities)
+}
+
+fun VenueDbModel.toDomain(): Venue {
+    val venueEntity = this.venueEntity
+    return Venue(
+        id = venueEntity.venueId,
+        name = venueEntity.name,
+        address = venueEntity.address,
+        lat = venueEntity.lat,
+        long = venueEntity.longitude,
+        rating = venueEntity.rating,
+        numberOfRatings = venueEntity.numberOfRatings,
+        deliveryTimeInMinsLow = venueEntity.deliveryTimeInMinsLow,
+        deliveryTimeInMinsHigh = venueEntity.deliveryTimeInMinsHigh,
+        priceIndicator = venueEntity.priceIndicator,
+        categories = categories.map { it.categoryName },
+        featuredImage = venueEntity.featuredImage,
+        storeHours = this.storeHours.map { it.toDomain() }
+    )
+}
+
+fun StoreHoursEntity.toDomain(): StoreHours {
+    val day = getDay(day)
+    val status = when {
+        openingTime != null && closingTime != null -> {
+            val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+            val opening = LocalTime.parse(openingTime, formatter)
+            val closing = LocalTime.parse(closingTime, formatter)
+            StoreStatus.Open(opening, closing)
+        }
+        else -> StoreStatus.Closed
+    }
+    return StoreHours(
+        day = day,
+        storeStatus = status
+    )
 }
 
 fun VenueWithCategories.toDomain(): Venue {
@@ -146,7 +197,18 @@ fun VenueWithCategories.toDomain(): Venue {
         deliveryTimeInMinsHigh = venueEntity.deliveryTimeInMinsHigh,
         priceIndicator = venueEntity.priceIndicator,
         categories = categoryEntity.map { it.categoryName },
-        featuredImage = venueEntity.featuredImage
+        featuredImage = venueEntity.featuredImage,
+        storeHours = listOf()
+    )
+}
+
+fun StoreHoursResponse.toEntity(venueId: String): StoreHoursEntity {
+    return StoreHoursEntity(
+        venueId = venueId,
+        isClosed = false,
+        day = day,
+        openingTime = openingTime,
+        closingTime = closingTime
     )
 }
 

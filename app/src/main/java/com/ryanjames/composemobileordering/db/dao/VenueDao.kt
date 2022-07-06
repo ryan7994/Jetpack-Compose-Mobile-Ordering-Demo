@@ -16,6 +16,14 @@ interface VenueDao {
     fun getAllVenues(): Flow<List<VenueWithCategories>>
 
     @Transaction
+    @Query(
+        "SELECT * From VenueEntity " +
+                "JOIN StoreHoursEntity " +
+                "ON VenueEntity.venueId = StoreHoursEntity.venueId"
+    )
+    fun getVenueAndStoreHours(): Flow<Map<VenueEntity, List<StoreHoursEntity>>>
+
+    @Transaction
     @Query("SELECT  * FROM VenueEntity WHERE venueId= :id")
     fun getVenueById(id: String): Flow<VenueWithCategories?>
 
@@ -27,6 +35,9 @@ interface VenueDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(join: VenueCategoryCrossRef)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertStoreHoursEntity(vararg storeHoursEntity: StoreHoursEntity)
 
     @Delete
     suspend fun delete(venue: VenueEntity)

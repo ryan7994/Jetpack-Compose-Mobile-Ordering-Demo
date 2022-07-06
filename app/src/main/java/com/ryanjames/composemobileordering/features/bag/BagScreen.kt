@@ -51,7 +51,7 @@ fun BagScreen(
 ) {
     BagLayout(
         bagScreenState = bagViewModel.bagScreenState.collectAsState().value,
-        deliveryAddressState = editDeliveryAddressViewModel.deliveryAddressState.collectAsState().value ,
+        deliveryAddressState = editDeliveryAddressViewModel.deliveryAddressState.collectAsState().value,
         onClickAddMoreItems = onClickAddMoreItems,
         onClickLineItem = onClickLineItem,
         onClickRemove = bagViewModel::onClickRemove,
@@ -107,11 +107,9 @@ fun BagLayout(
 
     val scope = rememberCoroutineScope()
 
-    BackHandler {
-        if (modalBottomSheetState.isVisible) {
-            scope.launch {
-                modalBottomSheetState.hide()
-            }
+    BackHandler(enabled = modalBottomSheetState.isVisible) {
+        scope.launch {
+            modalBottomSheetState.hide()
         }
     }
 

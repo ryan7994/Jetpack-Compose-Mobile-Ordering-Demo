@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -77,6 +78,7 @@ fun LoginScreenLayout(
                 )
                 Spacer(modifier = Modifier.size(32.dp))
                 SingleLineTextField(
+                    modifier = Modifier.testTag("Username"),
                     value = loginScreenState.username,
                     onValueChange = { onValueChange.invoke(it, LoginFormField.Username) },
                     hintText = stringResource(R.string.username),
@@ -102,7 +104,8 @@ fun LoginScreenLayout(
                 Spacer(modifier = Modifier.size(32.dp))
                 FullWidthButton(
                     onClick = { onClickSignIn.invoke() },
-                    label = stringResource(R.string.sign_in)
+                    label = stringResource(R.string.sign_in),
+                    tag = "btnSignIn"
                 )
                 Spacer(modifier = Modifier.size(16.dp))
                 TypeScaledTextView(

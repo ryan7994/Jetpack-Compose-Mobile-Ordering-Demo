@@ -49,4 +49,12 @@
     <string name="set_delivery_address">Set delivery address</string>
     <string name="username">Username</string>
     <string name="loading_menu">Loading menu…</string>
+    <string name="phone">Phone</string>
+    <string name="other_items_title">You have other items from another restaurant.</string>
+    <string name="other_items_message">Adding this item will clear your bag and change the selected restaurant. Are you sure you want to proceed?</string>
+    <string name="login_failed">Login Failed</string>
+    <string name="username_empty">The username cannot be empty.</string>
+    <string name="password_empty">The password cannot be empty.</string>
+    <string name="username_and_password_empty">The username and password cannot be empty.</string>
+    <string name="no_match_username_password">The username and password you entered do no match our records.</string>
 </resources>

@@ -1,22 +1,56 @@
 package com.ryanjames.composemobileordering
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert.assertEquals
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.test.*
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.ryanjames.composemobileordering.features.login.LoginActivity
+import junit.framework.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
+import java.util.*
 
 /**
  * Instrumented test, which will execute on an Android device.
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-@RunWith(AndroidJUnit4::class)
+@ExperimentalMaterialApi
+@ExperimentalPagerApi
 class ExampleInstrumentedTest {
+
+
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule(LoginActivity::class.java)
+    // use createAndroidComposeRule<YourActivity>() if you need access to
+    // an activity
+
     @Test
     fun useAppContext() {
-        // Context of the app under test.
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.ryanjames.jetpackmobileordering", appContext.packageName)
+        composeTestRule.onNodeWithText("Username").performTextInput("testcedar")
+        composeTestRule.onNodeWithText("Password").performTextInput("james")
+        assertEquals("Sign In", composeTestRule.onNodeWithTag("btnSignIn").getText())
     }
+
+    fun SemanticsNodeInteraction.getText(): String? {
+        return try {
+            this.assertTextEquals(UUID.randomUUID().toString())
+            ""
+        } catch (e: AssertionError) {
+            e.message?.split("Text = '[")?.get(1)?.split("]")?.get(0)
+        }
+    }
+
+//    Failed to assert the following: (Text + EditableText = [Sign In 2])
+//    Semantics of the node:
+//    Node #14 at (l=112.0, t=1917.0, r=1328.0, b=2088.0)px, Tag: 'btnSignIn'
+//    Role = 'Button'
+//    Focused = 'false'
+//    Text = '[Sign In]'
+//    Actions = [OnClick, GetTextLayoutResult]
+//    MergeDescendants = 'true'
+//    Has 6 siblings
+//    Selector used: (TestTag = 'btnSignIn')
+//
+
 }

@@ -9,6 +9,7 @@ import com.ryanjames.composemobileordering.db.dao.VenueDao
 import com.ryanjames.composemobileordering.db.model.*
 
 @Database(
+    version = 2,
     entities = [
         VenueEntity::class,
         VenueCategoryEntity::class,
@@ -21,9 +22,10 @@ import com.ryanjames.composemobileordering.db.model.*
         LineItemModifierGroupEntity::class,
         LineItemModifierInfoEntity::class,
         GlobalEntity::class,
-        CurrentOrderEntity::class
+        CurrentOrderEntity::class,
+        StoreHoursEntity::class
     ],
-    version = 1
+//    autoMigrations = [AutoMigration(from = 1, to = 2)]
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun venueDao(): VenueDao

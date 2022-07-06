@@ -110,8 +110,8 @@ class ProductDetailViewModel @Inject constructor(
             val currentOrderVenueId = venueRepository.getCurrentVenueId()
             if (currentOrderVenueId != null && currentOrderVenueId != venueId) {
                 val dialog = TwoButtonsDialogState(
-                    title = "You have other items from another restaurant.",
-                    message = "Adding this item will clear your bag and change the selected restaurant. Are you sure you want to proceed?",
+                    title = StringResource(R.string.other_items_title),
+                    message = StringResource(R.string.other_items_message),
                     positiveButton = StringResource(R.string.yes),
                     negativeButton = StringResource(R.string.no),
                     onClickNegativeBtn = {

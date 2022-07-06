@@ -11,7 +11,8 @@ import com.ryanjames.composemobileordering.domain.EmptyVenue
 import com.ryanjames.composemobileordering.repository.AbsMenuRepository
 import com.ryanjames.composemobileordering.repository.AbsVenueRepository
 import com.ryanjames.composemobileordering.ui.toCategoryViewStateList
-import com.ryanjames.composemobileordering.ui.toRestaurantHeaderState
+import com.ryanjames.composemobileordering.ui.toRestaurantDisplayModel
+import com.ryanjames.composemobileordering.ui.toStoreInfoDisplayModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -28,7 +29,7 @@ class VenueDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _venueDetailScreenState = MutableStateFlow(VenueDetailScreenState(null, Resource.Loading))
+    private val _venueDetailScreenState = MutableStateFlow(VenueDetailScreenState(null, Resource.Loading, null))
     val venueDetailScreenState: StateFlow<VenueDetailScreenState>
         get() = _venueDetailScreenState
 
@@ -40,7 +41,7 @@ class VenueDetailViewModel @Inject constructor(
         val venueName = savedStateHandle.get<String>("venueName")
 
         val initialVenue = EmptyVenue.copy(name = venueName ?: "")
-        _venueDetailScreenState.value = VenueDetailScreenState(initialVenue.toVenueDetailHeader(), Resource.Loading, venueId = venueId)
+        _venueDetailScreenState.value = VenueDetailScreenState(initialVenue.toVenueDetailHeader(), Resource.Loading, null, venueId = venueId)
 
         if (venueId.isNotBlank()) {
             viewModelScope.launch {
@@ -55,10 +56,11 @@ class VenueDetailViewModel @Inject constructor(
                                 val email = "sample@mailinator.com"
 
                                 _venueDetailScreenState.value = _venueDetailScreenState.value.copy(
-                                    header = venue.toRestaurantHeaderState(),
+                                    header = venue.toRestaurantDisplayModel(),
                                     phoneUri = phoneUri,
                                     addressUri = addressUri,
-                                    email = email
+                                    email = email,
+                                    storeInfoDisplayModel = venue.toStoreInfoDisplayModel()
                                 )
                             }
                         } else if (resource is Resource.Error) {

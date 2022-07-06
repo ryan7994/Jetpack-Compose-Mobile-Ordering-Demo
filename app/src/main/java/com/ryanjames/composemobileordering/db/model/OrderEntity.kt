@@ -37,7 +37,7 @@ data class LineItemProductEntity(
 
 @Entity(tableName = "LineItemModifierGroupEntity")
 data class LineItemModifierGroupEntity(
-    @PrimaryKey()
+    @PrimaryKey
     val id: String,
     val modifierGroupId: String,
     val productItemId: String

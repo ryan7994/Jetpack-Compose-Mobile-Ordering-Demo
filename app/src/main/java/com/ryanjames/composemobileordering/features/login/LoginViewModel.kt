@@ -68,8 +68,8 @@ class LoginViewModel @Inject constructor(
     private fun showIncorrectCredentialsDialog() {
         _loginViewState.value = _loginViewState.value.copy(
             alertDialogState = AlertDialogState(
-                title = "Login Failed",
-                message = "The username and password you entered do no match our records.",
+                title = StringResource(R.string.login_failed),
+                message = StringResource(R.string.no_match_username_password),
                 onDismiss = this@LoginViewModel::dismissDialog
             )
         )
@@ -78,8 +78,8 @@ class LoginViewModel @Inject constructor(
     private fun showBlankUsernameDialog() {
         _loginViewState.value = _loginViewState.value.copy(
             alertDialogState = AlertDialogState(
-                title = "Login Failed",
-                message = "The username cannot be empty.",
+                title = StringResource(R.string.login_failed),
+                message = StringResource(R.string.username_empty),
                 onDismiss = this@LoginViewModel::dismissDialog
             )
         )
@@ -88,8 +88,8 @@ class LoginViewModel @Inject constructor(
     private fun showBlankPasswordDialog() {
         _loginViewState.value = _loginViewState.value.copy(
             alertDialogState = AlertDialogState(
-                title = "Login Failed",
-                message = "The password cannot be empty.",
+                title = StringResource(R.string.login_failed),
+                message = StringResource(R.string.password_empty),
                 onDismiss = this@LoginViewModel::dismissDialog
             )
         )
@@ -98,8 +98,8 @@ class LoginViewModel @Inject constructor(
     private fun showBlankUsernameAndPasswordDialog() {
         _loginViewState.value = _loginViewState.value.copy(
             alertDialogState = AlertDialogState(
-                title = "Login Failed",
-                message = "The username and password cannot be empty.",
+                title = StringResource(R.string.login_failed),
+                message = StringResource(R.string.username_and_password_empty),
                 onDismiss = this@LoginViewModel::dismissDialog
             )
         )
