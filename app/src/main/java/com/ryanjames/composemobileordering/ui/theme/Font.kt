@@ -10,12 +10,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.sp
 
 
-val FreeSans = FontFamily(
-    Font(R.font.free_sans),
-    Font(R.font.free_sans_bold, FontWeight.Bold)
-)
-
-
 val fontRubik = FontFamily(
     Font(R.font.rubik_light, weight = FontWeight.ExtraLight),
     Font(R.font.rubik_light_italic, weight = FontWeight.ExtraLight, style = FontStyle.Italic),
