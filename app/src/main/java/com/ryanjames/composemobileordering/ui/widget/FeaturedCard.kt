@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,7 +26,7 @@ import com.skydoves.landscapist.glide.GlideImage
 @Composable
 fun FeaturedCard(
     featuredRestaurantCardState: FeaturedRestaurantCardState,
-    onClickCard: (String) -> Unit = {}
+    onClickCard: (id: String) -> Unit = {}
 ) {
     val shape = RoundedCornerShape(24.dp)
 
@@ -84,40 +85,45 @@ fun FeaturedRestaurantCard(
                     }
             )
 
-            TypeScaledTextView(label = featuredRestaurantCardState.venueName,
+            Text(
+                text = featuredRestaurantCardState.venueName,
                 maxLines = 1,
-                typeScale = TypeScaleCategory.H6,
                 modifier = Modifier
                     .constrainAs(tvName) {
                         top.linkTo(parent.top)
                         start.linkTo(btnHeart.end, margin = 8.dp)
                         end.linkTo(tvPrice.start, margin = 8.dp)
                         width = Dimension.fillToConstraints
-                    }
+                    },
+                style = RubikTypography.titleMedium
             )
 
-            TypeScaledTextView(
-                label = featuredRestaurantCardState.venueCategories,
+
+            Text(
+                text = featuredRestaurantCardState.venueCategories,
                 maxLines = 1,
-                typeScale = TypeScaleCategory.Subtitle2,
-                color = TextColor.LightTextColor,
+                color = AppTheme.colors.lightTextColor,
                 modifier = Modifier
                     .constrainAs(tvSubtitle) {
-                        top.linkTo(tvName.bottom)
+                        top.linkTo(tvName.bottom, margin = 2.dp)
                         start.linkTo(tvName.start)
                         end.linkTo(tvPrice.start, margin = 8.dp)
                         width = Dimension.fillToConstraints
-                    })
+                    },
+                style = RubikTypography.bodyMedium
+            )
 
 
-            TypeScaledTextView(
-                label = featuredRestaurantCardState.priceLevel,
-                typeScale = TypeScaleCategory.Subtitle2,
+
+            Text(
+                text = featuredRestaurantCardState.priceLevel,
                 modifier = Modifier.constrainAs(tvPrice) {
                     top.linkTo(tvName.top)
                     bottom.linkTo(tvName.bottom)
                     end.linkTo(parent.end)
-                })
+                },
+                style = RubikTypography.bodyMedium
+            )
 
             Box(modifier = Modifier.constrainAs(divider) {
                 top.linkTo(tvSubtitle.bottom, margin = 4.dp)
@@ -128,9 +134,10 @@ fun FeaturedRestaurantCard(
                 )
             }
 
+
             StarRatingWithReviews(
                 modifier = Modifier.constrainAs(rating) {
-                    top.linkTo(divider.bottom, margin = 4.dp)
+                    top.linkTo(divider.bottom, margin = 8.dp)
                     start.linkTo(parent.start)
                     bottom.linkTo(parent.bottom)
                 },
@@ -138,9 +145,9 @@ fun FeaturedRestaurantCard(
                 numberOfRatings = featuredRestaurantCardState.numberOfRatings
             )
 
-            TypeScaledTextView(
-                label = featuredRestaurantCardState.deliveryTime,
-                typeScale = TypeScaleCategory.Subtitle2,
+            Text(
+                text = featuredRestaurantCardState.deliveryTime,
+                style = RubikTypography.bodyMedium,
                 modifier = Modifier.constrainAs(deliveryTime) {
                     end.linkTo(parent.end)
                     bottom.linkTo(parent.bottom)

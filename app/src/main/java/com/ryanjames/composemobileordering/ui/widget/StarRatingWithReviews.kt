@@ -3,9 +3,11 @@ package com.ryanjames.composemobileordering.ui.widget
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -17,8 +19,8 @@ fun StarRatingWithReviews(
     modifier: Modifier = Modifier,
     rating: String,
     numberOfRatings: String,
-    ratingColor: TextColor = TextColor.DarkTextColor,
-    reviewColor: TextColor = TextColor.LightTextColor
+    ratingColor: Color = AppTheme.colors.darkTextColor,
+    reviewColor: Color = AppTheme.colors.lightTextColor
 ) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
         Image(
@@ -27,13 +29,23 @@ fun StarRatingWithReviews(
         )
         Spacer(modifier = Modifier.size(4.dp))
 
-        TypeScaledTextView(label = rating, typeScale = TypeScaleCategory.Subtitle2, color = ratingColor)
+        Text(
+            text = rating,
+            style = RubikTypography.bodyMedium,
+            color = ratingColor
+        )
+
         Spacer(
             modifier = Modifier
                 .size(2.dp)
                 .fillMaxWidth()
         )
-        TypeScaledTextView(label = numberOfRatings, typeScale = TypeScaleCategory.Subtitle2, color = reviewColor)
+
+        Text(
+            text = numberOfRatings,
+            style = RubikTypography.bodyMedium,
+            color = reviewColor
+        )
     }
 }
 

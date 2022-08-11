@@ -1,5 +1,6 @@
 package com.ryanjames.composemobileordering.features.bag
 
+import android.widget.Space
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -144,14 +145,28 @@ fun BagLayout(
 
                     Spacer(modifier = Modifier.size(16.dp))
                     if (bagScreenState.venueName != null) {
-                        TypeScaledTextView(label = stringResource(R.string.your_bag_from), typeScale = TypeScaleCategory.Subtitle2)
-                        TypeScaledTextView(label = bagScreenState.venueName, typeScale = TypeScaleCategory.H6)
+                        Text(
+                            text = stringResource(R.string.your_bag_from),
+                            style = RubikTypography.bodyMedium,
+                            color = AppTheme.colors.darkTextColor
+                        )
+
+                        Text(
+                            text = bagScreenState.venueName,
+                            style = RubikTypography.titleLarge,
+                            color = AppTheme.colors.darkTextColor
+                        )
                     }
 
-                    OutlinedAccentButton(onClick = {
-                        bagScreenState.venueId?.let { onClickAddMoreItems.invoke(it) }
-                    }, label = stringResource(R.string.add_more_items))
+                    OutlinedAccentButton(
+                        onClick = {
+                            bagScreenState.venueId?.let { onClickAddMoreItems.invoke(it) }
+                        },
+                        label = stringResource(R.string.add_more_items)
+                    )
+
                     Spacer(modifier = Modifier.size(8.dp))
+
                     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                         if (bagScreenState.btnRemoveState.visible) {
                             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
@@ -211,22 +226,38 @@ fun BagLayout(
 @Composable
 fun OrderPriceBreakdown(subtotal: String, tax: String, total: String) {
     Column {
-        TypeScaledTextView(label = stringResource(R.string.summary), typeScale = TypeScaleCategory.H6)
+        Text(text = stringResource(R.string.summary), style = RubikTypography.titleLarge, color = AppTheme.colors.darkTextColor)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween
+                .padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            TypeScaledTextView(label = stringResource(R.string.subtotal), typeScale = TypeScaleCategory.Subtitle1, color = TextColor.LightTextColor)
-            TypeScaledTextView(label = subtotal, typeScale = TypeScaleCategory.Subtitle1, color = TextColor.DarkTextColor)
+            Text(
+                text = stringResource(R.string.subtotal),
+                style = RubikTypography.bodyLarge,
+                color = AppTheme.colors.lightTextColor
+            )
+            Text(
+                text = subtotal,
+                style = RubikTypography.bodyLarge,
+                color = AppTheme.colors.darkTextColor
+            )
         }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            TypeScaledTextView(label = stringResource(R.string.tax), typeScale = TypeScaleCategory.Subtitle1, color = TextColor.LightTextColor)
-            TypeScaledTextView(label = tax, typeScale = TypeScaleCategory.Subtitle1, color = TextColor.DarkTextColor)
+            Text(
+                text = stringResource(R.string.tax),
+                style = RubikTypography.bodyLarge,
+                color = AppTheme.colors.lightTextColor
+            )
+            Text(
+                text = tax,
+                style = RubikTypography.bodyLarge,
+                color = AppTheme.colors.darkTextColor
+            )
         }
         Spacer(modifier = Modifier.size(8.dp))
         DashedHorizontalLine()
@@ -236,9 +267,18 @@ fun OrderPriceBreakdown(subtotal: String, tax: String, total: String) {
                 .fillMaxWidth()
                 .padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            TypeScaledTextView(label = stringResource(R.string.total), typeScale = TypeScaleCategory.Subtitle1, color = TextColor.DarkTextColor, overrideFontWeight = FontWeight.Bold)
-            TypeScaledTextView(label = total, typeScale = TypeScaleCategory.Subtitle1, color = TextColor.DarkTextColor, overrideFontWeight = FontWeight.Bold)
+            Text(
+                text = stringResource(R.string.total),
+                style = RubikTypography.titleMedium,
+                color = AppTheme.colors.darkTextColor
+            )
+            Text(
+                text = total,
+                style = RubikTypography.titleMedium,
+                color = AppTheme.colors.darkTextColor
+            )
         }
+        Spacer(modifier = Modifier.size(16.dp))
     }
 }
 
@@ -255,15 +295,18 @@ fun BagSummaryCard(
     ) {
 
         Column(modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp)) {
-            TypeScaledTextView(label = stringResource(R.string.select_item_to_modify), typeScale = TypeScaleCategory.Subtitle1, overrideFontWeight = FontWeight.Bold)
+            Text(
+                text = stringResource(R.string.select_item_to_modify),
+                style = RubikTypography.titleLarge
+            )
 
             bagItems.forEachIndexed { index, bagItemRowState ->
                 Column(modifier = Modifier.clickable {
                     onClickLineItem.invoke(bagItemRowState.lineItemId)
                 }) {
-                    Spacer(modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.size(16.dp))
                     BagItemRow(bagItemRowDisplayModel = bagItemRowState, isRemoving = isRemoving, onCheckChanged = onCheckChanged)
-                    Spacer(modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.size(16.dp))
                     if (index < bagItems.size - 1) {
                         HorizontalLine()
                     }
@@ -280,8 +323,8 @@ fun DeliveryOptionToggle(pickupSelected: Boolean, onClickPickup: () -> Unit, onC
     val radius = 8.dp
     val selectedColor = ButtonDefaults.outlinedButtonColors(backgroundColor = CoralRed)
     val unselectedColor = ButtonDefaults.outlinedButtonColors()
-    val selectedTextColor = TextColor.StaticColor(Color.White)
-    val unselectedTextColor = TextColor.DarkTextColor
+    val selectedTextColor = Color.White
+    val unselectedTextColor = AppTheme.colors.darkTextColor
 
     Row(modifier = Modifier.fillMaxWidth()) {
         OutlinedButton(
@@ -290,11 +333,10 @@ fun DeliveryOptionToggle(pickupSelected: Boolean, onClickPickup: () -> Unit, onC
             onClick = { onClickPickup.invoke() },
             modifier = Modifier.weight(1f)
         ) {
-            TypeScaledTextView(
-                label = stringResource(R.string.pickup),
+            Text(
+                text = stringResource(R.string.pickup),
                 color = if (pickupSelected) selectedTextColor else unselectedTextColor,
-                typeScale = TypeScaleCategory.Subtitle1,
-                overrideFontWeight = FontWeight.Bold
+                style = RubikTypography.titleMedium
             )
         }
         OutlinedButton(
@@ -303,11 +345,10 @@ fun DeliveryOptionToggle(pickupSelected: Boolean, onClickPickup: () -> Unit, onC
             onClick = { onClickDelivery.invoke() },
             modifier = Modifier.weight(1f)
         ) {
-            TypeScaledTextView(
-                label = stringResource(R.string.delivery),
+            Text(
+                text = stringResource(R.string.delivery),
                 color = if (!pickupSelected) selectedTextColor else unselectedTextColor,
-                typeScale = TypeScaleCategory.Subtitle1,
-                overrideFontWeight = FontWeight.Bold
+                style = RubikTypography.titleMedium
             )
         }
     }
@@ -342,11 +383,16 @@ fun MapCard(latLng: LatLng, address: String) {
                 )
             }
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                TypeScaledTextView(
-                    label = stringResource(R.string.pickup_from), color = TextColor.LightTextColor
+                Text(
+                    text = stringResource(id = R.string.pickup_from),
+                    color = AppTheme.colors.lightTextColor,
+                    style = RubikTypography.bodyLarge
                 )
-                TypeScaledTextView(
-                    typeScale = TypeScaleCategory.Subtitle1, label = address
+                Spacer(modifier = Modifier.size(4.dp))
+                Text(
+                    text = address,
+                    color = AppTheme.colors.darkTextColor,
+                    style = RubikTypography.bodyLarge
                 )
             }
         }
@@ -359,9 +405,9 @@ fun EmptyBag(onClickBrowseRestaurants: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         Image(painter = painterResource(id = R.drawable.online_order), contentDescription = "", modifier = Modifier.size(250.dp))
         Spacer(modifier = Modifier.size(16.dp))
-        TypeScaledTextView(label = "Your bag is empty", typeScale = TypeScaleCategory.Subtitle1)
+        Text(text = stringResource(R.string.bag_empty), style = RubikTypography.bodyLarge, color = AppTheme.colors.darkTextColor)
         Spacer(modifier = Modifier.size(8.dp))
-        OutlinedAccentButton(onClick = { onClickBrowseRestaurants.invoke() }, label = "Browse restaurants")
+        OutlinedAccentButton(onClick = { onClickBrowseRestaurants.invoke() }, label = stringResource(R.string.browse_restaurants))
     }
 
 }
@@ -372,14 +418,30 @@ fun DeliveryAddressCard(deliveryAddress: String?, onClickAddEditAddress: () -> U
         Column(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp, start = 16.dp)) {
             if (deliveryAddress == null) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    TypeScaledTextView(label = stringResource(R.string.no_address_provided), color = TextColor.LightTextColor)
-                    AccentTextButton(onClick = { onClickAddEditAddress.invoke() }, label = stringResource(R.string.add))
+                    Text(
+                        text = stringResource(R.string.no_address_provided),
+                        color = AppTheme.colors.lightTextColor,
+                        style = RubikTypography.bodyLarge
+                    )
+                    AccentTextButton(
+                        onClick = { onClickAddEditAddress.invoke() },
+                        label = stringResource(R.string.add)
+                    )
                 }
             } else {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(7f)) {
-                        TypeScaledTextView(label = stringResource(id = R.string.delivering_to), color = TextColor.LightTextColor)
-                        TypeScaledTextView(label = deliveryAddress, color = TextColor.DarkTextColor)
+                        Text(
+                            text = stringResource(id = R.string.delivering_to),
+                            color = AppTheme.colors.lightTextColor,
+                            style = RubikTypography.bodyLarge
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text(
+                            text = deliveryAddress,
+                            color = AppTheme.colors.darkTextColor,
+                            style = RubikTypography.bodyLarge
+                        )
                     }
                     Row(
                         modifier = Modifier
@@ -403,9 +465,10 @@ fun BagItemRow(
 
     Row(modifier = Modifier.fillMaxWidth()) {
 
-        TypeScaledTextView(
-            label = bagItemRowDisplayModel.qty, modifier = Modifier.weight(1f),
-            typeScale = TypeScaleCategory.Subtitle1
+        Text(
+            text = bagItemRowDisplayModel.qty,
+            modifier = Modifier.weight(1f),
+            style = RubikTypography.bodyLarge
         )
 
         Column(
@@ -413,9 +476,17 @@ fun BagItemRow(
                 .weight(12f)
                 .padding(start = 8.dp)
         ) {
-            TypeScaledTextView(label = bagItemRowDisplayModel.itemName, typeScale = TypeScaleCategory.Subtitle1)
+            Text(
+                text = bagItemRowDisplayModel.itemName,
+                style = RubikTypography.bodyLarge
+            )
             if (bagItemRowDisplayModel.itemModifier.isNotBlank()) {
-                TypeScaledTextView(label = bagItemRowDisplayModel.itemModifier, color = TextColor.LightTextColor, typeScale = TypeScaleCategory.Subtitle2)
+                Spacer(modifier = Modifier.size(8.dp))
+                Text(
+                    text = bagItemRowDisplayModel.itemModifier,
+                    color = AppTheme.colors.lightTextColor,
+                    style = RubikTypography.bodyLarge
+                )
             }
         }
 
@@ -434,7 +505,12 @@ fun BagItemRow(
                     checked = bagItemRowDisplayModel.forRemoval
                 )
             } else {
-                TypeScaledTextView(label = bagItemRowDisplayModel.price, modifier = Modifier.weight(4f), typeScale = TypeScaleCategory.Subtitle1, textAlign = TextAlign.End)
+                Text(
+                    text = bagItemRowDisplayModel.price,
+                    modifier = Modifier.weight(4f),
+                    style = RubikTypography.bodyLarge,
+                    textAlign = TextAlign.End
+                )
 
             }
         }

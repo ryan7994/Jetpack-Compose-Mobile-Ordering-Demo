@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -71,10 +72,11 @@ fun LoginScreenLayout(
                     modifier = Modifier.size(64.dp)
                 )
                 Spacer(modifier = Modifier.size(16.dp))
-                TypeScaledTextView(
-                    label = stringResource(R.string.lets_get_started),
+                Text(
+                    text = stringResource(R.string.lets_get_started),
                     modifier = Modifier.align(CenterHorizontally),
-                    typeScale = TypeScaleCategory.H3
+                    style = RubikTypography.headlineLarge,
+                    color = AppTheme.colors.darkTextColor
                 )
                 Spacer(modifier = Modifier.size(32.dp))
                 SingleLineTextField(
@@ -108,15 +110,15 @@ fun LoginScreenLayout(
                     tag = "btnSignIn"
                 )
                 Spacer(modifier = Modifier.size(16.dp))
-                TypeScaledTextView(
-                    label = stringResource(R.string.mobile_ordering_demo),
-                    color = TextColor.LightTextColor,
-                    typeScale = TypeScaleCategory.Subtitle1
+                Text(
+                    text = stringResource(R.string.mobile_ordering_demo),
+                    color = AppTheme.colors.lightTextColor,
+                    style = RubikTypography.bodyLarge
                 )
-                TypeScaledTextView(
-                    label = stringResource(R.string.using_jetpack_compose),
-                    color = TextColor.LightTextColor,
-                    typeScale = TypeScaleCategory.Subtitle1
+                Text(
+                    text = stringResource(R.string.using_jetpack_compose),
+                    color = AppTheme.colors.lightTextColor,
+                    style = RubikTypography.bodyLarge
                 )
             }
 

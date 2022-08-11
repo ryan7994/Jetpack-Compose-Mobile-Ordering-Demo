@@ -103,10 +103,10 @@ fun VenueDetailScreen(
                                 selectedIndex = listState.firstVisibleItemIndex,
                                 listState = listState,
                                 selectedContent = { tabText ->
-                                    TypeScaledTextView(label = tabText, typeScale = TypeScaleCategory.Subtitle1, overrideFontWeight = FontWeight.Bold, color = TextColor.StaticColor(CoralRed))
+                                    Text(text = tabText, fontWeight = FontWeight.Bold, color = CoralRed, style = RubikTypography.titleMedium)
                                 },
                                 unselectedContent = { tabText ->
-                                    TypeScaledTextView(label = tabText, typeScale = TypeScaleCategory.Subtitle1, overrideFontWeight = FontWeight.Bold, color = TextColor.StaticColor(HintGray))
+                                    Text(text = tabText, fontWeight = FontWeight.Bold, color = HintGray, style = RubikTypography.titleMedium)
                                 }
                             )
 
@@ -119,7 +119,12 @@ fun VenueDetailScreen(
                                         Spacer(modifier = Modifier.size(16.dp))
                                     }
                                     val category = menuCategories[index]
-                                    CategoryItems(category = category.categoryName, items = category.menuItems, onClickMenuItemCard = onClickMenuItemCard, venueId = venueDetailScreenState.venueId)
+                                    CategoryItems(
+                                        category = category.categoryName,
+                                        items = category.menuItems,
+                                        onClickMenuItemCard = onClickMenuItemCard,
+                                        venueId = venueDetailScreenState.venueId
+                                    )
 
                                     if (index == menuCategories.size - 1) {
                                         Spacer(modifier = Modifier.size(64.dp))
@@ -160,8 +165,14 @@ private fun NoMenuView(phoneUri: Uri?, email: String?, addressUri: Uri?) {
                     .padding(vertical = 16.dp, horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                TypeScaledTextView(label = stringResource(R.string.come_back_later), typeScale = TypeScaleCategory.H7)
-                TypeScaledTextView(label = stringResource(R.string.no_menu_message), typeScale = TypeScaleCategory.Subtitle1)
+                Text(
+                    text = stringResource(R.string.come_back_later),
+                    style = RubikTypography.titleLarge
+                )
+                Text(
+                    text = stringResource(R.string.no_menu_message),
+                    style = RubikTypography.bodyMedium
+                )
             }
         }
 
@@ -172,14 +183,14 @@ private fun NoMenuView(phoneUri: Uri?, email: String?, addressUri: Uri?) {
             val context = LocalContext.current
 
             phoneUri?.let {
-                CircularInfoButton(label = "Call", resId = drawable.phone) {
+                CircularInfoButton(label = stringResource(R.string.call), resId = drawable.phone) {
                     val callIntent = Intent(Intent.ACTION_DIAL, phoneUri)
                     startActivity(context, callIntent, null)
                 }
             }
 
             email?.let {
-                CircularInfoButton(label = "Email", resId = drawable.email) {
+                CircularInfoButton(label = stringResource(R.string.email), resId = drawable.email) {
                     val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
                         putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
                         data = Uri.parse("mailto:")
@@ -203,32 +214,11 @@ private fun NoMenuView(phoneUri: Uri?, email: String?, addressUri: Uri?) {
 
 @Composable
 private fun CategoryItems(category: String, items: List<MenuItemCardDisplayModel>, onClickMenuItemCard: (productId: String, venueId: String) -> Unit, venueId: String) {
-    TypeScaledTextView(label = category, typeScale = TypeScaleCategory.H6)
+    Text(text = category, style = RubikTypography.titleMedium, color = AppTheme.colors.darkTextColor)
     Spacer(modifier = Modifier.size(16.dp))
     items.forEachIndexed { index, menuItemCardState ->
         MenuItemCard(state = menuItemCardState, onClickMenuItemCard = { onClickMenuItemCard.invoke(menuItemCardState.id, venueId) })
         Spacer(modifier = Modifier.size(if (index == items.size - 1) 16.dp else 12.dp))
     }
 
-}
-
-@Composable
-fun VenueDetailScreen2() {
-    Column(Modifier.verticalScroll(rememberScrollState())) {
-
-        Box {
-
-            Image(
-                painter = painterResource(id = drawable.placeholder), contentDescription = "",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .height(250.dp),
-                contentScale = ContentScale.Crop,
-                alignment = Alignment.Center
-            )
-
-        }
-
-
-    }
 }

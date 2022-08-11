@@ -93,7 +93,7 @@ fun BasicMenuWithCategories.toCategoryViewStateList(): List<CategoryViewState> {
                     id = productEntity.productId,
                     name = productEntity.productName,
                     calories = "50 cal",
-                    price = productEntity.price.toTwoDigitString(),
+                    price = "$${productEntity.price.toTwoDigitString()}",
                     imageUrl = productEntity.imageUrl ?: ""
                 )
             }
@@ -105,7 +105,7 @@ fun BasicProductResponse.toMenuItemCardState() = productName?.let {
     MenuItemCardDisplayModel(
         name = productName,
         calories = "50 cal",
-        price = "\$${price?.toTwoDigitString()}",
+        price = "$${price?.toTwoDigitString()}",
         imageUrl = imageUrl ?: "",
         id = productId ?: ""
     )

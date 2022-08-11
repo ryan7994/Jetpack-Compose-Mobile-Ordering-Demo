@@ -6,10 +6,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.ryanjames.composemobileordering.R
@@ -35,7 +37,11 @@ fun Dialog(alertDialogState: AlertDialogState?) {
                 ) {
                     CircularProgressIndicator(color = CoralRed)
                     Spacer(modifier = Modifier.size(16.dp))
-                    TypeScaledTextView(label = stringResource(id = alertDialogState.loadingText.id), typeScale = TypeScaleCategory.Subtitle1)
+                    Text(
+                        text = stringResource(id = alertDialogState.loadingText.id),
+                        style = RubikTypography.bodyLarge,
+                        color = AppTheme.colors.darkTextColor
+                    )
                 }
             }
 
@@ -49,11 +55,19 @@ fun Dialog(alertDialogState: AlertDialogState?) {
         onDismissRequest = {},
         title = {
             if (alertDialogState.title != null) {
-                TypeScaledTextView(label = stringResource(id = alertDialogState.title.id), typeScale = TypeScaleCategory.H6)
+                Text(
+                    text = stringResource(id = alertDialogState.title.id),
+                    style = RubikTypography.titleLarge,
+                    color = AppTheme.colors.darkTextColor
+                )
             }
         },
         text = {
-            TypeScaledTextView(label = stringResource(alertDialogState.message.id), typeScale = TypeScaleCategory.Subtitle1)
+            Text(
+                text = stringResource(alertDialogState.message.id),
+                style = RubikTypography.bodyLarge,
+                color = AppTheme.colors.darkTextColor
+            )
         },
         buttons = {
             Column {

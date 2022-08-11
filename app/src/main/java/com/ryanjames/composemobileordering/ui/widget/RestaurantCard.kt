@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,18 +50,24 @@ fun RestaurantCard(state: RestaurantCardState, onClickCard: (id: String) -> Unit
 
             Spacer(modifier = Modifier.size(6.dp))
 
-            TypeScaledTextView(
-                label = state.venueName,
-                modifier = Modifier.fillMaxWidth(), maxLines = 1, typeScale = TypeScaleCategory.H6
-            )
-
-            TypeScaledTextView(
-                label = state.venueCategories,
+            Text(
+                text = state.venueName,
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 1,
-                typeScale = TypeScaleCategory.Subtitle2,
-                color = TextColor.LightTextColor
+                style = RubikTypography.titleMedium
             )
+
+            Spacer(modifier = Modifier.size(2.dp))
+
+            Text(
+                text = state.venueCategories,
+                modifier = Modifier.fillMaxWidth(),
+                maxLines = 1,
+                style = RubikTypography.bodyMedium,
+                color = AppTheme.colors.lightTextColor
+            )
+
+            Spacer(modifier = Modifier.size(2.dp))
 
             StarRatingWithReviews(rating = state.rating, numberOfRatings = state.numberOfRatings)
         }

@@ -4,22 +4,25 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ryanjames.composemobileordering.R
-import com.ryanjames.composemobileordering.ui.theme.FullWidthButton
-import com.ryanjames.composemobileordering.ui.theme.SingleLineTextField
-import com.ryanjames.composemobileordering.ui.theme.TypeScaleCategory
-import com.ryanjames.composemobileordering.ui.theme.TypeScaledTextView
+import com.ryanjames.composemobileordering.ui.theme.*
 
 @Composable
 fun DeliveryAddressBottomSheetLayout(onClickSave: () -> Unit, onValueChange: (String) -> Unit, value: String) {
     val focusManager = LocalFocusManager.current
     Column(modifier = Modifier.padding(top = 32.dp, bottom = 32.dp, start = 16.dp, end = 16.dp)) {
-        TypeScaledTextView(label = stringResource(R.string.enter_deliver_address), typeScale = TypeScaleCategory.H6)
+        Text(
+            text = stringResource(R.string.enter_deliver_address),
+            style = RubikTypography.titleLarge,
+            color = AppTheme.colors.darkTextColor
+        )
         Spacer(modifier = Modifier.size(16.dp))
         SingleLineTextField(
             value = value,

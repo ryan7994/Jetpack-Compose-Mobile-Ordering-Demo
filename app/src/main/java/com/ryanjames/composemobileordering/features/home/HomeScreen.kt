@@ -176,11 +176,13 @@ fun HomeScreenContent(
                                         .padding(16.dp)
                                 )
 
-                                TypeScaledTextView(
-                                    label = stringResource(R.string.restaurants),
+                                Text(
+                                    text = stringResource(R.string.restaurants),
                                     modifier = Modifier.padding(16.dp),
-                                    typeScale = TypeScaleCategory.H6
+                                    style = RubikTypography.titleLarge,
+                                    color = AppTheme.colors.darkTextColor
                                 )
+
                                 LazyRow {
                                     items(restaurantList.size) { index ->
                                         if (index == 0) {

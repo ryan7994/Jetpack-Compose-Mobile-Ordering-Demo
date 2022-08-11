@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,13 +13,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.flowlayout.FlowRow
 import com.ryanjames.composemobileordering.R
-import com.ryanjames.composemobileordering.ui.theme.ChipGray
-import com.ryanjames.composemobileordering.ui.theme.TextColor
-import com.ryanjames.composemobileordering.ui.theme.TypeScaleCategory
-import com.ryanjames.composemobileordering.ui.theme.TypeScaledTextView
+import com.ryanjames.composemobileordering.ui.theme.*
 
 @Composable
 fun RestaurantHeader(state: RestaurantDisplayModel, onClickUp: () -> Unit, onClickInfo: () -> Unit) {
@@ -70,16 +69,19 @@ fun RestaurantHeader(state: RestaurantDisplayModel, onClickUp: () -> Unit, onCli
 
             Spacer(modifier = Modifier.size(12.dp))
 
-            TypeScaledTextView(
-                label = state.venueName,
-                typeScale = TypeScaleCategory.H4,
-                color = TextColor.StaticColor(Color.White)
+            Text(
+                text = state.venueName,
+                color = Color.White,
+                style = RubikTypography.headlineSmall,
+                fontWeight = FontWeight.Bold
             )
 
-            TypeScaledTextView(
-                label = state.venueAddress,
-                typeScale = TypeScaleCategory.Subtitle1,
-                color = TextColor.StaticColor(Color.White),
+            Spacer(modifier = Modifier.size(2.dp))
+
+            Text(
+                text = state.venueAddress,
+                color = Color.White,
+                style = RubikTypography.bodyMedium
             )
 
 
@@ -87,7 +89,7 @@ fun RestaurantHeader(state: RestaurantDisplayModel, onClickUp: () -> Unit, onCli
 
             FlowRow(crossAxisSpacing = 8.dp, mainAxisSpacing = 8.dp) {
                 state.categories.forEach { category ->
-                    DisplayChip(label = category, textColor = TextColor.StaticColor(Color.White), backgroundColor = ChipGray)
+                    DisplayChip(label = category, textColor = Color.White, backgroundColor = ChipGray)
                 }
             }
 
@@ -95,8 +97,8 @@ fun RestaurantHeader(state: RestaurantDisplayModel, onClickUp: () -> Unit, onCli
             StarRatingWithReviews(
                 rating = state.rating,
                 numberOfRatings = state.noOfReviews,
-                ratingColor = TextColor.StaticColor(Color.White),
-                reviewColor = TextColor.StaticColor(Color.White)
+                ratingColor = Color.White,
+                reviewColor = Color.White
             )
         }
 
