@@ -95,7 +95,7 @@ class ProductDetailViewModelTest {
                 val emission1 = awaitItem()
                 assertThat(emission1.loadingProductDetail).isEqualTo(true)
                 assertThat(emission1.product).isEqualTo(null)
-                coroutineRule.advanceTimeBy(10)
+                // coroutineRule.advanceTimeBy(10)
                 val emission2 = awaitItem()
                 assertThat(emission2.loadingProductDetail).isEqualTo(false)
                 assertThat(emission2.product).isEqualTo(PRODUCT_COKE)

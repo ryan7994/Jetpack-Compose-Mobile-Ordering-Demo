@@ -225,8 +225,7 @@ class BottomNavActivity : ComponentActivity() {
                     label = {
                         Text(
                             stringResource(id = tab.labelResId),
-                            fontFamily = FreeSans,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            style = RubikTypography.bodyMedium
                         )
                     },
                     alwaysShowLabel = false,

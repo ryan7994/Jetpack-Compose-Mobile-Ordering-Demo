@@ -34,58 +34,6 @@ import androidx.compose.ui.unit.sp
 import com.ryanjames.composemobileordering.features.bag.ButtonState
 import kotlinx.coroutines.launch
 
-@Composable
-fun TypeScaledTextView(
-    label: String,
-    modifier: Modifier = Modifier,
-    color: TextColor = TextColor.DarkTextColor,
-    maxLines: Int = Int.MAX_VALUE,
-    typeScale: TypeScaleCategory = TypeScaleCategory.Subtitle2,
-    overrideFontWeight: FontWeight? = null,
-    textAlign: TextAlign? = null,
-    textStyle: TextStyle? = null
-) {
-
-    val textColor = when (color) {
-        is TextColor.DarkTextColor -> AppTheme.colors.darkTextColor
-        is TextColor.LightTextColor -> AppTheme.colors.lightTextColor
-        is TextColor.StaticColor -> color.color
-        else -> Color.Black
-    }
-
-    Text(
-        text = label,
-        fontSize = typeScale.size,
-        fontWeight = overrideFontWeight ?: typeScale.weight,
-        color = textColor,
-        fontFamily = FreeSans,
-        modifier = modifier,
-        maxLines = maxLines,
-        overflow = TextOverflow.Ellipsis,
-        textAlign = textAlign,
-        style = textStyle ?: LocalTextStyle.current
-    )
-}
-
-sealed class TextColor {
-    object DarkTextColor : TextColor()
-    object LightTextColor : TextColor()
-    class StaticColor(val color: Color) : TextColor()
-}
-
-sealed class TypeScaleCategory(val size: TextUnit, val weight: FontWeight) {
-    object H1 : TypeScaleCategory(42.sp, FontWeight.Bold)
-    object H2 : TypeScaleCategory(38.sp, FontWeight.Bold)
-    object H3 : TypeScaleCategory(34.sp, FontWeight.Bold)
-    object H4 : TypeScaleCategory(28.sp, FontWeight.Bold)
-    object H5 : TypeScaleCategory(24.sp, FontWeight.Bold)
-    object H6 : TypeScaleCategory(20.sp, FontWeight.Bold)
-    object H7 : TypeScaleCategory(18.sp, FontWeight.Bold)
-    object Subtitle1 : TypeScaleCategory(16.sp, FontWeight.W500)
-    object Subtitle2 : TypeScaleCategory(14.sp, FontWeight.W500)
-    object Subtitle3 : TypeScaleCategory(12.sp, FontWeight.W500)
-}
-
 
 @Composable
 fun SingleLineTextField(
@@ -114,13 +62,13 @@ fun SingleLineTextField(
             Text(
                 text = hintText,
                 color = AppTheme.colors.hintTextColor,
-                fontFamily = FreeSans
+                style = RubikTypography.bodyLarge
             )
         },
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions ?: KeyboardActions(onAny = { focusManager.clearFocus() }),
         visualTransformation = visualTransformation,
-        textStyle = TextStyle(color = AppTheme.colors.darkTextColor)
+        textStyle = TextStyle(color = AppTheme.colors.darkTextColor, fontFamily = fontRubik)
     )
 
 
@@ -139,12 +87,11 @@ fun AccentButton(onClick: () -> Unit, label: String, modifier: Modifier = Modifi
         Box(modifier = Modifier.padding(horizontal = 8.dp)) {
             Text(
                 text = label,
-                fontFamily = FreeSans,
                 color = Color.White,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
-                modifier = modifier
+                modifier = modifier,
+                style = RubikTypography.titleLarge
             )
         }
 
@@ -162,11 +109,12 @@ fun OutlinedAccentButton(onClick: () -> Unit, label: String, modifier: Modifier 
         colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Transparent)
     ) {
 
-        TypeScaledTextView(
-            label = label,
-            color = TextColor.DarkTextColor,
+        Text(
+            text = label,
+            color = AppTheme.colors.darkTextColor,
             textAlign = TextAlign.Center,
-            modifier = modifier
+            modifier = modifier,
+            style = RubikTypography.bodyLarge
         )
     }
 }
@@ -181,12 +129,12 @@ fun AccentTextButton(onClick: () -> Unit, label: String, modifier: Modifier = Mo
             enabled = buttonState.enabled
         ) {
 
-            TypeScaledTextView(
-                label = label,
-                color = if (buttonState.enabled) TextColor.StaticColor(CoralRed) else TextColor.LightTextColor,
+            Text(
+                text = label,
+                color = if (buttonState.enabled) CoralRed else AppTheme.colors.lightTextColor,
                 textAlign = TextAlign.Center,
                 modifier = modifier,
-                overrideFontWeight = FontWeight.Bold
+                style = RubikTypography.titleMedium
             )
         }
     }
@@ -212,12 +160,11 @@ fun FullWidthButton(onClick: () -> Unit, label: String, tag: String? = null) {
 
             Text(
                 text = label,
-                fontFamily = FreeSans,
                 color = Color.White,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                style = RubikTypography.titleLarge
             )
         }
 

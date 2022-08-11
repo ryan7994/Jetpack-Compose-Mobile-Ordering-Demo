@@ -1,22 +1,22 @@
 package com.ryanjames.composemobileordering.ui.widget
 
+import android.widget.Space
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.request.RequestOptions
 import com.ryanjames.composemobileordering.R
-import com.ryanjames.composemobileordering.ui.theme.CoralRed
-import com.ryanjames.composemobileordering.ui.theme.TextColor
-import com.ryanjames.composemobileordering.ui.theme.TypeScaleCategory
-import com.ryanjames.composemobileordering.ui.theme.TypeScaledTextView
+import com.ryanjames.composemobileordering.ui.theme.*
 import com.skydoves.landscapist.glide.GlideImage
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -31,7 +31,7 @@ fun MenuItemCard(
         modifier = Modifier.fillMaxWidth(),
         onClick = { onClickMenuItemCard.invoke(state.id) }
     ) {
-        Row(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
+        Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
 
             GlideImage(
                 imageModel = state.imageUrl,
@@ -49,9 +49,27 @@ fun MenuItemCard(
 
 
             Column {
-                TypeScaledTextView(label = state.name, typeScale = TypeScaleCategory.H7)
-                TypeScaledTextView(label = state.calories, typeScale = TypeScaleCategory.Subtitle2, color = TextColor.LightTextColor)
-                DisplayChip(label = state.price, textColor = TextColor.StaticColor(Color.White), backgroundColor = CoralRed)
+                Text(
+                    text = state.name,
+                    style = RubikTypography.bodyLarge,
+                    color = AppTheme.colors.darkTextColor
+                )
+
+                Spacer(modifier = Modifier.size(2.dp))
+
+                Text(
+                    text = state.calories,
+                    style = RubikTypography.bodyMedium,
+                    color = AppTheme.colors.lightTextColor
+                )
+
+                Spacer(modifier = Modifier.size(2.dp))
+
+                DisplayChip(
+                    label = state.price,
+                    textColor = Color.White,
+                    backgroundColor = CoralRed
+                )
             }
         }
 

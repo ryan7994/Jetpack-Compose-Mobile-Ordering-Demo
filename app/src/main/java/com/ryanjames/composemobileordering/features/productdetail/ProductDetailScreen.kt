@@ -29,7 +29,6 @@ import com.ryanjames.composemobileordering.ui.core.Dialog
 import com.ryanjames.composemobileordering.ui.theme.*
 import com.ryanjames.composemobileordering.ui.widget.LoadingSpinnerWithText
 import com.skydoves.landscapist.glide.GlideImage
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
@@ -172,23 +171,24 @@ private fun QtySelector(modifier: Modifier, onClickPlus: () -> Unit, onClickMinu
             .clickable { onClickMinus.invoke() }
             .weight(2f),
             contentAlignment = Alignment.Center) {
-            TypeScaledTextView(
-                label = "-",
-                overrideFontWeight = FontWeight.Bold,
-                typeScale = TypeScaleCategory.H6,
+            Text(
+                text = "-",
+                style = RubikTypography.titleLarge,
                 textAlign = TextAlign.Center,
-                color = TextColor.StaticColor(Color.White)
+                color = Color.White,
+                fontWeight = FontWeight.Bold
             )
         }
 
-        TypeScaledTextView(
-            label = qty, overrideFontWeight = FontWeight.Bold,
-            typeScale = TypeScaleCategory.H6,
+        Text(
+            text = qty,
+            fontWeight = FontWeight.Bold,
+            style = RubikTypography.titleMedium,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
             textAlign = TextAlign.Center,
-            color = TextColor.StaticColor(Color.White)
+            color = Color.White
         )
 
         Box(modifier = Modifier
@@ -196,12 +196,12 @@ private fun QtySelector(modifier: Modifier, onClickPlus: () -> Unit, onClickMinu
             .clickable { onClickPlus.invoke() }
             .weight(2f),
             contentAlignment = Alignment.Center) {
-            TypeScaledTextView(
-                label = "+",
-                overrideFontWeight = FontWeight.Bold,
-                typeScale = TypeScaleCategory.H6,
+            Text(
+                text = "+",
+                style = RubikTypography.titleLarge,
                 textAlign = TextAlign.Center,
-                color = TextColor.StaticColor(Color.White)
+                color = Color.White,
+                fontWeight = FontWeight.Bold
             )
         }
 
@@ -224,18 +224,16 @@ private fun AddToBagBtn(modifier: Modifier, price: String, onClickAddToBag: () -
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            TypeScaledTextView(
-                label = stringResource(btnLabel.id),
-                color = TextColor.StaticColor(Color.White),
-                modifier = Modifier,
-                typeScale = TypeScaleCategory.Subtitle1,
-                overrideFontWeight = FontWeight.Bold
+            Text(
+                text = stringResource(btnLabel.id),
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                style = RubikTypography.titleMedium
             )
-            TypeScaledTextView(
-                label = price,
-                color = TextColor.StaticColor(Color.White),
-                modifier = Modifier,
-                typeScale = TypeScaleCategory.Subtitle1
+            Text(
+                text = price,
+                color = Color.White,
+                style = RubikTypography.titleMedium
             )
         }
 
@@ -267,17 +265,20 @@ private fun ProductDetailLayout(productDetailScreenState: ProductDetailScreenSta
 
         Spacer(modifier = Modifier.size(24.dp))
 
-        TypeScaledTextView(
-            label = product.productName, typeScale = TypeScaleCategory.H5,
-            color = TextColor.DarkTextColor
+        Text(
+            text = product.productName,
+            style = RubikTypography.headlineMedium,
+            color = AppTheme.colors.darkTextColor,
+            fontWeight = FontWeight.Bold
         )
 
         Spacer(modifier = Modifier.size(8.dp))
 
-        TypeScaledTextView(
-            label = product.productDescription,
-            typeScale = TypeScaleCategory.Subtitle1,
-            color = TextColor.LightTextColor
+        Text(
+            text = product.productDescription,
+            style = RubikTypography.bodyLarge,
+            color = AppTheme.colors.lightTextColor,
+            fontWeight = FontWeight.Normal
         )
 
         Spacer(modifier = Modifier.size(8.dp))
@@ -308,8 +309,19 @@ fun ModifierSummaryRow(modifierSummaryRowDisplayModel: ModifierSummaryRowDisplay
         ) {
 
             Column(modifier = Modifier.weight(11f)) {
-                TypeScaledTextView(label = modifierSummaryRowDisplayModel.title, typeScale = TypeScaleCategory.Subtitle1, overrideFontWeight = FontWeight.Bold)
-                TypeScaledTextView(label = modifierSummaryRowDisplayModel.subtitle, typeScale = TypeScaleCategory.Subtitle2, color = TextColor.LightTextColor)
+                Text(
+                    text = modifierSummaryRowDisplayModel.title,
+                    style = RubikTypography.bodyLarge,
+                    color = AppTheme.colors.darkTextColor
+                )
+
+                Spacer(modifier = Modifier.size(8.dp))
+
+                Text(
+                    text = modifierSummaryRowDisplayModel.subtitle,
+                    style = RubikTypography.bodyMedium,
+                    color = AppTheme.colors.lightTextColor
+                )
             }
 
             Box(modifier = Modifier.weight(1f)) {
@@ -339,10 +351,11 @@ fun ProductGroupHeaderRow(label: String) {
         horizontalArrangement = Arrangement.Center
 
     ) {
-        TypeScaledTextView(
-            label = label,
-            typeScale = TypeScaleCategory.H6,
-            color = TextColor.DarkTextColor
+        Text(
+            text = label,
+            color = AppTheme.colors.darkTextColor,
+            style = RubikTypography.titleLarge,
+            fontWeight = FontWeight.Bold
         )
     }
 
@@ -359,7 +372,14 @@ fun ModifierRbRow(modifierOptionDisplayModel: ModifierOptionDisplayModel, onClic
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        TypeScaledTextView(label = modifierOptionDisplayModel.name, modifier = Modifier.padding(start = 16.dp), typeScale = TypeScaleCategory.Subtitle1)
+        Text(
+            text = modifierOptionDisplayModel.name,
+            modifier = Modifier.padding(start = 16.dp),
+            style = RubikTypography.bodyLarge,
+            fontWeight = FontWeight.Normal,
+            color = AppTheme.colors.darkTextColor
+        )
+
         RadioButton(
             selected = modifierOptionDisplayModel.selected,
             modifier = Modifier.padding(end = 16.dp),
@@ -384,7 +404,13 @@ fun ModifierCbRow(modifierOptionDisplayModel: ModifierOptionDisplayModel, onClic
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        TypeScaledTextView(label = modifierOptionDisplayModel.name, modifier = Modifier.padding(start = 16.dp), typeScale = TypeScaleCategory.Subtitle1)
+        Text(
+            text = modifierOptionDisplayModel.name,
+            modifier = Modifier.padding(start = 16.dp),
+            style = RubikTypography.bodyLarge,
+            fontWeight = FontWeight.Normal,
+            color = AppTheme.colors.darkTextColor
+        )
         Checkbox(
             checked = modifierOptionDisplayModel.selected,
             modifier = Modifier.padding(end = 16.dp),
@@ -406,13 +432,22 @@ fun ModifierBottomSheetLayout(
     onClickModifier: (parentId: String, id: String) -> Unit
 ) {
     Column {
-        TypeScaledTextView(label = title, typeScale = TypeScaleCategory.H7, modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp))
+        Text(
+            text = title,
+            style = RubikTypography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp),
+            color = AppTheme.colors.darkTextColor
+        )
+
         if (subtitle.isNotBlank()) {
-            TypeScaledTextView(
-                label = subtitle,
-                typeScale = TypeScaleCategory.Subtitle2,
+            Spacer(Modifier.size(4.dp))
+            Text(
+                text = subtitle,
+                style = RubikTypography.bodyLarge,
+                fontWeight = FontWeight.Normal,
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp),
-                color = TextColor.LightTextColor
+                color = AppTheme.colors.lightTextColor
             )
         }
         Spacer(modifier = Modifier.size(16.dp))

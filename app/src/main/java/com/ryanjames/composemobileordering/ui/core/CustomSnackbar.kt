@@ -6,14 +6,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.SnackbarData
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.ryanjames.composemobileordering.ui.theme.RubikTypography
 import com.ryanjames.composemobileordering.ui.theme.SunYellow
-import com.ryanjames.composemobileordering.ui.theme.TextColor
-import com.ryanjames.composemobileordering.ui.theme.TypeScaledTextView
 
 @Composable
 fun CustomSnackbar(
@@ -27,7 +27,11 @@ fun CustomSnackbar(
             .background(SunYellow)
             .padding(16.dp)
     ) {
-        TypeScaledTextView(label = data.message, color = TextColor.StaticColor(Color.Black))
+        Text(
+            text = data.message,
+            color = Color.Black,
+            style = RubikTypography.bodyMedium
+        )
     }
 
 }

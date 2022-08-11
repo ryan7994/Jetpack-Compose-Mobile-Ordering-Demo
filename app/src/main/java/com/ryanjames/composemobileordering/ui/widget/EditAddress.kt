@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,10 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ryanjames.composemobileordering.R
-import com.ryanjames.composemobileordering.ui.theme.DarkBlueGray
-import com.ryanjames.composemobileordering.ui.theme.TextColor
-import com.ryanjames.composemobileordering.ui.theme.TypeScaleCategory
-import com.ryanjames.composemobileordering.ui.theme.TypeScaledTextView
+import com.ryanjames.composemobileordering.ui.theme.*
 
 @Composable
 fun EditAddress(modifier: Modifier = Modifier, address: String?, onClick: () -> Unit) {
@@ -32,16 +30,27 @@ fun EditAddress(modifier: Modifier = Modifier, address: String?, onClick: () -> 
         )
         Column(modifier = Modifier.padding(8.dp)) {
             if (address != null) {
-                TypeScaledTextView(label = stringResource(R.string.delivering_to), color = TextColor.StaticColor(Color.White), typeScale = TypeScaleCategory.H6)
-                TypeScaledTextView(label = address, color = TextColor.StaticColor(Color.White), typeScale = TypeScaleCategory.Subtitle2)
+                Text(
+                    text = stringResource(R.string.delivering_to),
+                    color = Color.White,
+                    style = RubikTypography.titleMedium
+                )
+
+                Text(
+                    text = address,
+                    color = Color.White,
+                    style = RubikTypography.bodyMedium
+                )
             } else {
-                TypeScaledTextView(label = stringResource(R.string.set_delivery_address), color = TextColor.StaticColor(Color.White), typeScale = TypeScaleCategory.H6)
+                Text(
+                    text = stringResource(R.string.set_delivery_address),
+                    color = Color.White,
+                    style = RubikTypography.titleLarge
+                )
             }
         }
     }
 }
-
-
 
 
 @Preview
