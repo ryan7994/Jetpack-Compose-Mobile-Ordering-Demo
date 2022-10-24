@@ -32,7 +32,7 @@ val fontRubik = FontFamily(
 )
 
 // Set of Material typography styles to start with
-val RubikTypography = Typography(
+val Typography = Typography(
     displayLarge = TextStyle(
         fontFamily = fontRubik,
         fontWeight = FontWeight.Normal,

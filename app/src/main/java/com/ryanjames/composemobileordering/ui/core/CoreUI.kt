@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.ryanjames.composemobileordering.ui.theme
 
 import androidx.compose.foundation.BorderStroke
@@ -9,8 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.material.*
-import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,11 +26,8 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ryanjames.composemobileordering.features.bag.ButtonState
@@ -62,7 +61,7 @@ fun SingleLineTextField(
             Text(
                 text = hintText,
                 color = AppTheme.colors.hintTextColor,
-                style = RubikTypography.bodyLarge
+                style = Typography.bodyLarge
             )
         },
         keyboardOptions = keyboardOptions,
@@ -80,7 +79,7 @@ fun AccentButton(onClick: () -> Unit, label: String, modifier: Modifier = Modifi
     Button(
         onClick = onClick,
         contentPadding = PaddingValues(),
-        colors = ButtonDefaults.buttonColors(backgroundColor = CoralRed),
+        colors = ButtonDefaults.buttonColors(containerColor = CoralRed),
         shape = RoundedCornerShape(8.dp)
     ) {
 
@@ -91,7 +90,7 @@ fun AccentButton(onClick: () -> Unit, label: String, modifier: Modifier = Modifi
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center,
                 modifier = modifier,
-                style = RubikTypography.titleLarge
+                style = Typography.titleLarge
             )
         }
 
@@ -106,7 +105,7 @@ fun OutlinedAccentButton(onClick: () -> Unit, label: String, modifier: Modifier 
         contentPadding = PaddingValues(horizontal = 8.dp),
         shape = RoundedCornerShape(8.dp),
         border = BorderStroke(width = 2.dp, color = CoralRed),
-        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Transparent)
+        colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Transparent)
     ) {
 
         Text(
@@ -114,7 +113,7 @@ fun OutlinedAccentButton(onClick: () -> Unit, label: String, modifier: Modifier 
             color = AppTheme.colors.darkTextColor,
             textAlign = TextAlign.Center,
             modifier = modifier,
-            style = RubikTypography.bodyLarge
+            style = Typography.bodyLarge
         )
     }
 }
@@ -134,7 +133,7 @@ fun AccentTextButton(onClick: () -> Unit, label: String, modifier: Modifier = Mo
                 color = if (buttonState.enabled) CoralRed else AppTheme.colors.lightTextColor,
                 textAlign = TextAlign.Center,
                 modifier = modifier,
-                style = RubikTypography.titleMedium
+                style = Typography.titleMedium
             )
         }
     }
@@ -147,7 +146,7 @@ fun FullWidthButton(onClick: () -> Unit, label: String, tag: String? = null) {
     Button(
         onClick = onClick,
         contentPadding = PaddingValues(),
-        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.testTag(tag ?: label)
     ) {
@@ -164,7 +163,7 @@ fun FullWidthButton(onClick: () -> Unit, label: String, tag: String? = null) {
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
-                style = RubikTypography.titleLarge
+                style = Typography.titleLarge
             )
         }
 
@@ -189,7 +188,7 @@ fun TextTabs(
 
     ScrollableTabRow(
         selectedTabIndex = tabIndex.value,
-        backgroundColor = AppTheme.colors.bottomNavBackground,
+        containerColor = AppTheme.colors.bottomNavBackground,
         edgePadding = 16.dp,
         indicator = {
             TabRowDefaults.Indicator(

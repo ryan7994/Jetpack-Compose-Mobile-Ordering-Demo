@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ryanjames.composemobileordering.ui.theme.ChipGray
-import com.ryanjames.composemobileordering.ui.theme.RubikTypography
+import com.ryanjames.composemobileordering.ui.theme.Typography
 
 @Composable
 fun DisplayChip(label: String, textColor: Color, backgroundColor: Color) {
@@ -24,7 +24,7 @@ fun DisplayChip(label: String, textColor: Color, backgroundColor: Color) {
     ) {
         Text(
             text = label,
-            style = RubikTypography.titleSmall,
+            style = Typography.titleSmall,
             color = textColor,
             modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
         )

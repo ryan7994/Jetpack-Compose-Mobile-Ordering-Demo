@@ -10,12 +10,12 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.ryanjames.composemobileordering"
         minSdk 26
-        targetSdk 32
+        targetSdk 33
         versionCode 8
         versionName "1.0"
 
@@ -156,6 +156,7 @@ dependencies {
     // Needed for createComposeRule, but not createAndroidComposeRule:
     debugImplementation("androidx.compose.ui:ui-test-manifest:$compose_version")
 
-    implementation 'androidx.compose.material3:material3:1.0.0-alpha14'
+    // Material 3
+    implementation 'androidx.compose.material3:material3:1.0.0-rc01'
 
 }

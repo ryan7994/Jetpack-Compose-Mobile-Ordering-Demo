@@ -3,15 +3,14 @@ package com.ryanjames.composemobileordering.ui.core
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.ryanjames.composemobileordering.R
@@ -39,8 +38,7 @@ fun Dialog(alertDialogState: AlertDialogState?) {
                     Spacer(modifier = Modifier.size(16.dp))
                     Text(
                         text = stringResource(id = alertDialogState.loadingText.id),
-                        style = RubikTypography.bodyLarge,
-                        color = AppTheme.colors.darkTextColor
+                        style = Typography.bodyLarge
                     )
                 }
             }
@@ -50,14 +48,16 @@ fun Dialog(alertDialogState: AlertDialogState?) {
         return
     }
 
+
     AlertDialog(
+        containerColor = AppTheme.colors.materialColors.surfaceVariant,
         shape = RoundedCornerShape(8.dp),
         onDismissRequest = {},
         title = {
             if (alertDialogState.title != null) {
                 Text(
                     text = stringResource(id = alertDialogState.title.id),
-                    style = RubikTypography.titleLarge,
+                    style = Typography.titleLarge,
                     color = AppTheme.colors.darkTextColor
                 )
             }
@@ -65,15 +65,14 @@ fun Dialog(alertDialogState: AlertDialogState?) {
         text = {
             Text(
                 text = stringResource(alertDialogState.message.id),
-                style = RubikTypography.bodyLarge,
+                style = Typography.bodyLarge,
                 color = AppTheme.colors.darkTextColor
             )
         },
-        buttons = {
+        confirmButton  = {
             Column {
                 Row(
                     modifier = Modifier
-                        .padding(end = 16.dp)
                         .fillMaxWidth(), horizontalArrangement = Arrangement.End
                 ) {
 
@@ -101,8 +100,7 @@ fun Dialog(alertDialogState: AlertDialogState?) {
                 Spacer(modifier = Modifier.size(16.dp))
             }
 
-        },
-        backgroundColor = AppTheme.colors.materialColors.surface
+        }
     )
 }
 

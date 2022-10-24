@@ -3,9 +3,9 @@ package com.ryanjames.composemobileordering.ui.theme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,13 +18,12 @@ import com.ryanjames.composemobileordering.ui.widget.StarRatingWithReviews
 import com.skydoves.landscapist.glide.GlideImage
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RestaurantCard(state: RestaurantCardState, onClickCard: (id: String) -> Unit = {}) {
 
     Card(
         shape = RoundedCornerShape(12.dp),
-        elevation = 4.dp,
         modifier = Modifier
             .width(282.dp),
         onClick = {
@@ -54,7 +53,7 @@ fun RestaurantCard(state: RestaurantCardState, onClickCard: (id: String) -> Unit
                 text = state.venueName,
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 1,
-                style = RubikTypography.titleMedium
+                style = Typography.titleMedium
             )
 
             Spacer(modifier = Modifier.size(2.dp))
@@ -63,7 +62,7 @@ fun RestaurantCard(state: RestaurantCardState, onClickCard: (id: String) -> Unit
                 text = state.venueCategories,
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 1,
-                style = RubikTypography.bodyMedium,
+                style = Typography.bodyMedium,
                 color = AppTheme.colors.lightTextColor
             )
 

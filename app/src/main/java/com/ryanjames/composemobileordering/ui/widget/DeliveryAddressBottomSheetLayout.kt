@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.ui.theme.*
@@ -20,7 +19,7 @@ fun DeliveryAddressBottomSheetLayout(onClickSave: () -> Unit, onValueChange: (St
     Column(modifier = Modifier.padding(top = 32.dp, bottom = 32.dp, start = 16.dp, end = 16.dp)) {
         Text(
             text = stringResource(R.string.enter_deliver_address),
-            style = RubikTypography.titleLarge,
+            style = Typography.titleLarge,
             color = AppTheme.colors.darkTextColor
         )
         Spacer(modifier = Modifier.size(16.dp))

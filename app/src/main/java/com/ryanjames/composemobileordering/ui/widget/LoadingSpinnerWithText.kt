@@ -1,8 +1,8 @@
 package com.ryanjames.composemobileordering.ui.widget
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,8 +22,7 @@ fun LoadingSpinnerWithText(text: String) {
         Spacer(modifier = Modifier.size(16.dp))
         Text(
             text = text,
-            style = RubikTypography.bodyLarge,
-            color = AppTheme.colors.darkTextColor
+            style = Typography.bodyLarge
         )
     }
 }

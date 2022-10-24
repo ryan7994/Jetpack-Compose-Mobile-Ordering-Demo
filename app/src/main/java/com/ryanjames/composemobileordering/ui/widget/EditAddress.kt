@@ -33,19 +33,19 @@ fun EditAddress(modifier: Modifier = Modifier, address: String?, onClick: () -> 
                 Text(
                     text = stringResource(R.string.delivering_to),
                     color = Color.White,
-                    style = RubikTypography.titleMedium
+                    style = Typography.titleMedium
                 )
 
                 Text(
                     text = address,
                     color = Color.White,
-                    style = RubikTypography.bodyMedium
+                    style = Typography.bodyMedium
                 )
             } else {
                 Text(
                     text = stringResource(R.string.set_delivery_address),
                     color = Color.White,
-                    style = RubikTypography.titleLarge
+                    style = Typography.titleLarge
                 )
             }
         }
