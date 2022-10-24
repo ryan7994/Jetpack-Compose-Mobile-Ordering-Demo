@@ -1,25 +1,21 @@
 package com.ryanjames.composemobileordering.ui.widget
 
-import android.widget.Space
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.request.RequestOptions
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.ui.theme.*
 import com.skydoves.landscapist.glide.GlideImage
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuItemCard(
     state: MenuItemCardDisplayModel,
@@ -27,7 +23,6 @@ fun MenuItemCard(
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        elevation = 4.dp,
         modifier = Modifier.fillMaxWidth(),
         onClick = { onClickMenuItemCard.invoke(state.id) }
     ) {
@@ -51,15 +46,14 @@ fun MenuItemCard(
             Column {
                 Text(
                     text = state.name,
-                    style = RubikTypography.bodyLarge,
-                    color = AppTheme.colors.darkTextColor
+                    style = Typography.bodyLarge
                 )
 
                 Spacer(modifier = Modifier.size(2.dp))
 
                 Text(
                     text = state.calories,
-                    style = RubikTypography.bodyMedium,
+                    style = Typography.bodyMedium,
                     color = AppTheme.colors.lightTextColor
                 )
 

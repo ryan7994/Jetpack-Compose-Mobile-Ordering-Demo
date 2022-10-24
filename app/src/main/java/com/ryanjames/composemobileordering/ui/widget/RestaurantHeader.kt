@@ -72,7 +72,7 @@ fun RestaurantHeader(state: RestaurantDisplayModel, onClickUp: () -> Unit, onCli
             Text(
                 text = state.venueName,
                 color = Color.White,
-                style = RubikTypography.headlineSmall,
+                style = Typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
 
@@ -81,7 +81,7 @@ fun RestaurantHeader(state: RestaurantDisplayModel, onClickUp: () -> Unit, onCli
             Text(
                 text = state.venueAddress,
                 color = Color.White,
-                style = RubikTypography.bodyMedium
+                style = Typography.bodyMedium
             )
 
 

@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.ryanjames.composemobileordering.ui.theme.RubikTypography
+import com.ryanjames.composemobileordering.ui.theme.Typography
 import com.ryanjames.composemobileordering.ui.theme.SunYellow
 
 @Composable
@@ -30,7 +30,7 @@ fun CustomSnackbar(
         Text(
             text = data.message,
             color = Color.Black,
-            style = RubikTypography.bodyMedium
+            style = Typography.bodyMedium
         )
     }
 

@@ -1,14 +1,14 @@
 package com.ryanjames.composemobileordering.features.bag
 
-import android.widget.Space
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.CameraPosition
@@ -38,7 +37,6 @@ import com.ryanjames.composemobileordering.ui.theme.*
 import com.ryanjames.composemobileordering.ui.widget.DeliveryAddressBottomSheetLayout
 import com.ryanjames.composemobileordering.util.getBitmapDescriptor
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @FlowPreview
@@ -147,13 +145,13 @@ fun BagLayout(
                     if (bagScreenState.venueName != null) {
                         Text(
                             text = stringResource(R.string.your_bag_from),
-                            style = RubikTypography.bodyMedium,
+                            style = Typography.bodyMedium,
                             color = AppTheme.colors.darkTextColor
                         )
 
                         Text(
                             text = bagScreenState.venueName,
-                            style = RubikTypography.titleLarge,
+                            style = Typography.titleLarge,
                             color = AppTheme.colors.darkTextColor
                         )
                     }
@@ -226,7 +224,7 @@ fun BagLayout(
 @Composable
 fun OrderPriceBreakdown(subtotal: String, tax: String, total: String) {
     Column {
-        Text(text = stringResource(R.string.summary), style = RubikTypography.titleLarge, color = AppTheme.colors.darkTextColor)
+        Text(text = stringResource(R.string.summary), style = Typography.titleLarge, color = AppTheme.colors.darkTextColor)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -234,12 +232,12 @@ fun OrderPriceBreakdown(subtotal: String, tax: String, total: String) {
         ) {
             Text(
                 text = stringResource(R.string.subtotal),
-                style = RubikTypography.bodyLarge,
+                style = Typography.bodyLarge,
                 color = AppTheme.colors.lightTextColor
             )
             Text(
                 text = subtotal,
-                style = RubikTypography.bodyLarge,
+                style = Typography.bodyLarge,
                 color = AppTheme.colors.darkTextColor
             )
         }
@@ -250,12 +248,12 @@ fun OrderPriceBreakdown(subtotal: String, tax: String, total: String) {
         ) {
             Text(
                 text = stringResource(R.string.tax),
-                style = RubikTypography.bodyLarge,
+                style = Typography.bodyLarge,
                 color = AppTheme.colors.lightTextColor
             )
             Text(
                 text = tax,
-                style = RubikTypography.bodyLarge,
+                style = Typography.bodyLarge,
                 color = AppTheme.colors.darkTextColor
             )
         }
@@ -269,12 +267,12 @@ fun OrderPriceBreakdown(subtotal: String, tax: String, total: String) {
         ) {
             Text(
                 text = stringResource(R.string.total),
-                style = RubikTypography.titleMedium,
+                style = Typography.titleMedium,
                 color = AppTheme.colors.darkTextColor
             )
             Text(
                 text = total,
-                style = RubikTypography.titleMedium,
+                style = Typography.titleMedium,
                 color = AppTheme.colors.darkTextColor
             )
         }
@@ -291,13 +289,13 @@ fun BagSummaryCard(
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        elevation = 4.dp,
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
 
         Column(modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp)) {
             Text(
                 text = stringResource(R.string.select_item_to_modify),
-                style = RubikTypography.titleLarge
+                style = Typography.titleLarge
             )
 
             bagItems.forEachIndexed { index, bagItemRowState ->
@@ -321,8 +319,8 @@ fun BagSummaryCard(
 @Composable
 fun DeliveryOptionToggle(pickupSelected: Boolean, onClickPickup: () -> Unit, onClickDelivery: () -> Unit) {
     val radius = 8.dp
-    val selectedColor = ButtonDefaults.outlinedButtonColors(backgroundColor = CoralRed)
-    val unselectedColor = ButtonDefaults.outlinedButtonColors()
+    val selectedColor = ButtonDefaults.outlinedButtonColors(containerColor = CoralRed)
+    val unselectedColor = ButtonDefaults.outlinedButtonColors(containerColor = AppTheme.colors.materialColors.surfaceVariant)
     val selectedTextColor = Color.White
     val unselectedTextColor = AppTheme.colors.darkTextColor
 
@@ -331,24 +329,26 @@ fun DeliveryOptionToggle(pickupSelected: Boolean, onClickPickup: () -> Unit, onC
             colors = if (pickupSelected) selectedColor else unselectedColor,
             shape = RoundedCornerShape(topStart = radius, bottomStart = radius),
             onClick = { onClickPickup.invoke() },
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            border = BorderStroke(1.dp, Color.LightGray)
         ) {
             Text(
                 text = stringResource(R.string.pickup),
                 color = if (pickupSelected) selectedTextColor else unselectedTextColor,
-                style = RubikTypography.titleMedium
+                style = Typography.titleLarge
             )
         }
         OutlinedButton(
             colors = if (!pickupSelected) selectedColor else unselectedColor,
             shape = RoundedCornerShape(topEnd = radius, bottomEnd = radius),
             onClick = { onClickDelivery.invoke() },
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            border = BorderStroke(1.dp, Color.LightGray)
         ) {
             Text(
                 text = stringResource(R.string.delivery),
                 color = if (!pickupSelected) selectedTextColor else unselectedTextColor,
-                style = RubikTypography.titleMedium
+                style = Typography.titleLarge
             )
         }
     }
@@ -386,13 +386,13 @@ fun MapCard(latLng: LatLng, address: String) {
                 Text(
                     text = stringResource(id = R.string.pickup_from),
                     color = AppTheme.colors.lightTextColor,
-                    style = RubikTypography.bodyLarge
+                    style = Typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.size(4.dp))
                 Text(
                     text = address,
                     color = AppTheme.colors.darkTextColor,
-                    style = RubikTypography.bodyLarge
+                    style = Typography.bodyLarge
                 )
             }
         }
@@ -405,7 +405,7 @@ fun EmptyBag(onClickBrowseRestaurants: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         Image(painter = painterResource(id = R.drawable.online_order), contentDescription = "", modifier = Modifier.size(250.dp))
         Spacer(modifier = Modifier.size(16.dp))
-        Text(text = stringResource(R.string.bag_empty), style = RubikTypography.bodyLarge, color = AppTheme.colors.darkTextColor)
+        Text(text = stringResource(R.string.bag_empty), style = Typography.bodyLarge, color = AppTheme.colors.darkTextColor)
         Spacer(modifier = Modifier.size(8.dp))
         OutlinedAccentButton(onClick = { onClickBrowseRestaurants.invoke() }, label = stringResource(R.string.browse_restaurants))
     }
@@ -421,7 +421,7 @@ fun DeliveryAddressCard(deliveryAddress: String?, onClickAddEditAddress: () -> U
                     Text(
                         text = stringResource(R.string.no_address_provided),
                         color = AppTheme.colors.lightTextColor,
-                        style = RubikTypography.bodyLarge
+                        style = Typography.bodyLarge
                     )
                     AccentTextButton(
                         onClick = { onClickAddEditAddress.invoke() },
@@ -434,13 +434,12 @@ fun DeliveryAddressCard(deliveryAddress: String?, onClickAddEditAddress: () -> U
                         Text(
                             text = stringResource(id = R.string.delivering_to),
                             color = AppTheme.colors.lightTextColor,
-                            style = RubikTypography.bodyLarge
+                            style = Typography.bodyLarge
                         )
                         Spacer(modifier = Modifier.size(8.dp))
                         Text(
                             text = deliveryAddress,
-                            color = AppTheme.colors.darkTextColor,
-                            style = RubikTypography.bodyLarge
+                            style = Typography.bodyLarge
                         )
                     }
                     Row(
@@ -468,7 +467,7 @@ fun BagItemRow(
         Text(
             text = bagItemRowDisplayModel.qty,
             modifier = Modifier.weight(1f),
-            style = RubikTypography.bodyLarge
+            style = Typography.bodyLarge
         )
 
         Column(
@@ -478,14 +477,14 @@ fun BagItemRow(
         ) {
             Text(
                 text = bagItemRowDisplayModel.itemName,
-                style = RubikTypography.bodyLarge
+                style = Typography.bodyLarge
             )
             if (bagItemRowDisplayModel.itemModifier.isNotBlank()) {
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
                     text = bagItemRowDisplayModel.itemModifier,
                     color = AppTheme.colors.lightTextColor,
-                    style = RubikTypography.bodyLarge
+                    style = Typography.bodyLarge
                 )
             }
         }
@@ -493,22 +492,23 @@ fun BagItemRow(
         Row(
             modifier = Modifier
                 .weight(4f)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             if (isRemoving) {
                 Checkbox(
-                    modifier = Modifier,
                     onCheckedChange = { checked ->
                         onCheckChanged.invoke(checked, bagItemRowDisplayModel.lineItemId)
                     },
-                    checked = bagItemRowDisplayModel.forRemoval
+                    checked = bagItemRowDisplayModel.forRemoval,
+                    colors = CheckboxDefaults.colors(checkedColor = CoralRed, checkmarkColor = Color.White)
                 )
             } else {
                 Text(
                     text = bagItemRowDisplayModel.price,
-                    modifier = Modifier.weight(4f),
-                    style = RubikTypography.bodyLarge,
+                    style = Typography.bodyLarge,
                     textAlign = TextAlign.End
                 )
 

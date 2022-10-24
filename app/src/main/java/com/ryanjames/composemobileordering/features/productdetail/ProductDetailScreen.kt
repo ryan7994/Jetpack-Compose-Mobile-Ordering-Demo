@@ -1,10 +1,19 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.ryanjames.composemobileordering.features.productdetail
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -14,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -31,7 +41,7 @@ import com.ryanjames.composemobileordering.ui.widget.LoadingSpinnerWithText
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
 
-@ExperimentalMaterialApi
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProductDetailScreen(
     viewModel: ProductDetailViewModel,
@@ -173,7 +183,7 @@ private fun QtySelector(modifier: Modifier, onClickPlus: () -> Unit, onClickMinu
             contentAlignment = Alignment.Center) {
             Text(
                 text = "-",
-                style = RubikTypography.titleLarge,
+                style = Typography.titleLarge,
                 textAlign = TextAlign.Center,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
@@ -183,7 +193,7 @@ private fun QtySelector(modifier: Modifier, onClickPlus: () -> Unit, onClickMinu
         Text(
             text = qty,
             fontWeight = FontWeight.Bold,
-            style = RubikTypography.titleMedium,
+            style = Typography.titleMedium,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
@@ -198,7 +208,7 @@ private fun QtySelector(modifier: Modifier, onClickPlus: () -> Unit, onClickMinu
             contentAlignment = Alignment.Center) {
             Text(
                 text = "+",
-                style = RubikTypography.titleLarge,
+                style = Typography.titleLarge,
                 textAlign = TextAlign.Center,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
@@ -216,7 +226,7 @@ private fun AddToBagBtn(modifier: Modifier, price: String, onClickAddToBag: () -
         modifier = modifier.fillMaxSize(),
         onClick = { onClickAddToBag.invoke() },
         contentPadding = PaddingValues(16.dp),
-        colors = ButtonDefaults.buttonColors(backgroundColor = CoralRed),
+        colors = ButtonDefaults.buttonColors(containerColor = CoralRed),
         shape = RoundedCornerShape(8.dp),
     ) {
 
@@ -228,12 +238,12 @@ private fun AddToBagBtn(modifier: Modifier, price: String, onClickAddToBag: () -
                 text = stringResource(btnLabel.id),
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
-                style = RubikTypography.titleMedium
+                style = Typography.titleMedium
             )
             Text(
                 text = price,
                 color = Color.White,
-                style = RubikTypography.titleMedium
+                style = Typography.titleMedium
             )
         }
 
@@ -265,18 +275,17 @@ private fun ProductDetailLayout(productDetailScreenState: ProductDetailScreenSta
 
         Spacer(modifier = Modifier.size(24.dp))
 
-        Text(
+        androidx.compose.material3.Text(
             text = product.productName,
-            style = RubikTypography.headlineMedium,
-            color = AppTheme.colors.darkTextColor,
+            style = Typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
 
         Spacer(modifier = Modifier.size(8.dp))
 
-        Text(
+        androidx.compose.material3.Text(
             text = product.productDescription,
-            style = RubikTypography.bodyLarge,
+            style = Typography.bodyLarge,
             color = AppTheme.colors.lightTextColor,
             fontWeight = FontWeight.Normal
         )
@@ -309,17 +318,17 @@ fun ModifierSummaryRow(modifierSummaryRowDisplayModel: ModifierSummaryRowDisplay
         ) {
 
             Column(modifier = Modifier.weight(11f)) {
-                Text(
+                androidx.compose.material3.Text(
                     text = modifierSummaryRowDisplayModel.title,
-                    style = RubikTypography.bodyLarge,
+                    style = Typography.bodyLarge,
                     color = AppTheme.colors.darkTextColor
                 )
 
                 Spacer(modifier = Modifier.size(8.dp))
 
-                Text(
+                androidx.compose.material3.Text(
                     text = modifierSummaryRowDisplayModel.subtitle,
-                    style = RubikTypography.bodyMedium,
+                    style = Typography.bodyMedium,
                     color = AppTheme.colors.lightTextColor
                 )
             }
@@ -327,7 +336,8 @@ fun ModifierSummaryRow(modifierSummaryRowDisplayModel: ModifierSummaryRowDisplay
             Box(modifier = Modifier.weight(1f)) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_keyboard_arrow_right), contentDescription = "",
-                    modifier = Modifier.rotate(90f)
+                    modifier = Modifier.rotate(90f),
+                    colorFilter = ColorFilter.tint(AppTheme.colors.darkTextColor)
                 )
             }
 
@@ -354,7 +364,7 @@ fun ProductGroupHeaderRow(label: String) {
         Text(
             text = label,
             color = AppTheme.colors.darkTextColor,
-            style = RubikTypography.titleLarge,
+            style = Typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
     }
@@ -375,12 +385,12 @@ fun ModifierRbRow(modifierOptionDisplayModel: ModifierOptionDisplayModel, onClic
         Text(
             text = modifierOptionDisplayModel.name,
             modifier = Modifier.padding(start = 16.dp),
-            style = RubikTypography.bodyLarge,
+            style = Typography.bodyLarge,
             fontWeight = FontWeight.Normal,
             color = AppTheme.colors.darkTextColor
         )
 
-        RadioButton(
+        androidx.compose.material3.RadioButton(
             selected = modifierOptionDisplayModel.selected,
             modifier = Modifier.padding(end = 16.dp),
             onClick = {
@@ -407,11 +417,11 @@ fun ModifierCbRow(modifierOptionDisplayModel: ModifierOptionDisplayModel, onClic
         Text(
             text = modifierOptionDisplayModel.name,
             modifier = Modifier.padding(start = 16.dp),
-            style = RubikTypography.bodyLarge,
+            style = Typography.bodyLarge,
             fontWeight = FontWeight.Normal,
             color = AppTheme.colors.darkTextColor
         )
-        Checkbox(
+        androidx.compose.material3.Checkbox(
             checked = modifierOptionDisplayModel.selected,
             modifier = Modifier.padding(end = 16.dp),
             onCheckedChange = {
@@ -434,7 +444,7 @@ fun ModifierBottomSheetLayout(
     Column {
         Text(
             text = title,
-            style = RubikTypography.titleLarge,
+            style = Typography.titleLarge,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp),
             color = AppTheme.colors.darkTextColor
@@ -444,7 +454,7 @@ fun ModifierBottomSheetLayout(
             Spacer(Modifier.size(4.dp))
             Text(
                 text = subtitle,
-                style = RubikTypography.bodyLarge,
+                style = Typography.bodyLarge,
                 fontWeight = FontWeight.Normal,
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp),
                 color = AppTheme.colors.lightTextColor

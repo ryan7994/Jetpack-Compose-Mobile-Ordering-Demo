@@ -31,7 +31,7 @@ fun StarRatingWithReviews(
 
         Text(
             text = rating,
-            style = RubikTypography.bodyMedium,
+            style = Typography.bodyMedium,
             color = ratingColor
         )
 
@@ -43,7 +43,7 @@ fun StarRatingWithReviews(
 
         Text(
             text = numberOfRatings,
-            style = RubikTypography.bodyMedium,
+            style = Typography.bodyMedium,
             color = reviewColor
         )
     }

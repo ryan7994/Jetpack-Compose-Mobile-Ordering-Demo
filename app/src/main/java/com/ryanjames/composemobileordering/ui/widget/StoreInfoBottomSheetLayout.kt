@@ -11,7 +11,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.ui.theme.AppTheme
-import com.ryanjames.composemobileordering.ui.theme.RubikTypography
+import com.ryanjames.composemobileordering.ui.theme.Typography
 
 @Composable
 fun StoreInfoBottomSheetLayout(storeInfoDisplayModel: StoreInfoDisplayModel?) {
@@ -37,7 +37,7 @@ fun StoreInfoBottomSheetLayout(storeInfoDisplayModel: StoreInfoDisplayModel?) {
 fun StoreInfoSection(heading: String, text: String) {
     Text(
         text = heading,
-        style = RubikTypography.titleMedium,
+        style = Typography.titleMedium,
         color = AppTheme.colors.darkTextColor
     )
 
@@ -55,7 +55,7 @@ fun StoreInfoSection(heading: String, text: String) {
         )
         Text(
             text = text,
-            style = RubikTypography.bodyMedium,
+            style = Typography.bodyMedium,
             modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
             color = AppTheme.colors.darkTextColor
         )

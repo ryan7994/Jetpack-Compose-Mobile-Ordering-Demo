@@ -5,9 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
+
 import androidx.compose.material.Divider
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,15 +64,16 @@ fun FeaturedCard(
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeaturedRestaurantCard(
     featuredRestaurantCardState: FeaturedRestaurantCardState,
     modifier: Modifier = Modifier
 ) {
+
     Card(
         shape = RoundedCornerShape(12.dp),
-        elevation = 4.dp,
-        modifier = modifier,
+        modifier = modifier
     ) {
         ConstraintLayout(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             val (btnHeart, tvName, tvSubtitle, tvPrice, divider, rating, deliveryTime) = createRefs()
@@ -95,7 +98,7 @@ fun FeaturedRestaurantCard(
                         end.linkTo(tvPrice.start, margin = 8.dp)
                         width = Dimension.fillToConstraints
                     },
-                style = RubikTypography.titleMedium
+                style = Typography.titleMedium
             )
 
 
@@ -110,10 +113,8 @@ fun FeaturedRestaurantCard(
                         end.linkTo(tvPrice.start, margin = 8.dp)
                         width = Dimension.fillToConstraints
                     },
-                style = RubikTypography.bodyMedium
+                style = Typography.bodyMedium
             )
-
-
 
             Text(
                 text = featuredRestaurantCardState.priceLevel,
@@ -122,7 +123,7 @@ fun FeaturedRestaurantCard(
                     bottom.linkTo(tvName.bottom)
                     end.linkTo(parent.end)
                 },
-                style = RubikTypography.bodyMedium
+                style = Typography.bodyMedium
             )
 
             Box(modifier = Modifier.constrainAs(divider) {
@@ -147,7 +148,7 @@ fun FeaturedRestaurantCard(
 
             Text(
                 text = featuredRestaurantCardState.deliveryTime,
-                style = RubikTypography.bodyMedium,
+                style = Typography.bodyMedium,
                 modifier = Modifier.constrainAs(deliveryTime) {
                     end.linkTo(parent.end)
                     bottom.linkTo(parent.bottom)

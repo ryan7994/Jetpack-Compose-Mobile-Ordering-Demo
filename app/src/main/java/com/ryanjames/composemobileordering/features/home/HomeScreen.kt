@@ -179,7 +179,7 @@ fun HomeScreenContent(
                                 Text(
                                     text = stringResource(R.string.restaurants),
                                     modifier = Modifier.padding(16.dp),
-                                    style = RubikTypography.titleLarge,
+                                    style = Typography.titleLarge,
                                     color = AppTheme.colors.darkTextColor
                                 )
 

@@ -3,24 +3,22 @@ package com.ryanjames.composemobileordering.features.venuedetail
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -103,10 +101,10 @@ fun VenueDetailScreen(
                                 selectedIndex = listState.firstVisibleItemIndex,
                                 listState = listState,
                                 selectedContent = { tabText ->
-                                    Text(text = tabText, fontWeight = FontWeight.Bold, color = CoralRed, style = RubikTypography.titleMedium)
+                                    Text(text = tabText, fontWeight = FontWeight.Bold, color = CoralRed, style = Typography.titleMedium)
                                 },
                                 unselectedContent = { tabText ->
-                                    Text(text = tabText, fontWeight = FontWeight.Bold, color = HintGray, style = RubikTypography.titleMedium)
+                                    Text(text = tabText, fontWeight = FontWeight.Bold, color = HintGray, style = Typography.titleMedium)
                                 }
                             )
 
@@ -155,23 +153,24 @@ private fun NoMenuView(phoneUri: Uri?, email: String?, addressUri: Uri?) {
 
     Column {
 
-        Card(
-            elevation = 4.dp
+        androidx.compose.material3.Card(
+            shape = RectangleShape,
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(AppTheme.colors.materialColors.surface)
+                    .background(AppTheme.colors.materialColors.surfaceVariant)
                     .padding(vertical = 16.dp, horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = stringResource(R.string.come_back_later),
-                    style = RubikTypography.titleLarge
+                    style = Typography.titleLarge
                 )
                 Text(
                     text = stringResource(R.string.no_menu_message),
-                    style = RubikTypography.bodyMedium
+                    style = Typography.bodyMedium
                 )
             }
         }
@@ -214,7 +213,7 @@ private fun NoMenuView(phoneUri: Uri?, email: String?, addressUri: Uri?) {
 
 @Composable
 private fun CategoryItems(category: String, items: List<MenuItemCardDisplayModel>, onClickMenuItemCard: (productId: String, venueId: String) -> Unit, venueId: String) {
-    Text(text = category, style = RubikTypography.titleMedium, color = AppTheme.colors.darkTextColor)
+    Text(text = category, style = Typography.titleMedium, color = AppTheme.colors.darkTextColor)
     Spacer(modifier = Modifier.size(16.dp))
     items.forEachIndexed { index, menuItemCardState ->
         MenuItemCard(state = menuItemCardState, onClickMenuItemCard = { onClickMenuItemCard.invoke(menuItemCardState.id, venueId) })

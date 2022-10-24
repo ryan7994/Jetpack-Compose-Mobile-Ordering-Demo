@@ -20,7 +20,6 @@ import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.ui.widget.FeaturedRestaurantCard
 import com.ryanjames.composemobileordering.util.getBitmapDescriptor
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @ExperimentalPagerApi
