@@ -10,10 +10,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -390,13 +387,14 @@ fun ModifierRbRow(modifierOptionDisplayModel: ModifierOptionDisplayModel, onClic
             color = AppTheme.colors.darkTextColor
         )
 
-        androidx.compose.material3.RadioButton(
+        RadioButton(
             selected = modifierOptionDisplayModel.selected,
             modifier = Modifier.padding(end = 16.dp),
             onClick = {
                 onClickModifier.invoke(modifierOptionDisplayModel.parentId, modifierOptionDisplayModel.id)
             },
-            enabled = true
+            enabled = true,
+            colors = RadioButtonDefaults.colors(selectedColor = CoralRed)
         )
     }
 }
@@ -421,13 +419,14 @@ fun ModifierCbRow(modifierOptionDisplayModel: ModifierOptionDisplayModel, onClic
             fontWeight = FontWeight.Normal,
             color = AppTheme.colors.darkTextColor
         )
-        androidx.compose.material3.Checkbox(
+        Checkbox(
             checked = modifierOptionDisplayModel.selected,
             modifier = Modifier.padding(end = 16.dp),
             onCheckedChange = {
                 onClickModifier.invoke(modifierOptionDisplayModel.parentId, modifierOptionDisplayModel.id)
             },
-            enabled = modifierOptionDisplayModel.enabled
+            enabled = modifierOptionDisplayModel.enabled,
+            colors = CheckboxDefaults.colors(checkedColor = CoralRed, checkmarkColor = Color.White)
         )
     }
 }
