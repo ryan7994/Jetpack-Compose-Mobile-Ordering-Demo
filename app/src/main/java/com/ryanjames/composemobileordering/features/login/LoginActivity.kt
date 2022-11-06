@@ -9,9 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.ryanjames.composemobileordering.core.BaseActivity
 import com.ryanjames.composemobileordering.features.bottomnav.BottomNavActivity
-import com.ryanjames.composemobileordering.ui.screens.LoginScreen
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @ExperimentalPagerApi
@@ -42,6 +40,7 @@ class LoginActivity : BaseActivity() {
                         LoginEvent.AutoLogin -> {
                             loginUser()
                         }
+                        else -> {}
                     }
                 }
 

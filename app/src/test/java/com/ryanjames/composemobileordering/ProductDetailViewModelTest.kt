@@ -23,6 +23,7 @@ import org.junit.runners.JUnit4
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnit
+import org.mockito.junit.MockitoRule
 
 @ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
@@ -31,7 +32,7 @@ class ProductDetailViewModelTest {
 
     @Rule
     @JvmField
-    val rule = MockitoJUnit.rule()
+    val rule: MockitoRule = MockitoJUnit.rule()
 
     @Mock
     private lateinit var orderRepository: AbsOrderRepository

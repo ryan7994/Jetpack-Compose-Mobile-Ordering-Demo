@@ -1,6 +1,5 @@
-package com.ryanjames.composemobileordering.ui
+package com.ryanjames.composemobileordering.util
 
-import com.ryanjames.composemobileordering.db.*
 import com.ryanjames.composemobileordering.db.model.*
 import com.ryanjames.composemobileordering.domain.*
 import com.ryanjames.composemobileordering.features.bag.BagItemRowDisplayModel

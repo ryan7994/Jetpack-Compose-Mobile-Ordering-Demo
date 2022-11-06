@@ -10,10 +10,10 @@ import com.ryanjames.composemobileordering.network.MobilePosApi
 import com.ryanjames.composemobileordering.network.model.CreateUpdateOrderRequest
 import com.ryanjames.composemobileordering.network.model.GetOrderRequest
 import com.ryanjames.composemobileordering.replaceOrAdd
-import com.ryanjames.composemobileordering.ui.toBagSummary
-import com.ryanjames.composemobileordering.ui.toDomain
-import com.ryanjames.composemobileordering.ui.toLineItemRequest
-import com.ryanjames.composemobileordering.ui.toOrderEntity
+import com.ryanjames.composemobileordering.util.toBagSummary
+import com.ryanjames.composemobileordering.util.toDomain
+import com.ryanjames.composemobileordering.util.toLineItemRequest
+import com.ryanjames.composemobileordering.util.toOrderEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -106,7 +106,7 @@ class OrderRepository(
     override fun getBagSummaryFlow(): Flow<BagSummary?> {
 
         return roomDb.orderDao().getCurrentOrderFlow().map { currentOrder ->
-            if (currentOrder == null || currentOrder.lineItems.isNullOrEmpty()) {
+            if (currentOrder == null || currentOrder.lineItems.isEmpty()) {
                 null
             } else {
                 val lineItems = currentOrder.lineItems.map { it.toDomain() }

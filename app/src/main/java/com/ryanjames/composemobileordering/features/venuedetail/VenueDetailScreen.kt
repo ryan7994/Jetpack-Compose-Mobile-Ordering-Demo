@@ -27,6 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.R.drawable
 import com.ryanjames.composemobileordering.core.Resource
+import com.ryanjames.composemobileordering.ui.core.TextTabs
 import com.ryanjames.composemobileordering.ui.theme.*
 import com.ryanjames.composemobileordering.ui.widget.*
 import kotlinx.coroutines.launch

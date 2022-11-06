@@ -11,7 +11,7 @@ import com.ryanjames.composemobileordering.repository.AbsOrderRepository
 import com.ryanjames.composemobileordering.repository.AbsVenueRepository
 import com.ryanjames.composemobileordering.toTwoDigitString
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
-import com.ryanjames.composemobileordering.ui.toDisplayModel
+import com.ryanjames.composemobileordering.util.toDisplayModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -29,9 +29,9 @@ class BagViewModel @Inject constructor(
             bagItems = listOf(),
             venueId = null,
             venueName = null,
-            btnRemoveState = ButtonState(true, true),
-            btnCancelState = ButtonState(true, false),
-            btnRemoveSelectedState = ButtonState(false, false),
+            btnRemoveState = ButtonState(enabled = true, visible = true),
+            btnCancelState = ButtonState(enabled = true, visible = false),
+            btnRemoveSelectedState = ButtonState(enabled = false, visible = false),
             isRemoving = false,
             alertDialog = null
         )
@@ -100,9 +100,9 @@ class BagViewModel @Inject constructor(
 
     fun onClickRemove() {
         _bagItemScreenState.value = _bagItemScreenState.value.copy(
-            btnRemoveState = ButtonState(true, false),
-            btnCancelState = ButtonState(true, true),
-            btnRemoveSelectedState = ButtonState(false, true),
+            btnRemoveState = ButtonState(enabled = true, visible = false),
+            btnCancelState = ButtonState(enabled = true, visible = true),
+            btnRemoveSelectedState = ButtonState(enabled = false, visible = true),
             isRemoving = true
         )
     }

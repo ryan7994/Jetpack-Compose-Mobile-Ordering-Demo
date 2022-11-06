@@ -6,7 +6,7 @@ import com.ryanjames.composemobileordering.db.model.BasicMenuWithCategories
 import com.ryanjames.composemobileordering.network.MobilePosApi
 import com.ryanjames.composemobileordering.network.networkBoundResource
 import com.ryanjames.composemobileordering.network.networkResource
-import com.ryanjames.composemobileordering.ui.toDomain
+import com.ryanjames.composemobileordering.util.toDomain
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 

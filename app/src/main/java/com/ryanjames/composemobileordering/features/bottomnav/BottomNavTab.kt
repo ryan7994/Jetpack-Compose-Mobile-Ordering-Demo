@@ -1,9 +1,9 @@
 package com.ryanjames.composemobileordering.features.bottomnav
 
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
-import androidx.navigation.compose.NamedNavArgument
-import androidx.navigation.compose.navArgument
+import androidx.navigation.navArgument
 import com.ryanjames.composemobileordering.R
 
 private const val TAB_ROUTE_BROWSE = "tabBrowse"
@@ -27,7 +27,7 @@ sealed class BottomNavScreens(open val route: String) {
     object Bag : BottomNavScreens(SCREEN_ROUTE_BAG)
 
     object VenueDetail : BottomNavScreens("$SCREEN_ROUTE_VENUE_DETAIL/{venueId}") {
-        fun routeWithArgs(venueId: String, rootTab: String? = null): String {
+        fun routeWithArgs(venueId: String): String {
             return "$SCREEN_ROUTE_VENUE_DETAIL/$venueId"
         }
     }

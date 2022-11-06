@@ -5,8 +5,8 @@ import com.ryanjames.composemobileordering.BuildConfig
 import com.ryanjames.composemobileordering.core.LoginManager
 import com.ryanjames.composemobileordering.network.ApiService
 import com.ryanjames.composemobileordering.network.MobilePosApi
-import com.ryanjames.swabergersmobilepos.network.retrofit.authenticator.TokenAuthenticator
-import com.ryanjames.swabergersmobilepos.network.retrofit.interceptors.AuthTokenInterceptor
+import com.ryanjames.composemobileordering.network.authenticator.TokenAuthenticator
+import com.ryanjames.composemobileordering.network.interceptors.AuthTokenInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

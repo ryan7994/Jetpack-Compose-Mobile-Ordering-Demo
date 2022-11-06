@@ -33,6 +33,7 @@ import com.ryanjames.composemobileordering.core.StringResource
 import com.ryanjames.composemobileordering.features.bottomnav.LocalCoroutineScope
 import com.ryanjames.composemobileordering.features.bottomnav.LocalSnackbarHostState
 import com.ryanjames.composemobileordering.ui.core.Dialog
+import com.ryanjames.composemobileordering.ui.core.HorizontalLine
 import com.ryanjames.composemobileordering.ui.theme.*
 import com.ryanjames.composemobileordering.ui.widget.LoadingSpinnerWithText
 import com.skydoves.landscapist.glide.GlideImage
@@ -272,7 +273,7 @@ private fun ProductDetailLayout(productDetailScreenState: ProductDetailScreenSta
 
         Spacer(modifier = Modifier.size(24.dp))
 
-        androidx.compose.material3.Text(
+        Text(
             text = product.productName,
             style = Typography.headlineMedium,
             fontWeight = FontWeight.Bold
@@ -280,7 +281,7 @@ private fun ProductDetailLayout(productDetailScreenState: ProductDetailScreenSta
 
         Spacer(modifier = Modifier.size(8.dp))
 
-        androidx.compose.material3.Text(
+        Text(
             text = product.productDescription,
             style = Typography.bodyLarge,
             color = AppTheme.colors.lightTextColor,
@@ -315,7 +316,7 @@ fun ModifierSummaryRow(modifierSummaryRowDisplayModel: ModifierSummaryRowDisplay
         ) {
 
             Column(modifier = Modifier.weight(11f)) {
-                androidx.compose.material3.Text(
+                Text(
                     text = modifierSummaryRowDisplayModel.title,
                     style = Typography.bodyLarge,
                     color = AppTheme.colors.darkTextColor
@@ -323,7 +324,7 @@ fun ModifierSummaryRow(modifierSummaryRowDisplayModel: ModifierSummaryRowDisplay
 
                 Spacer(modifier = Modifier.size(8.dp))
 
-                androidx.compose.material3.Text(
+                Text(
                     text = modifierSummaryRowDisplayModel.subtitle,
                     style = Typography.bodyMedium,
                     color = AppTheme.colors.lightTextColor

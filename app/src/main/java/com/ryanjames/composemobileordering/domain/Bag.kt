@@ -55,6 +55,6 @@ data class BagLineItem(
 data class ProductIdModifierGroupIdKey(val productId: String, val modifierGroupId: String) : Parcelable {
 
     override fun toString(): String {
-        return "PRODUCT: ${productId}, MODIFIER_GROUP: ${modifierGroupId}"
+        return "PRODUCT: ${productId}, MODIFIER_GROUP: $modifierGroupId"
     }
 }

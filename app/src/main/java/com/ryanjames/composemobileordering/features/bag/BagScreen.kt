@@ -23,16 +23,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.CameraPositionState
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.*
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.features.bottomnav.LocalCoroutineScope
 import com.ryanjames.composemobileordering.features.bottomnav.LocalSnackbarHostState
 import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.DeliveryAddressState
 import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.EditDeliveryAddressViewModel
-import com.ryanjames.composemobileordering.ui.core.Dialog
+import com.ryanjames.composemobileordering.ui.core.*
 import com.ryanjames.composemobileordering.ui.theme.*
 import com.ryanjames.composemobileordering.ui.widget.DeliveryAddressBottomSheetLayout
 import com.ryanjames.composemobileordering.util.getBitmapDescriptor
@@ -375,7 +372,7 @@ fun MapCard(latLng: LatLng, address: String) {
             ) {
                 Marker(
                     icon = getBitmapDescriptor(LocalContext.current, R.drawable.marker, 48.dp, 48.dp),
-                    position = latLng,
+                    state = MarkerState(latLng),
                     title = ".",
                     onClick = {
                         false

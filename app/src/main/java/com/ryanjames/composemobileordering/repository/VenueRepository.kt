@@ -3,14 +3,14 @@ package com.ryanjames.composemobileordering.repository
 
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.db.AppDatabase
-import com.ryanjames.composemobileordering.db.VenueDbModel
-import com.ryanjames.composemobileordering.db.VenueEntityType
+import com.ryanjames.composemobileordering.db.model.VenueDbModel
+import com.ryanjames.composemobileordering.db.model.VenueEntityType
 import com.ryanjames.composemobileordering.domain.Venue
 import com.ryanjames.composemobileordering.network.MobilePosApi
 import com.ryanjames.composemobileordering.network.networkBoundResource
-import com.ryanjames.composemobileordering.ui.toDomain
-import com.ryanjames.composemobileordering.ui.toEntity
-import com.ryanjames.composemobileordering.ui.toStoreHoursEntity
+import com.ryanjames.composemobileordering.util.toDomain
+import com.ryanjames.composemobileordering.util.toEntity
+import com.ryanjames.composemobileordering.util.toStoreHoursEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine

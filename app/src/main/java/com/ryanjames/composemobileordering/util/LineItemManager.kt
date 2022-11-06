@@ -64,7 +64,7 @@ class LineItemManager(val product: Product, private val bagLineItem: BagLineItem
         setProductBundle(product.bundles.find { it.bundleId == bundleId })
     }
 
-    fun setProductBundle(bundle: ProductBundle?) {
+    private fun setProductBundle(bundle: ProductBundle?) {
 
         if (lineItem.bundle != bundle) {
             lineItem = lineItem.copy(bundle = bundle)
@@ -111,7 +111,7 @@ class LineItemManager(val product: Product, private val bagLineItem: BagLineItem
         notifyObserver()
     }
 
-    fun setQuantity(quantity: Int) {
+    private fun setQuantity(quantity: Int) {
         lineItem = lineItem.copy(quantity = quantity.coerceAtLeast(1))
         notifyObserver()
     }

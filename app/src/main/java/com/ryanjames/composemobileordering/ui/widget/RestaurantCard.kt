@@ -1,4 +1,4 @@
-package com.ryanjames.composemobileordering.ui.theme
+package com.ryanjames.composemobileordering.ui.widget
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,7 +14,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ryanjames.composemobileordering.features.home.RestaurantCardState
-import com.ryanjames.composemobileordering.ui.widget.StarRatingWithReviews
+import com.ryanjames.composemobileordering.ui.theme.AppTheme
+import com.ryanjames.composemobileordering.ui.theme.MyComposeAppTheme
+import com.ryanjames.composemobileordering.ui.theme.Typography
 import com.skydoves.landscapist.glide.GlideImage
 
 

@@ -1,4 +1,4 @@
-package com.ryanjames.swabergersmobilepos.network.retrofit.interceptors
+package com.ryanjames.composemobileordering.network.interceptors
 
 import android.content.SharedPreferences
 import com.ryanjames.composemobileordering.constants.SharedPrefsKeys

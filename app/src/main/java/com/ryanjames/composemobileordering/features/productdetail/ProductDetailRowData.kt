@@ -168,7 +168,7 @@ sealed class ProductDetailRowData {
             get() = "Select ${modifierGroup.modifierGroupName.lowercase(Locale.getDefault())}"
     }
 
-    class RowProductGroupHeaderDataHolder(val productGroup: ProductGroup) : ProductDetailRowData() {
+    class RowProductGroupHeaderDataHolder(private val productGroup: ProductGroup) : ProductDetailRowData() {
 
         override val id: String
             get() = "PGH${productGroup.productGroupId}"

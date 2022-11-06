@@ -10,15 +10,14 @@ import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.domain.EmptyVenue
 import com.ryanjames.composemobileordering.repository.AbsMenuRepository
 import com.ryanjames.composemobileordering.repository.AbsVenueRepository
-import com.ryanjames.composemobileordering.ui.toCategoryViewStateList
-import com.ryanjames.composemobileordering.ui.toRestaurantDisplayModel
-import com.ryanjames.composemobileordering.ui.toStoreInfoDisplayModel
+import com.ryanjames.composemobileordering.util.toCategoryViewStateList
+import com.ryanjames.composemobileordering.util.toRestaurantDisplayModel
+import com.ryanjames.composemobileordering.util.toStoreInfoDisplayModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

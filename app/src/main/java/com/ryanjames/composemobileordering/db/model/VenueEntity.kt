@@ -1,4 +1,4 @@
-package com.ryanjames.composemobileordering.db
+package com.ryanjames.composemobileordering.db.model
 
 import androidx.room.*
 

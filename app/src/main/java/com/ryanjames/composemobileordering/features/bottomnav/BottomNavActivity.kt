@@ -1,14 +1,13 @@
 package com.ryanjames.composemobileordering.features.bottomnav
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material.*
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -16,16 +15,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
+import androidx.navigation.*
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navigation
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.ryanjames.composemobileordering.features.bag.BagScreen
@@ -33,18 +29,17 @@ import com.ryanjames.composemobileordering.features.productdetail.ProductDetailS
 import com.ryanjames.composemobileordering.features.venuedetail.VenueDetailScreen
 import com.ryanjames.composemobileordering.features.venuemapfinder.VenueFinderScreen
 import com.ryanjames.composemobileordering.ui.core.CustomSnackbar
-import com.ryanjames.composemobileordering.ui.screens.HomeScreen
+import com.ryanjames.composemobileordering.ui.core.customTextSelectionColors
+import com.ryanjames.composemobileordering.features.home.HomeScreen
 import com.ryanjames.composemobileordering.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.FlowPreview
 
 val LocalSnackbarHostState = compositionLocalOf<SnackbarHostState> { error("No SnackbarHostState provided") }
 val LocalCoroutineScope = compositionLocalOf<CoroutineScope> { error("No coroutine scope provided") }
 
 @ExperimentalPagerApi
 @ExperimentalMaterialApi
-@FlowPreview
 @AndroidEntryPoint
 class BottomNavActivity : ComponentActivity() {
 
@@ -101,10 +96,19 @@ class BottomNavActivity : ComponentActivity() {
 
     }
 
-    fun NavGraphBuilder.bagGraph(navController: NavController) {
+    private fun NavGraphBuilder.bagGraph(navController: NavController) {
 
         navigation(startDestination = BottomNavScreens.Bag.route, route = BottomNavTabs.BagTab.tabRoute) {
-            composable(BottomNavScreens.Bag.route) {
+            composable(
+                route = BottomNavScreens.Bag.route,
+                deepLinks = listOf(
+                    navDeepLink {
+                        uriPattern = "https://jetpackmo.com/bag"
+                        action = Intent.ACTION_VIEW
+                    }
+                ),
+                arguments = listOf()
+            ) {
                 BagScreen(bagViewModel = hiltViewModel(),
                     editDeliveryAddressViewModel = hiltViewModel(),
                     onClickAddMoreItems = { venueId ->
@@ -123,7 +127,7 @@ class BottomNavActivity : ComponentActivity() {
                 BottomNavScreens.ProductDetailFromBag.route,
                 arguments = BottomNavScreens.ProductDetailFromBag.navArguments()
             ) {
-                NavigateToProductDetailScreen(navController = navController) {
+                NavigateToProductDetailScreen() {
                     navController.popBackStack(BottomNavScreens.Bag.route, false)
                 }
             }
@@ -142,14 +146,14 @@ class BottomNavActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun NavigateToProductDetailScreen(navController: NavController, onSuccessfulAddOrUpdate: () -> Unit) {
+    private fun NavigateToProductDetailScreen(onSuccessfulAddOrUpdate: () -> Unit) {
         ProductDetailScreen(viewModel = hiltViewModel(),
             onSuccessfulAddOrUpdate = {
                 onSuccessfulAddOrUpdate.invoke()
             })
     }
 
-    fun NavGraphBuilder.mapGraph(navController: NavController) {
+    private fun NavGraphBuilder.mapGraph(navController: NavController) {
         navigation(startDestination = BottomNavScreens.VenueFinder.route, route = BottomNavTabs.MapTab.tabRoute) {
             composable(BottomNavScreens.VenueFinder.route) {
                 VenueFinderScreen(hiltViewModel()) { venueId ->
@@ -160,7 +164,7 @@ class BottomNavActivity : ComponentActivity() {
         }
     }
 
-    fun NavGraphBuilder.browseGraph(
+    private fun NavGraphBuilder.browseGraph(
         navController: NavController,
     ) {
 
@@ -174,12 +178,12 @@ class BottomNavActivity : ComponentActivity() {
                     })
             }
 
-            composable(BottomNavScreens.VenueDetail.route) { backStackEntry ->
+            composable(BottomNavScreens.VenueDetail.route) {
                 NavigateToVenueDetailScreen(navController = navController)
             }
 
             composable(BottomNavScreens.ProductDetailModal.route) {
-                NavigateToProductDetailScreen(navController = navController) {
+                NavigateToProductDetailScreen {
                     navController.popBackStack(BottomNavScreens.VenueDetail.route, false)
                 }
             }

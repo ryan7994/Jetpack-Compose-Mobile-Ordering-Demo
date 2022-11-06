@@ -32,7 +32,7 @@ class ExampleInstrumentedTest {
         assertEquals("Sign In", composeTestRule.onNodeWithTag("btnSignIn").getText())
     }
 
-    fun SemanticsNodeInteraction.getText(): String? {
+    private fun SemanticsNodeInteraction.getText(): String? {
         return try {
             this.assertTextEquals(UUID.randomUUID().toString())
             ""
