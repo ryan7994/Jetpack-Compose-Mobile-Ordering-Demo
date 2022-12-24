@@ -55,7 +55,7 @@ fun ProductDetailScreen(
     LaunchedEffect(Unit) {
         globalScope.launch {
             viewModel.onSuccessfulAddOrUpdate.collect { event ->
-                event.handleSuspendingEvent { isSuccessful ->
+                event.handleSuspending { isSuccessful ->
                     if (isSuccessful) {
                         onSuccessfulAddOrUpdate.invoke()
                         snackbarHostState.showSnackbar(snackbarMessage)

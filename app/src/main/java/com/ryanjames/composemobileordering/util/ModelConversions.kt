@@ -6,7 +6,10 @@ import com.ryanjames.composemobileordering.features.bag.BagItemRowDisplayModel
 import com.ryanjames.composemobileordering.features.home.FeaturedRestaurantCardState
 import com.ryanjames.composemobileordering.features.home.RestaurantCardState
 import com.ryanjames.composemobileordering.features.venuedetail.CategoryViewState
-import com.ryanjames.composemobileordering.network.model.*
+import com.ryanjames.composemobileordering.network.model.request.LineItemRequestBody
+import com.ryanjames.composemobileordering.network.model.request.ModifierSelectionRequestBody
+import com.ryanjames.composemobileordering.network.model.request.ProductInOrderRequestBody
+import com.ryanjames.composemobileordering.network.model.response.*
 import com.ryanjames.composemobileordering.toTwoDigitString
 import com.ryanjames.composemobileordering.ui.widget.MenuItemCardDisplayModel
 import com.ryanjames.composemobileordering.ui.widget.RestaurantDisplayModel
@@ -574,3 +577,5 @@ fun BagLineItem.toDisplayModel(): BagItemRowDisplayModel {
         forRemoval = false
     )
 }
+
+fun ApiErrorResponse.toDomain(code: Int): MobileApiError = MobileApiError(message = message, code = code)

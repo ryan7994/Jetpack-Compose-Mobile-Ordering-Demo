@@ -31,8 +31,8 @@ class LoginActivity : BaseActivity() {
 
     private fun subscribe() {
         lifecycleScope.launch {
-            viewModel.loginEvent.collect {
-                it.handleEvent { loginEvent ->
+            viewModel.loginEvent.collect { event ->
+                event.handle { loginEvent ->
                     when (loginEvent) {
                         is LoginEvent.LoginSuccess -> {
                             loginUser()
@@ -51,6 +51,7 @@ class LoginActivity : BaseActivity() {
 
     @Composable
     override fun SetContent() {
+//        SignUpScreen(signUpViewModel = hiltViewModel())
         LoginScreen(viewModel)
     }
 }

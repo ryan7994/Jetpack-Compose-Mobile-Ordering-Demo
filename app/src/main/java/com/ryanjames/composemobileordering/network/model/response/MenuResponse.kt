@@ -1,4 +1,4 @@
-package com.ryanjames.composemobileordering.network.model
+package com.ryanjames.composemobileordering.network.model.response
 
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName

@@ -1,4 +1,4 @@
-package com.ryanjames.composemobileordering.network.model
+package com.ryanjames.composemobileordering.network.model.response
 
 data class HomeResponse(
     val featuredStores: List<VenueResponse>,

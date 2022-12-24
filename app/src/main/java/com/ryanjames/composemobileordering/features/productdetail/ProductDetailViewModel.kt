@@ -12,9 +12,9 @@ import com.ryanjames.composemobileordering.domain.BagLineItem
 import com.ryanjames.composemobileordering.domain.LineItem
 import com.ryanjames.composemobileordering.domain.Product
 import com.ryanjames.composemobileordering.network.model.Event
-import com.ryanjames.composemobileordering.repository.AbsMenuRepository
-import com.ryanjames.composemobileordering.repository.AbsOrderRepository
-import com.ryanjames.composemobileordering.repository.AbsVenueRepository
+import com.ryanjames.composemobileordering.repository.MenuRepository
+import com.ryanjames.composemobileordering.repository.OrderRepository
+import com.ryanjames.composemobileordering.repository.VenueRepository
 import com.ryanjames.composemobileordering.toTwoDigitString
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
 import com.ryanjames.composemobileordering.ui.core.TwoButtonsDialogState
@@ -22,16 +22,15 @@ import com.ryanjames.composemobileordering.util.LineItemManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProductDetailViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val menuRepository: AbsMenuRepository,
-    private val orderRepository: AbsOrderRepository,
-    private val venueRepository: AbsVenueRepository
+    private val menuRepository: MenuRepository,
+    private val orderRepository: OrderRepository,
+    private val venueRepository: VenueRepository
 ) : ViewModel() {
 
     private var isModifying = false

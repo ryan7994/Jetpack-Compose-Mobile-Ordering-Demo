@@ -1,5 +1,6 @@
 package com.ryanjames.composemobileordering.core
 
+import com.ryanjames.composemobileordering.domain.MobileApiError
 import com.ryanjames.composemobileordering.network.model.Event
 
 
@@ -8,8 +9,11 @@ sealed class Resource<out T> {
         val event = Event(data)
     }
 
-    data class Error(val throwable: Throwable) : Resource<Nothing>() {
+    sealed class Error(val throwable: Throwable) : Resource<Nothing>() {
         val event = Event(throwable)
+
+        data class Api(private val t: Throwable, val apiError: MobileApiError) : Error(throwable = t)
+        data class Generic(private val t: Throwable, val message: String? = null) : Error(throwable = t)
     }
 
     object Loading : Resource<Nothing>()

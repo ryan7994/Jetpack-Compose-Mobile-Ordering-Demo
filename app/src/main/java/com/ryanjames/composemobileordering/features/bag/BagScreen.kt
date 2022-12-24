@@ -68,7 +68,7 @@ fun BagScreen(
         globalScope.launch {
             bagViewModel.onItemRemoval.collect { event ->
                 if (event.peekContent()) {
-                    event.handleSuspendingEvent {
+                    event.handleSuspending {
                         snackbarHostState.showSnackbar(snackbarMessage)
                     }
                 }

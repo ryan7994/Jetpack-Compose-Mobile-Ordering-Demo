@@ -8,8 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.ryanjames.composemobileordering.TAG
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.domain.EmptyVenue
-import com.ryanjames.composemobileordering.repository.AbsMenuRepository
-import com.ryanjames.composemobileordering.repository.AbsVenueRepository
+import com.ryanjames.composemobileordering.repository.MenuRepository
+import com.ryanjames.composemobileordering.repository.VenueRepository
 import com.ryanjames.composemobileordering.util.toCategoryViewStateList
 import com.ryanjames.composemobileordering.util.toRestaurantDisplayModel
 import com.ryanjames.composemobileordering.util.toStoreInfoDisplayModel
@@ -23,8 +23,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VenueDetailViewModel @Inject constructor(
-    private val venueRepository: AbsVenueRepository,
-    private val menuRepository: AbsMenuRepository,
+    private val venueRepository: VenueRepository,
+    private val menuRepository: MenuRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -71,10 +71,10 @@ class VenueDetailViewModel @Inject constructor(
                     menuRepository.getBasicMenuByVenue(venueId = venueId).collect { resource ->
                         if (resource is Resource.Success) {
                             val basicMenu = resource.data
-                            _venueDetailScreenState.value = _venueDetailScreenState.value.copy(menuCategoriesResource = Resource.Success(basicMenu?.toCategoryViewStateList() ?: listOf()))
+                            _venueDetailScreenState.value =
+                                _venueDetailScreenState.value.copy(menuCategoriesResource = Resource.Success(basicMenu?.toCategoryViewStateList() ?: listOf()))
                         } else if (resource is Resource.Error) {
-                            resource.throwable.printStackTrace()
-                            _venueDetailScreenState.value = _venueDetailScreenState.value.copy(menuCategoriesResource = Resource.Error(resource.throwable))
+                            _venueDetailScreenState.value = _venueDetailScreenState.value.copy(menuCategoriesResource = Resource.Error.Generic(resource.throwable))
                         } else if (resource is Resource.Loading) {
                             _venueDetailScreenState.value = _venueDetailScreenState.value.copy(menuCategoriesResource = Resource.Loading)
                         }

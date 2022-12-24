@@ -8,8 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.ryanjames.composemobileordering.TAG
 import com.ryanjames.composemobileordering.clearAndAddAll
 import com.ryanjames.composemobileordering.domain.Venue
-import com.ryanjames.composemobileordering.repository.AbsOrderRepository
-import com.ryanjames.composemobileordering.repository.AbsVenueRepository
+import com.ryanjames.composemobileordering.repository.OrderRepository
+import com.ryanjames.composemobileordering.repository.VenueRepository
 import com.ryanjames.composemobileordering.util.toFeaturedRestaurantCardState
 import com.ryanjames.composemobileordering.util.toRestaurantCardState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,8 +23,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val venueRepository: AbsVenueRepository,
-    private val orderRepository: AbsOrderRepository,
+    private val venueRepository: VenueRepository,
+    private val orderRepository: OrderRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 

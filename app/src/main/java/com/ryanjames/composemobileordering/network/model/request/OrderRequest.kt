@@ -1,4 +1,4 @@
-package com.ryanjames.composemobileordering.network.model
+package com.ryanjames.composemobileordering.network.model.request
 
 data class CreateUpdateOrderRequest(
     val orderId: String,

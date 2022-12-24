@@ -45,8 +45,8 @@ class LineItemManager(val product: Product, private val bagLineItem: BagLineItem
         productModifiers?.forEach {
             val modifierGroupId = it.key.modifierGroupId
             val modifierIds = it.value
-            product.modifierGroups.find { it.modifierGroupId == modifierGroupId }?.let { modifierGroup ->
-                val modifiers = modifierIds.mapNotNull { modifierId -> modifierGroup.options.find { it.modifierId == modifierId } }
+            product.modifierGroups.find { modifierGroup -> modifierGroup.modifierGroupId == modifierGroupId }?.let { modifierGroup ->
+                val modifiers = modifierIds.mapNotNull { modifierId -> modifierGroup.options.find { modifierInfo -> modifierInfo.modifierId == modifierId } }
                 lineItem.modifiers[ProductModifierGroupKey(product, modifierGroup)] = modifiers
             }
         }

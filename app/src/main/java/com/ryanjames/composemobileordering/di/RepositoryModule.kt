@@ -10,24 +10,28 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @Module
 @InstallIn(SingletonComponent::class)
 open class RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideAbsMenuRepository(mobilePosApi: MobilePosApi, roomDb: AppDatabase): AbsMenuRepository {
-        return MenuRepository(mobilePosApi = mobilePosApi, roomDb = roomDb)
+    fun provideAbsMenuRepository(mobilePosApi: MobilePosApi, roomDb: AppDatabase): MenuRepository {
+        return MenuRepositoryImpl(mobilePosApi = mobilePosApi, roomDb = roomDb)
     }
 
     @Provides
-    fun provideAbsOrderRepository(mobilePosApi: MobilePosApi, roomDb: AppDatabase): AbsOrderRepository {
-        return OrderRepository(mobilePosApi = mobilePosApi, roomDb = roomDb)
+    fun provideAbsOrderRepository(mobilePosApi: MobilePosApi, roomDb: AppDatabase): OrderRepository {
+        return OrderRepositoryImpl(mobilePosApi = mobilePosApi, roomDb = roomDb)
     }
 
     @Provides
-    fun provideAbsVenueRepository(mobilePosApi: MobilePosApi, roomDb: AppDatabase): AbsVenueRepository {
-        return VenueRepository(mobilePosApi = mobilePosApi, roomDb = roomDb)
+    fun provideAbsVenueRepository(mobilePosApi: MobilePosApi, roomDb: AppDatabase): VenueRepository {
+        return VenueRepositoryImpl(mobilePosApi = mobilePosApi, roomDb = roomDb)
+    }
+
+    @Provides
+    fun provideAccountRepository(mobilePosApi: MobilePosApi, roomDb: AppDatabase): AccountRepository {
+        return AccountRepositoryImpl(mobilePosApi = mobilePosApi, roomDb = roomDb)
     }
 }

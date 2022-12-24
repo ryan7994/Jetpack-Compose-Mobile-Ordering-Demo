@@ -7,8 +7,8 @@ import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.core.StringResource
 import com.ryanjames.composemobileordering.network.model.Event
-import com.ryanjames.composemobileordering.repository.AbsOrderRepository
-import com.ryanjames.composemobileordering.repository.AbsVenueRepository
+import com.ryanjames.composemobileordering.repository.OrderRepository
+import com.ryanjames.composemobileordering.repository.VenueRepository
 import com.ryanjames.composemobileordering.toTwoDigitString
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
 import com.ryanjames.composemobileordering.util.toDisplayModel
@@ -20,8 +20,8 @@ import javax.inject.Inject
 @FlowPreview
 @HiltViewModel
 class BagViewModel @Inject constructor(
-    private val orderRepository: AbsOrderRepository,
-    private val venueRepository: AbsVenueRepository
+    private val orderRepository: OrderRepository,
+    private val venueRepository: VenueRepository
 ) : ViewModel() {
 
     private val _bagItemScreenState = MutableStateFlow(
@@ -46,9 +46,10 @@ class BagViewModel @Inject constructor(
 
         viewModelScope.launch {
             awaitAll(
-                async { collectCurrentVenueId() },
+                async { collectCurrentVenue() },
                 async { collectCurrentBagSummary() },
-                async { getDeliveryAddress() })
+                async { getDeliveryAddress() },
+            )
 
         }
     }
@@ -60,14 +61,12 @@ class BagViewModel @Inject constructor(
         }
     }
 
-    private suspend fun collectCurrentVenueId() {
-        venueRepository.getCurrentVenueIdFlow().filterNotNull().flatMapMerge { venueId ->
-            venueRepository.getVenueById(venueId)
-        }.collect {
+    private suspend fun collectCurrentVenue() {
+        venueRepository.getCurrentVenue().collect {
             if (it is Resource.Success) {
                 val venue = it.data ?: return@collect
-                _bagItemScreenState.update {
-                    it.copy(
+                _bagItemScreenState.update { state ->
+                    state.copy(
                         venueId = venue.id,
                         venueName = venue.name,
                         restaurantPosition = LatLng(venue.lat.toDouble(), venue.long.toDouble()),
@@ -119,7 +118,7 @@ class BagViewModel @Inject constructor(
                         )
                     }
                     is Resource.Success -> {
-                        val newLineItems = it.data.lineItems.map { it.toDisplayModel() }
+                        val newLineItems = it.data.lineItems.map { lineItem -> lineItem.toDisplayModel() }
                         _bagItemScreenState.value = _bagItemScreenState.value.copy(
                             bagItems = newLineItems,
                             btnRemoveState = ButtonState(true, true),
@@ -135,6 +134,7 @@ class BagViewModel @Inject constructor(
                             alertDialog = null
                         )
                     }
+                    else -> {}
                 }
             }
         }

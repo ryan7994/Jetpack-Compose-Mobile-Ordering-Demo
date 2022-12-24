@@ -2,15 +2,21 @@
 
 package com.ryanjames.composemobileordering.ui.core
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
@@ -19,6 +25,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -26,6 +36,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,16 +45,21 @@ import com.ryanjames.composemobileordering.features.bag.ButtonState
 import com.ryanjames.composemobileordering.ui.theme.*
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun SingleLineTextField(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
     hintText: String,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions? = null,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    keyboardOptions: KeyboardOptions = KeyboardOptions(
+        imeAction = ImeAction.Next,
+        autoCorrect = false
+    ),
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    isError: Boolean = true,
+    onFocusChanged: (FocusState) -> Unit = {},
+    errorMessage: String? = null
 ) {
     val focusManager = LocalFocusManager.current
     OutlinedTextField(
@@ -53,23 +69,33 @@ fun SingleLineTextField(
             unfocusedBorderColor = AppTheme.colors.darkTextColor,
             cursorColor = CoralRed
         ),
-        value = value,
-        onValueChange = onValueChange,
-        singleLine = true,
-        modifier = modifier
-            .fillMaxWidth(),
-        placeholder = {
+        label = {
             Text(
                 text = hintText,
                 color = AppTheme.colors.hintTextColor,
                 style = Typography.bodyLarge
             )
         },
+        value = value,
+        onValueChange = onValueChange,
+        singleLine = true,
+        modifier = modifier
+            .fillMaxWidth()
+            .onFocusChanged { onFocusChanged.invoke(it) },
         keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions ?: KeyboardActions(onAny = { focusManager.clearFocus() }),
+        keyboardActions = keyboardActions ?: KeyboardActions(
+            onNext = { focusManager.moveFocus(FocusDirection.Down) },
+            onDone = { focusManager.clearFocus() }
+        ),
         visualTransformation = visualTransformation,
-        textStyle = TextStyle(color = AppTheme.colors.darkTextColor, fontFamily = fontRubik)
+        textStyle = TextStyle(color = AppTheme.colors.darkTextColor, fontFamily = fontRubik),
+        isError = isError
     )
+
+    if (isError && errorMessage != null) {
+        Spacer(modifier = Modifier.size(4.dp))
+        Text(text = errorMessage, style = Typography.bodyMedium, color = Color.Red, modifier = Modifier.padding(start = 8.dp))
+    }
 
 
 }
@@ -249,6 +275,24 @@ fun DashedHorizontalLine() {
             pathEffect = pathEffect
         )
     }
+}
+
+@Composable
+fun TopAppBarWithUpButton(title: String) {
+    TopAppBar(
+        title = {
+            Text(text = title)
+        },
+        navigationIcon = {
+            IconButton(onClick = { }) {
+                Icon(Icons.Default.ArrowBack, "Navigate up", tint = Color.White)
+            }
+        },
+        colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = CoralRed,
+            titleContentColor = Color.White
+        )
+    )
 }
 
 val customTextSelectionColors = TextSelectionColors(

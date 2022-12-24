@@ -7,9 +7,9 @@ import com.google.common.truth.Truth.assertThat
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.features.productdetail.ModifierOptionDisplayModel
 import com.ryanjames.composemobileordering.features.productdetail.ProductDetailViewModel
-import com.ryanjames.composemobileordering.repository.AbsMenuRepository
-import com.ryanjames.composemobileordering.repository.AbsOrderRepository
-import com.ryanjames.composemobileordering.repository.AbsVenueRepository
+import com.ryanjames.composemobileordering.repository.MenuRepository
+import com.ryanjames.composemobileordering.repository.OrderRepository
+import com.ryanjames.composemobileordering.repository.VenueRepository
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -35,13 +35,13 @@ class ProductDetailViewModelTest {
     val rule: MockitoRule = MockitoJUnit.rule()
 
     @Mock
-    private lateinit var orderRepository: AbsOrderRepository
+    private lateinit var orderRepository: OrderRepository
 
     @Mock
-    private lateinit var menuRepository: AbsMenuRepository
+    private lateinit var menuRepository: MenuRepository
 
     @Mock
-    private lateinit var venueRepository: AbsVenueRepository
+    private lateinit var venueRepository: VenueRepository
 
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()

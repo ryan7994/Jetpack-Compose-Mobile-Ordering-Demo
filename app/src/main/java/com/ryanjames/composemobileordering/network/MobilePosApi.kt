@@ -1,6 +1,10 @@
 package com.ryanjames.composemobileordering.network
 
-import com.ryanjames.composemobileordering.network.model.*
+import com.ryanjames.composemobileordering.network.model.request.CreateUpdateOrderRequest
+import com.ryanjames.composemobileordering.network.model.request.EnrollRequest
+import com.ryanjames.composemobileordering.network.model.request.GetOrderRequest
+import com.ryanjames.composemobileordering.network.model.request.LoginRequestBody
+import com.ryanjames.composemobileordering.network.model.response.*
 import retrofit2.http.*
 
 interface MobilePosApi {
@@ -32,4 +36,7 @@ interface MobilePosApi {
 
     @POST("/retrieveOrder")
     suspend fun getOrder(@Body getOrderRequest: GetOrderRequest): GetOrderResponse
+
+    @POST("/v1/auth/enroll")
+    suspend fun enroll(@Body enrollRequest: EnrollRequest): EnrollResponse
 }

@@ -139,6 +139,7 @@ fun VenueDetailScreen(
                         }
                     }
                     is Resource.Error -> TODO()
+                    else -> {}
                 }
 
             }

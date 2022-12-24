@@ -28,14 +28,14 @@ open class Event<out T>(private val content: T) {
     /**
      * Accepts a functional block and only executes it on first invocation of handleEvent() function
      */
-    fun handleEvent(block: (T) -> Unit) {
+    fun handle(block: (T) -> Unit) {
         if (!hasBeenHandled) {
             hasBeenHandled = true
             block.invoke(content)
         }
     }
 
-    suspend fun handleSuspendingEvent(block: suspend (T) -> Unit) {
+    suspend fun handleSuspending(block: suspend (T) -> Unit) {
         if (!hasBeenHandled) {
             hasBeenHandled = true
             block.invoke(content)

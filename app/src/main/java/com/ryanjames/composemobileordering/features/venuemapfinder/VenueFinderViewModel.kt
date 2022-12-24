@@ -8,7 +8,7 @@ import com.ryanjames.composemobileordering.TAG
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.domain.Venue
 import com.ryanjames.composemobileordering.domain.getLatLng
-import com.ryanjames.composemobileordering.repository.AbsVenueRepository
+import com.ryanjames.composemobileordering.repository.VenueRepository
 import com.ryanjames.composemobileordering.util.toFeaturedRestaurantCardState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VenueFinderViewModel @Inject constructor(
-    private val venueRepository: AbsVenueRepository,
+    private val venueRepository: VenueRepository,
 ) : ViewModel() {
 
     private val _venueFinderScreenState = MutableStateFlow(VenueFinderScreenState())

@@ -12,10 +12,7 @@ import com.ryanjames.composemobileordering.ui.core.AlertDialogState
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -35,14 +32,14 @@ class LoginViewModel @Inject constructor(
 
     init {
         if (loginManager.isLoggedIn()) {
-            _loginEvent.value = Event(LoginEvent.AutoLogin)
+            _loginEvent.update { Event(LoginEvent.AutoLogin) }
         }
     }
 
     fun onValueChange(text: String, loginFormField: LoginFormField) {
         when (loginFormField) {
-            LoginFormField.Password -> _loginViewState.value = _loginViewState.value.copy(password = text.trim())
-            LoginFormField.Username -> _loginViewState.value = _loginViewState.value.copy(username = text.trim())
+            LoginFormField.Password -> _loginViewState.update { _loginViewState.value.copy(password = text.trim()) }
+            LoginFormField.Username -> _loginViewState.update { _loginViewState.value.copy(username = text.trim()) }
         }
     }
 
@@ -56,53 +53,63 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun dismissDialog() {
-        _loginViewState.value = _loginViewState.value.copy(alertDialogState = null)
+        _loginViewState.update { _loginViewState.value.copy(alertDialogState = null) }
     }
 
     private fun showLoggingInDialog() {
-        _loginViewState.value = _loginViewState.value.copy(
-            alertDialogState = LoadingDialogState(loadingText = StringResource(id = R.string.logging_in))
-        )
+        _loginViewState.update {
+            _loginViewState.value.copy(
+                alertDialogState = LoadingDialogState(loadingText = StringResource(id = R.string.logging_in))
+            )
+        }
     }
 
     private fun showIncorrectCredentialsDialog() {
-        _loginViewState.value = _loginViewState.value.copy(
-            alertDialogState = AlertDialogState(
-                title = StringResource(R.string.login_failed),
-                message = StringResource(R.string.no_match_username_password),
-                onDismiss = this@LoginViewModel::dismissDialog
+        _loginViewState.update {
+            _loginViewState.value.copy(
+                alertDialogState = AlertDialogState(
+                    title = StringResource(R.string.login_failed),
+                    message = StringResource(R.string.no_match_username_password),
+                    onDismiss = this@LoginViewModel::dismissDialog
+                )
             )
-        )
+        }
     }
 
     private fun showBlankUsernameDialog() {
-        _loginViewState.value = _loginViewState.value.copy(
-            alertDialogState = AlertDialogState(
-                title = StringResource(R.string.login_failed),
-                message = StringResource(R.string.username_empty),
-                onDismiss = this@LoginViewModel::dismissDialog
+        _loginViewState.update {
+            _loginViewState.value.copy(
+                alertDialogState = AlertDialogState(
+                    title = StringResource(R.string.login_failed),
+                    message = StringResource(R.string.username_empty),
+                    onDismiss = this@LoginViewModel::dismissDialog
+                )
             )
-        )
+        }
     }
 
     private fun showBlankPasswordDialog() {
-        _loginViewState.value = _loginViewState.value.copy(
-            alertDialogState = AlertDialogState(
-                title = StringResource(R.string.login_failed),
-                message = StringResource(R.string.password_empty),
-                onDismiss = this@LoginViewModel::dismissDialog
+        _loginViewState.update {
+            _loginViewState.value.copy(
+                alertDialogState = AlertDialogState(
+                    title = StringResource(R.string.login_failed),
+                    message = StringResource(R.string.password_empty),
+                    onDismiss = this@LoginViewModel::dismissDialog
+                )
             )
-        )
+        }
     }
 
     private fun showBlankUsernameAndPasswordDialog() {
-        _loginViewState.value = _loginViewState.value.copy(
-            alertDialogState = AlertDialogState(
-                title = StringResource(R.string.login_failed),
-                message = StringResource(R.string.username_and_password_empty),
-                onDismiss = this@LoginViewModel::dismissDialog
+        _loginViewState.update {
+            _loginViewState.value.copy(
+                alertDialogState = AlertDialogState(
+                    title = StringResource(R.string.login_failed),
+                    message = StringResource(R.string.username_and_password_empty),
+                    onDismiss = this@LoginViewModel::dismissDialog
+                )
             )
-        )
+        }
     }
 
     private fun login() {
@@ -115,11 +122,11 @@ class LoginViewModel @Inject constructor(
                     }
 
                     it.doOnSuccess {
-                        _loginEvent.value = Event(LoginEvent.LoginSuccess)
+                        _loginEvent.update { Event(LoginEvent.LoginSuccess) }
                     }
 
                     it.doOnError {
-                        _loginEvent.value = Event(LoginErrorEvent(LoginError.LoginFailed))
+                        _loginEvent.update { Event(LoginErrorEvent(LoginError.LoginFailed)) }
                         showIncorrectCredentialsDialog()
                     }
 

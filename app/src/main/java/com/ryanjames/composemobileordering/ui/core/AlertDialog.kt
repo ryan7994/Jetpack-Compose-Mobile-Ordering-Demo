@@ -63,13 +63,21 @@ fun Dialog(alertDialogState: AlertDialogState?) {
             }
         },
         text = {
-            Text(
-                text = stringResource(alertDialogState.message.id),
-                style = Typography.bodyLarge,
-                color = AppTheme.colors.darkTextColor
-            )
+            if (alertDialogState.message != null) {
+                Text(
+                    text = stringResource(alertDialogState.message.id),
+                    style = Typography.bodyLarge,
+                    color = AppTheme.colors.darkTextColor
+                )
+            } else if (alertDialogState.stringMessage != null) {
+                Text(
+                    text = alertDialogState.stringMessage,
+                    style = Typography.bodyLarge,
+                    color = AppTheme.colors.darkTextColor
+                )
+            }
         },
-        confirmButton  = {
+        confirmButton = {
             Column {
                 Row(
                     modifier = Modifier
@@ -105,8 +113,9 @@ fun Dialog(alertDialogState: AlertDialogState?) {
 }
 
 open class AlertDialogState(
-    val title: StringResource?,
-    val message: StringResource,
+    val title: StringResource? = null,
+    val message: StringResource? = null,
+    val stringMessage: String? = null,
     private val onDismiss: () -> Unit = {}
 ) {
 

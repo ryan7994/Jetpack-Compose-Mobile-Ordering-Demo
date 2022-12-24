@@ -5,7 +5,7 @@ import com.ryanjames.composemobileordering.db.model.BasicMenuCategoryEntity
 import com.ryanjames.composemobileordering.db.model.BasicMenuEntity
 import com.ryanjames.composemobileordering.db.model.BasicMenuProductEntity
 import com.ryanjames.composemobileordering.db.model.BasicMenuWithCategories
-import com.ryanjames.composemobileordering.network.model.BasicMenuResponse
+import com.ryanjames.composemobileordering.network.model.response.BasicMenuResponse
 import kotlinx.coroutines.flow.Flow
 
 @Dao

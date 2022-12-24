@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ryanjames.composemobileordering.R
+import com.ryanjames.composemobileordering.ui.core.AccentTextButton
 import com.ryanjames.composemobileordering.ui.core.Dialog
 import com.ryanjames.composemobileordering.ui.core.FullWidthButton
 import com.ryanjames.composemobileordering.ui.core.SingleLineTextField
@@ -108,6 +109,7 @@ fun LoginScreenLayout(
                     label = stringResource(R.string.sign_in),
                     tag = "btnSignIn"
                 )
+                AccentTextButton(onClick = { /*TODO*/ }, label = "Sign Up")
                 Spacer(modifier = Modifier.size(16.dp))
                 Text(
                     text = stringResource(R.string.mobile_ordering_demo),
