@@ -6,11 +6,10 @@ import com.ryanjames.composemobileordering.TAG
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.network.model.response.ApiErrorResponse
 import com.ryanjames.composemobileordering.util.toDomain
-import kotlinx.coroutines.channels.ProducerScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import okhttp3.Dispatcher
 import retrofit2.HttpException
 
 
@@ -34,34 +33,27 @@ inline fun <DatabaseModel, NetworkModel, DomainModel> networkBoundResourceFlow(
     crossinline shouldFetchFromApi: (DatabaseModel) -> Boolean = { true },
     crossinline mapDbToDomainModel: (DatabaseModel) -> DomainModel,
     crossinline onFetchFailed: (Throwable) -> Unit = { }
-): Flow<Resource<DomainModel>> = channelFlow {
+): Flow<Resource<DomainModel>> = flow {
     val data = queryDb().first()
-    send(Resource.Success(mapDbToDomainModel.invoke(data)))
+    emit(Resource.Success(mapDbToDomainModel.invoke(data)))
 
     if (shouldFetchFromApi(data)) {
-        val loading = launch {
-            queryDb().collect { send(Resource.Loading) }
-        }
+        emit(Resource.Loading)
 
         try {
             val networkModel = fetchFromApi()
             saveToDb(networkModel)
-            loading.cancel()
-            queryDb().collect {
-                val domainModel = mapDbToDomainModel(it)
-                send(Resource.Success(domainModel))
-            }
+            queryDb().collect { emit(Resource.Success(mapDbToDomainModel(it))) }
 
         } catch (t: Throwable) {
             onFetchFailed(t)
-            t.printStackTrace()
-            loading.cancel()
-            send(getResourceError(t))
+            Log.e(TAG, t.message, t)
+            emit(getResourceError(t))
         }
     } else {
-        queryDb().collect { send(Resource.Success(mapDbToDomainModel(it))) }
+        queryDb().collect { emit(Resource.Success(mapDbToDomainModel(it))) }
     }
-}
+}.flowOn(Dispatchers.IO)
 
 inline fun <NetworkModel, DomainModel> networkAndDomainResourceFlow(
     crossinline fetchFromApi: suspend () -> NetworkModel,
@@ -86,7 +78,7 @@ inline fun <NetworkModel, DomainModel> networkAndDomainResourceFlow(
         onFetchFailed(t)
         send(getResourceError(t))
     }
-}
+}.flowOn(Dispatchers.IO)
 
 inline fun <NetworkModel> networkOnlyResourceFlow(
     crossinline apiCall: suspend () -> NetworkModel
@@ -100,7 +92,7 @@ inline fun <NetworkModel> networkOnlyResourceFlow(
         Log.e(TAG, t.message, t)
         send(getResourceError(t))
     }
-}
+}.flowOn(Dispatchers.IO)
 
 fun <T : Resource.Error> getResourceError(t: Throwable): Resource<T> {
     if (t is HttpException) {
@@ -109,7 +101,7 @@ fun <T : Resource.Error> getResourceError(t: Throwable): Resource<T> {
         try {
             val apiErrorResponse: ApiErrorResponse? = Gson().fromJson(t.response()?.errorBody()?.string(), ApiErrorResponse::class.java)
             return if (apiErrorResponse?.message != null) {
-                Resource.Error.Api(t, apiErrorResponse.toDomain(code))
+                Resource.Error.Custom(t, apiErrorResponse.toDomain(code))
             } else {
                 Resource.Error.Generic(Exception("Json is empty or null"), "")
             }
@@ -117,5 +109,5 @@ fun <T : Resource.Error> getResourceError(t: Throwable): Resource<T> {
             Resource.Error.Generic(e, e.message)
         }
     }
-    return Resource.Error.Generic(Exception(), "")
+    return Resource.Error.Generic(t, "")
 }

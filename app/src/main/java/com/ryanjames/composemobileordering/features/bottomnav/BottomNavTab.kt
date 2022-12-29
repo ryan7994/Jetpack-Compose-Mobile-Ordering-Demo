@@ -15,6 +15,8 @@ private const val SCREEN_ROUTE_PRODUCT_DETAIL_FROM_BAG = "productDetailFromBag"
 private const val SCREEN_ROUTE_HOME = "screenHome"
 private const val SCREEN_ROUTE_BAG = "screenBag"
 private const val SCREEN_ROUTE_MAP = "screenVenueFinder"
+private const val SCREEN_ROUTE_LOGIN = "login"
+private const val SCREEN_ROUTE_SIGNUP = "signup"
 
 sealed class BottomNavTabs(open val tabRoute: String, val labelResId: Int = -1, val icon: ImageVector? = null, val drawableId: Int? = null) {
     object BrowseTab : BottomNavTabs(TAB_ROUTE_BROWSE, R.string.bottom_nav_browse, drawableId = R.drawable.search)
@@ -32,7 +34,7 @@ sealed class BottomNavScreens(open val route: String) {
         }
     }
 
-    object VenueFinder: BottomNavScreens(SCREEN_ROUTE_MAP)
+    object VenueFinder : BottomNavScreens(SCREEN_ROUTE_MAP)
 
 
     object ProductDetailModal : BottomNavScreens("$SCREEN_ROUTE_PRODUCT_DETAIL/{productId}/{venueId}") {
@@ -64,5 +66,13 @@ sealed class BottomNavScreens(open val route: String) {
                 })
         }
     }
+}
+
+sealed class Screens(val route: String) {
+
+    object Login : Screens(SCREEN_ROUTE_LOGIN)
+    object SignUp : Screens(SCREEN_ROUTE_SIGNUP)
+
+
 }
 

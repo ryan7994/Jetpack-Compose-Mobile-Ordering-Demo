@@ -5,7 +5,7 @@ import com.ryanjames.composemobileordering.BuildConfig
 import com.ryanjames.composemobileordering.constants.NETWORK_READ_TIMEOUT_IN_SEC
 import com.ryanjames.composemobileordering.constants.NETWORK_WRITE_TIMEOUT_IN_SEC
 import com.ryanjames.composemobileordering.core.LoginManager
-import com.ryanjames.composemobileordering.network.ApiService
+import com.ryanjames.composemobileordering.network.LoginService
 import com.ryanjames.composemobileordering.network.MobilePosApi
 import com.ryanjames.composemobileordering.network.authenticator.TokenAuthenticator
 import com.ryanjames.composemobileordering.network.interceptors.AuthTokenInterceptor
@@ -26,8 +26,8 @@ open class NetworkModule {
 
     @Singleton
     @Provides
-    open fun provideApiService(sharedPreferences: SharedPreferences, mobilePosApi: MobilePosApi): ApiService {
-        return ApiService(sharedPreferences, mobilePosApi)
+    open fun provideApiService(sharedPreferences: SharedPreferences, mobilePosApi: MobilePosApi): LoginService {
+        return LoginService(sharedPreferences, mobilePosApi)
     }
 
     @Singleton

@@ -17,7 +17,8 @@ data class VenueEntity(
     val deliveryTimeInMinsHigh: Int,
     val priceIndicator: String,
     val featuredImage: String?,
-    val type: String?
+    val type: String?,
+    val creationTimeInMills: Long?
 )
 
 @Entity(tableName = "StoreHoursEntity")

@@ -1,30 +1,37 @@
 package com.ryanjames.composemobileordering.repository
 
-import com.google.gson.Gson
+import android.util.Log
+import com.ryanjames.composemobileordering.TAG
 import com.ryanjames.composemobileordering.core.Resource
+import com.ryanjames.composemobileordering.core.flatMapLatest
 import com.ryanjames.composemobileordering.db.AppDatabase
+import com.ryanjames.composemobileordering.network.LoginService
 import com.ryanjames.composemobileordering.network.MobilePosApi
 import com.ryanjames.composemobileordering.network.model.request.EnrollRequest
-import com.ryanjames.composemobileordering.network.model.response.ApiErrorResponse
-import com.ryanjames.composemobileordering.network.model.response.EnrollResponse
+import com.ryanjames.composemobileordering.network.model.response.LoginResponse
 import com.ryanjames.composemobileordering.network.networkOnlyResourceFlow
-import com.ryanjames.composemobileordering.util.toDomain
-import kotlinx.coroutines.channels.ProducerScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import retrofit2.HttpException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
 
 interface AccountRepository {
-    fun enroll(enrollRequest: EnrollRequest): Flow<Resource<EnrollResponse>>
+    fun enrollAndLogin(enrollRequest: EnrollRequest): Flow<Resource<LoginResponse>>
 }
 
 class AccountRepositoryImpl(
     private val mobilePosApi: MobilePosApi,
-    private val roomDb: AppDatabase
+    private val roomDb: AppDatabase,
+    private val loginService: LoginService
 ) : AccountRepository {
 
 
-    override fun enroll(enrollRequest: EnrollRequest) = networkOnlyResourceFlow(apiCall = { mobilePosApi.enroll(enrollRequest) })
-
+    @OptIn(FlowPreview::class)
+    override fun enrollAndLogin(enrollRequest: EnrollRequest): Flow<Resource<LoginResponse>> {
+        return networkOnlyResourceFlow {
+            mobilePosApi.enroll(enrollRequest)
+        }.flatMapLatest { enrollResponse ->
+            loginService.authenticate(enrollResponse.username, enrollRequest.password)
+        }
+    }
 
 }

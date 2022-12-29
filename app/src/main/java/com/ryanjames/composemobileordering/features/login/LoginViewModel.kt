@@ -1,12 +1,15 @@
 package com.ryanjames.composemobileordering.features.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryanjames.composemobileordering.R
+import com.ryanjames.composemobileordering.TAG
 import com.ryanjames.composemobileordering.core.LoginManager
+import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.core.StringResource
 import com.ryanjames.composemobileordering.features.login.LoginEvent.LoginErrorEvent
-import com.ryanjames.composemobileordering.network.ApiService
+import com.ryanjames.composemobileordering.network.LoginService
 import com.ryanjames.composemobileordering.network.model.Event
 import com.ryanjames.composemobileordering.ui.core.AlertDialogState
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
@@ -19,7 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val apiService: ApiService,
+    private val apiService: LoginService,
     loginManager: LoginManager
 ) : ViewModel() {
 
@@ -114,24 +117,19 @@ class LoginViewModel @Inject constructor(
 
     private fun login() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                apiService.authenticate(username = username, password = password).collect {
 
-                    it.doOnLoading {
-                        showLoggingInDialog()
-                    }
-
-                    it.doOnSuccess {
-                        _loginEvent.update { Event(LoginEvent.LoginSuccess) }
-                    }
-
-                    it.doOnError {
+            apiService.authenticate(username = username, password = password).collect { resource ->
+                when (resource) {
+                    is Resource.Error -> {
                         _loginEvent.update { Event(LoginErrorEvent(LoginError.LoginFailed)) }
                         showIncorrectCredentialsDialog()
                     }
-
+                    Resource.Loading -> showLoggingInDialog()
+                    is Resource.Success -> _loginEvent.update { Event(LoginEvent.LoginSuccess) }
                 }
+
             }
+
 
         }
     }

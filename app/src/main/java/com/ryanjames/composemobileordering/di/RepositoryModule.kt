@@ -1,6 +1,7 @@
 package com.ryanjames.composemobileordering.di
 
 import com.ryanjames.composemobileordering.db.AppDatabase
+import com.ryanjames.composemobileordering.network.LoginService
 import com.ryanjames.composemobileordering.network.MobilePosApi
 import com.ryanjames.composemobileordering.repository.*
 import dagger.Module
@@ -31,7 +32,7 @@ open class RepositoryModule {
     }
 
     @Provides
-    fun provideAccountRepository(mobilePosApi: MobilePosApi, roomDb: AppDatabase): AccountRepository {
-        return AccountRepositoryImpl(mobilePosApi = mobilePosApi, roomDb = roomDb)
+    fun provideAccountRepository(mobilePosApi: MobilePosApi, roomDb: AppDatabase, loginService: LoginService): AccountRepository {
+        return AccountRepositoryImpl(mobilePosApi = mobilePosApi, roomDb = roomDb, loginService)
     }
 }

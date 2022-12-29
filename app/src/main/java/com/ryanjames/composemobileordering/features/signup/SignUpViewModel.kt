@@ -1,13 +1,13 @@
 package com.ryanjames.composemobileordering.features.signup
 
-import android.util.Log
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryanjames.composemobileordering.R
-import com.ryanjames.composemobileordering.TAG
+import com.ryanjames.composemobileordering.constants.ERROR_CODE_LOGIN_FAILURE
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.core.StringResource
+import com.ryanjames.composemobileordering.features.login.LoginEvent
+import com.ryanjames.composemobileordering.network.model.Event
 import com.ryanjames.composemobileordering.network.model.request.EnrollRequest
 import com.ryanjames.composemobileordering.repository.AccountRepository
 import com.ryanjames.composemobileordering.ui.core.AlertDialogState
@@ -15,6 +15,7 @@ import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
 import com.ryanjames.composemobileordering.util.TextFieldValidator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -25,6 +26,10 @@ class SignUpViewModel @Inject constructor(private val accountRepository: Account
 
     private val _signUpViewState = MutableStateFlow(SignUpScreenState())
     val signUpViewState = _signUpViewState.asStateFlow()
+
+    private val _autoLoginEvent: MutableStateFlow<Event<LoginEvent>> = MutableStateFlow(Event(LoginEvent.NoEvent))
+    val autoLoginEvent: StateFlow<Event<LoginEvent>>
+        get() = _autoLoginEvent
 
     private val requiredFields = listOf(
         SignUpFormField.Username,
@@ -129,7 +134,7 @@ class SignUpViewModel @Inject constructor(private val accountRepository: Account
             )
 
             viewModelScope.launch {
-                accountRepository.enroll(enrollRequest).collect { resource ->
+                accountRepository.enrollAndLogin(enrollRequest).collect { resource ->
                     when (resource) {
                         is Resource.Error.Generic -> {
                             _signUpViewState.update {
@@ -150,21 +155,38 @@ class SignUpViewModel @Inject constructor(private val accountRepository: Account
                                 )
                             }
                         }
-                        is Resource.Success -> Log.d(TAG, "Enrollment successful")
-                        is Resource.Error.Api -> {
-                            val apiErrorMessage = resource.apiError.message
-                            _signUpViewState.update {
-                                _signUpViewState.value.copy(
-                                    alertDialogState = AlertDialogState(
-                                        title = StringResource(R.string.enrollment_failed),
-                                        stringMessage = apiErrorMessage,
-                                        onDismiss = this@SignUpViewModel::dismissDialog
+                        is Resource.Success -> {
+                            dismissDialog()
+                            _autoLoginEvent.update { Event(LoginEvent.LoginSuccess) }
+                        }
+                        is Resource.Error.Custom -> {
+                            val apiErrorMessage = resource.error.apiErrorMessage
+
+                            if (resource.error.userDefinedErrorCode == ERROR_CODE_LOGIN_FAILURE) {
+
+                                _signUpViewState.update {
+                                    _signUpViewState.value.copy(
+                                        alertDialogState = AlertDialogState(
+                                            title = StringResource(R.string.login_failed),
+                                            message = StringResource(R.string.enroll_login_failed),
+                                            onDismiss = this@SignUpViewModel::dismissDialog
+                                        )
                                     )
-                                )
+                                }
+
+                            } else if (apiErrorMessage != null) {
+                                _signUpViewState.update {
+                                    _signUpViewState.value.copy(
+                                        alertDialogState = AlertDialogState(
+                                            title = StringResource(R.string.enrollment_failed),
+                                            stringMessage = apiErrorMessage,
+                                            onDismiss = this@SignUpViewModel::dismissDialog
+                                        )
+                                    )
+                                }
                             }
 
                         }
-
                     }
                 }
             }

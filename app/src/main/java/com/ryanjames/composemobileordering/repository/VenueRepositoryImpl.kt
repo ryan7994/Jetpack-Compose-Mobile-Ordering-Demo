@@ -32,7 +32,14 @@ class VenueRepositoryImpl(
                 roomDb.venueDao().insertStoreHoursEntity(*(venueResponse.toStoreHoursEntity().toTypedArray()))
             }
         },
-        shouldFetchFromApi = { databaseModel -> databaseModel.isEmpty() },
+        shouldFetchFromApi = { databaseModel ->
+            val creationTime = databaseModel.getOrNull(0)?.venue?.creationTimeInMills
+            if (creationTime != null) {
+                databaseModel.isEmpty() || System.currentTimeMillis().minus(creationTime) > CACHE_IN_MILLS
+            } else {
+                true
+            }
+        },
         onFetchFailed = { },
         mapDbToDomainModel = { dbList ->
             val featuredList = dbList.filter { it.venue.type == VenueEntityType.HOME_FEATURED }.map { it.toDomain() }
@@ -86,4 +93,8 @@ class VenueRepositoryImpl(
         mapDbToDomainModel = { dbList ->
             dbList.map { it.toDomain() }
         })
+
+    companion object {
+        private const val CACHE_IN_MILLS = 30000
+    }
 }

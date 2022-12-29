@@ -16,8 +16,10 @@ import com.ryanjames.composemobileordering.util.toBagSummary
 import com.ryanjames.composemobileordering.util.toDomain
 import com.ryanjames.composemobileordering.util.toLineItemRequest
 import com.ryanjames.composemobileordering.util.toOrderEntity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import java.util.*
 
@@ -62,9 +64,9 @@ class OrderRepositoryImpl(
             send(Resource.Error.Generic(t))
             t.printStackTrace()
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
-    override fun removeLineItems(lineItemIds: List<String>, venueId: String): Flow<Resource<BagSummary>> = channelFlow {
+    override fun removeLineItems(lineItemIds: List<String>, venueId: String): Flow<Resource<BagSummary>> = channelFlow<Resource<BagSummary>> {
         send(Resource.Loading)
 
         try {
@@ -94,7 +96,7 @@ class OrderRepositoryImpl(
             Log.e(TAG, t.message, t)
         }
 
-    }
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun retrieveCurrentOrder(): Flow<Resource<BagSummary>> = channelFlow {
         send(Resource.Loading)
@@ -110,7 +112,7 @@ class OrderRepositoryImpl(
             Log.e(TAG, e.message, e)
             send(Resource.Error.Generic(e))
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
     override fun getBagSummaryFlow(): Flow<BagSummary?> {
 

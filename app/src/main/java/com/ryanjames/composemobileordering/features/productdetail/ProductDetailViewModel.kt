@@ -22,6 +22,7 @@ import com.ryanjames.composemobileordering.util.LineItemManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -55,10 +56,12 @@ class ProductDetailViewModel @Inject constructor(
 
         val btnLabel = if (isModifying) R.string.update_item else R.string.add_to_bag
         val addOrUpdateSuccessMessage = if (isModifying) R.string.item_updated else R.string.item_added
-        _productDetailScreenState.value = _productDetailScreenState.value.copy(
-            btnLabel = StringResource(btnLabel),
-            addOrUpdateSuccessMessage = StringResource(addOrUpdateSuccessMessage)
-        )
+        _productDetailScreenState.update {
+            _productDetailScreenState.value.copy(
+                btnLabel = StringResource(btnLabel),
+                addOrUpdateSuccessMessage = StringResource(addOrUpdateSuccessMessage)
+            )
+        }
 
         viewModelScope.launch {
 

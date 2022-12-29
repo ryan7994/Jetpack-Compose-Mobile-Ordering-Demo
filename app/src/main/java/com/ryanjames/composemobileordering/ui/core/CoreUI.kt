@@ -278,13 +278,15 @@ fun DashedHorizontalLine() {
 }
 
 @Composable
-fun TopAppBarWithUpButton(title: String) {
+fun TopAppBarWithUpButton(title: String, onClickUpBtn: () -> Unit) {
     TopAppBar(
         title = {
             Text(text = title)
         },
         navigationIcon = {
-            IconButton(onClick = { }) {
+            IconButton(onClick = {
+                onClickUpBtn.invoke()
+            }) {
                 Icon(Icons.Default.ArrowBack, "Navigate up", tint = Color.White)
             }
         },

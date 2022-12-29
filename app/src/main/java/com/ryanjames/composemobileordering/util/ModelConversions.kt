@@ -141,7 +141,8 @@ fun VenueResponse.toEntity(type: String): Pair<VenueEntity, List<VenueCategoryEn
         deliveryTimeInMinsLow = prepMin ?: 0,
         priceIndicator = priceLevel ?: "",
         featuredImage = featuredImage,
-        type = type
+        type = type,
+        creationTimeInMills = System.currentTimeMillis()
     )
 
     val categoryEntities = categories?.map { VenueCategoryEntity(it) } ?: listOf()
@@ -578,4 +579,4 @@ fun BagLineItem.toDisplayModel(): BagItemRowDisplayModel {
     )
 }
 
-fun ApiErrorResponse.toDomain(code: Int): MobileApiError = MobileApiError(message = message, code = code)
+fun ApiErrorResponse.toDomain(code: Int): AppError = AppError(apiErrorMessage = message, apiErrorCode = code)

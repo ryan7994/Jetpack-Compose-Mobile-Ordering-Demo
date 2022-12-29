@@ -47,7 +47,7 @@ fun SignUpScreenLayout(
 ) {
 
     Scaffold(topBar = {
-        TopAppBarWithUpButton(stringResource(R.string.sign_up))
+        TopAppBarWithUpButton(stringResource(R.string.sign_up), onUpBtnClicked)
     }) {
         Box(
             modifier = Modifier

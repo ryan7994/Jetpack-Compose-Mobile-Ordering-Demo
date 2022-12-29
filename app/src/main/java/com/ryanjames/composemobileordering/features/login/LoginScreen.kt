@@ -32,12 +32,13 @@ import com.ryanjames.composemobileordering.ui.core.SingleLineTextField
 import com.ryanjames.composemobileordering.ui.theme.*
 
 @Composable
-fun LoginScreen(loginViewModel: LoginViewModel) {
+fun LoginScreen(loginViewModel: LoginViewModel, onClickSignUp: () -> Unit) {
     val state = loginViewModel.loginScreenState.collectAsState()
     LoginScreenLayout(
         loginScreenState = state.value,
         onValueChange = loginViewModel::onValueChange,
-        onClickSignIn = loginViewModel::onClickSignIn
+        onClickSignIn = loginViewModel::onClickSignIn,
+        onClickSignUp = onClickSignUp
     )
 }
 
@@ -46,7 +47,8 @@ fun LoginScreen(loginViewModel: LoginViewModel) {
 fun LoginScreenLayout(
     loginScreenState: LoginScreenState,
     onValueChange: (String, LoginFormField) -> Unit = { _, _ -> },
-    onClickSignIn: () -> Unit = {}
+    onClickSignIn: () -> Unit = {},
+    onClickSignUp: () -> Unit = {}
 ) {
     Surface(
         color = AppTheme.colors.materialColors.primary,
@@ -109,7 +111,10 @@ fun LoginScreenLayout(
                     label = stringResource(R.string.sign_in),
                     tag = "btnSignIn"
                 )
-                AccentTextButton(onClick = { /*TODO*/ }, label = "Sign Up")
+                AccentTextButton(
+                    onClick = { onClickSignUp.invoke() },
+                    label = "Sign Up"
+                )
                 Spacer(modifier = Modifier.size(16.dp))
                 Text(
                     text = stringResource(R.string.mobile_ordering_demo),

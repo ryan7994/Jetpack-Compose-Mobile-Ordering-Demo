@@ -49,21 +49,17 @@ fun ProductDetailScreen(
     val productDetalScreenState = viewModel.productDetailScreenState.collectAsState().value
     val snackbarMessage = stringResource(productDetalScreenState.addOrUpdateSuccessMessage.id)
 
-    val globalScope = LocalCoroutineScope.current
     val snackbarHostState = LocalSnackbarHostState.current
 
     LaunchedEffect(Unit) {
-        globalScope.launch {
-            viewModel.onSuccessfulAddOrUpdate.collect { event ->
-                event.handleSuspending { isSuccessful ->
-                    if (isSuccessful) {
-                        onSuccessfulAddOrUpdate.invoke()
-                        snackbarHostState.showSnackbar(snackbarMessage)
-                    }
+        viewModel.onSuccessfulAddOrUpdate.collect { event ->
+            event.handleSuspending { isSuccessful ->
+                if (isSuccessful) {
+                    onSuccessfulAddOrUpdate.invoke()
+                    snackbarHostState.showSnackbar(snackbarMessage)
                 }
             }
         }
-
     }
 
     ProductDetailLayout(
