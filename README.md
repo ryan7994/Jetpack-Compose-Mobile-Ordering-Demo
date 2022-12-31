@@ -1,1 +1,1 @@
-# Jetpack-Compose-Mobile-Orderiing-Demo
+# Jetpack-Compose-Mobile-Ordering-Demo
