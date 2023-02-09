@@ -43,7 +43,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun ProductDetailScreen(
     viewModel: ProductDetailViewModel,
-    onSuccessfulAddOrUpdate: () -> Unit
+    onSuccessfulAddOrUpdate: () -> Unit,
+    onLoadFail: () -> Unit
 ) {
 
     val productDetalScreenState = viewModel.productDetailScreenState.collectAsState().value
@@ -57,6 +58,16 @@ fun ProductDetailScreen(
                 if (isSuccessful) {
                     onSuccessfulAddOrUpdate.invoke()
                     snackbarHostState.showSnackbar(snackbarMessage)
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.onLoadingFail.collect { event ->
+            event.handleSuspending { failed ->
+                if (failed) {
+                    onLoadFail.invoke()
                 }
             }
         }

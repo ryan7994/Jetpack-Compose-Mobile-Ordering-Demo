@@ -43,6 +43,9 @@ class ProductDetailViewModel @Inject constructor(
     private val _onSuccessfulAddOrUpdate = MutableStateFlow(Event(false))
     val onSuccessfulAddOrUpdate = _onSuccessfulAddOrUpdate.asStateFlow()
 
+    private val _onLoadingFail = MutableStateFlow(Event(false))
+    val onLoadingFail = _onLoadingFail.asStateFlow()
+
     private val rowDataHolders = mutableListOf<ProductDetailRowData>()
     private var selectedModifierSummaryId: String = ""
     private var venueId = ""
@@ -81,7 +84,10 @@ class ProductDetailViewModel @Inject constructor(
                                 _productDetailScreenState.value.copy(
                                     dialogState = AlertDialogState(
                                         message = StringResource(id = R.string.generic_error_message),
-                                        onDismiss = { dismissDialog() }
+                                        onDismiss = {
+                                            dismissDialog()
+                                            _onLoadingFail.update { Event(true) }
+                                        }
                                     )
                                 )
                             }

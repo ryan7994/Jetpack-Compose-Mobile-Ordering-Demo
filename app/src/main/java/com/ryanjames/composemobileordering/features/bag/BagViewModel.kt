@@ -135,7 +135,6 @@ class BagViewModel @Inject constructor(
                             alertDialog = null
                         )
                     }
-                    else -> {}
                 }
             }
         }

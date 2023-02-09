@@ -148,9 +148,13 @@ class BottomNavActivity : ComponentActivity() {
                 BottomNavScreens.ProductDetailFromBag.route,
                 arguments = BottomNavScreens.ProductDetailFromBag.navArguments()
             ) {
-                NavigateToProductDetailScreen() {
-                    navController.popBackStack(BottomNavScreens.Bag.route, false)
-                }
+                NavigateToProductDetailScreen(
+                    onSuccessfulAddOrUpdate = {
+                        navController.popBackStack(BottomNavScreens.Bag.route, false)
+                    },
+                    onLoadFail = {
+                        navController.popBackStack()
+                    })
             }
         }
     }
@@ -167,11 +171,15 @@ class BottomNavActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun NavigateToProductDetailScreen(onSuccessfulAddOrUpdate: () -> Unit) {
-        ProductDetailScreen(viewModel = hiltViewModel(),
-            onSuccessfulAddOrUpdate = {
-                onSuccessfulAddOrUpdate.invoke()
-            })
+    private fun NavigateToProductDetailScreen(
+        onSuccessfulAddOrUpdate: () -> Unit,
+        onLoadFail: () -> Unit
+    ) {
+        ProductDetailScreen(
+            viewModel = hiltViewModel(),
+            onSuccessfulAddOrUpdate = onSuccessfulAddOrUpdate,
+            onLoadFail = onLoadFail
+        )
     }
 
     private fun NavGraphBuilder.mapGraph(navController: NavController) {
@@ -204,9 +212,11 @@ class BottomNavActivity : ComponentActivity() {
             }
 
             composable(BottomNavScreens.ProductDetailModal.route) {
-                NavigateToProductDetailScreen {
+                NavigateToProductDetailScreen(onSuccessfulAddOrUpdate = {
                     navController.popBackStack(BottomNavScreens.VenueDetail.route, false)
-                }
+                }, onLoadFail = {
+                    navController.popBackStack()
+                })
             }
         }
     }
