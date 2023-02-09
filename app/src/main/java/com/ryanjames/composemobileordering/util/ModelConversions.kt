@@ -1,13 +1,15 @@
-package com.ryanjames.composemobileordering.ui
+package com.ryanjames.composemobileordering.util
 
-import com.ryanjames.composemobileordering.db.*
 import com.ryanjames.composemobileordering.db.model.*
 import com.ryanjames.composemobileordering.domain.*
 import com.ryanjames.composemobileordering.features.bag.BagItemRowDisplayModel
 import com.ryanjames.composemobileordering.features.home.FeaturedRestaurantCardState
 import com.ryanjames.composemobileordering.features.home.RestaurantCardState
 import com.ryanjames.composemobileordering.features.venuedetail.CategoryViewState
-import com.ryanjames.composemobileordering.network.model.*
+import com.ryanjames.composemobileordering.network.model.request.LineItemRequestBody
+import com.ryanjames.composemobileordering.network.model.request.ModifierSelectionRequestBody
+import com.ryanjames.composemobileordering.network.model.request.ProductInOrderRequestBody
+import com.ryanjames.composemobileordering.network.model.response.*
 import com.ryanjames.composemobileordering.toTwoDigitString
 import com.ryanjames.composemobileordering.ui.widget.MenuItemCardDisplayModel
 import com.ryanjames.composemobileordering.ui.widget.RestaurantDisplayModel
@@ -139,7 +141,8 @@ fun VenueResponse.toEntity(type: String): Pair<VenueEntity, List<VenueCategoryEn
         deliveryTimeInMinsLow = prepMin ?: 0,
         priceIndicator = priceLevel ?: "",
         featuredImage = featuredImage,
-        type = type
+        type = type,
+        creationTimeInMills = System.currentTimeMillis()
     )
 
     val categoryEntities = categories?.map { VenueCategoryEntity(it) } ?: listOf()
@@ -403,12 +406,14 @@ fun LineItem.toLineItemRequest(): LineItemRequestBody {
 }
 
 
-fun GetOrderResponse.toBagSummary(): BagSummary {
-    return BagSummary(
+fun GetOrderResponse.toBagSummary(): OrderSummary {
+    return OrderSummary(
         lineItems = lineItems.map { it.toBagLineItem() },
         price = price,
         status = status.toOrderStatus(),
-        orderId = orderId
+        orderId = orderId,
+        storeId = storeId,
+        storeName = storeName
     )
 }
 
@@ -460,7 +465,14 @@ fun GetOrderModifierSelectionResponse.toEntity(productItemId: String): LineItemM
 fun GetOrderResponse.toOrderEntity(): CurrentOrderEntityWithLineItems {
     val bagSummary = this.toBagSummary()
     return CurrentOrderEntityWithLineItems(
-        order = CurrentOrderEntity(orderId = orderId, subtotal = bagSummary.subtotal(), tax = bagSummary.tax(), total = bagSummary.price),
+        order = CurrentOrderEntity(
+            orderId = orderId,
+            subtotal = bagSummary.subtotal(),
+            tax = bagSummary.tax(),
+            total = bagSummary.price,
+            storeName = storeName,
+            storeId = storeId
+        ),
         lineItems = this.lineItems.map { it.toEntity() }
     )
 }
@@ -488,7 +500,7 @@ fun GetOrderLineItemResponse.toEntity(): LineItemEntityWithProducts {
     )
 }
 
-fun GetOrderLineItemResponse.toBagLineItem(): BagLineItem {
+fun GetOrderLineItemResponse.toBagLineItem(): OrderSummaryLineItem {
 
     val productsInBundle = HashMap(products.groupBy({ it.productGroupId }, { it.productId }))
 
@@ -514,7 +526,7 @@ fun GetOrderLineItemResponse.toBagLineItem(): BagLineItem {
 
     }
 
-    return BagLineItem(
+    return OrderSummaryLineItem(
         lineItemId = lineItemId,
         productId = baseProduct,
         bundleId = bundleId,
@@ -527,7 +539,7 @@ fun GetOrderLineItemResponse.toBagLineItem(): BagLineItem {
     )
 }
 
-fun LineItemEntityWithProducts.toDomain(): BagLineItem {
+fun LineItemEntityWithProducts.toDomain(): OrderSummaryLineItem {
 
     val productsInBundle = HashMap(products.groupBy({ it.product.productGroupId }, { it.product.productId }))
 
@@ -552,7 +564,7 @@ fun LineItemEntityWithProducts.toDomain(): BagLineItem {
     }
 
     val lineItemEntity = this.lineItem
-    return BagLineItem(
+    return OrderSummaryLineItem(
         lineItemId = lineItemEntity.lineItemId,
         productId = lineItemEntity.productId,
         bundleId = lineItemEntity.bundleId,
@@ -565,7 +577,7 @@ fun LineItemEntityWithProducts.toDomain(): BagLineItem {
     )
 }
 
-fun BagLineItem.toDisplayModel(): BagItemRowDisplayModel {
+fun OrderSummaryLineItem.toDisplayModel(): BagItemRowDisplayModel {
     return BagItemRowDisplayModel(
         lineItemId = lineItemId,
         qty = quantity.toString(),
@@ -575,3 +587,5 @@ fun BagLineItem.toDisplayModel(): BagItemRowDisplayModel {
         forRemoval = false
     )
 }
+
+fun ApiErrorResponse.toDomain(code: Int): AppError = AppError(apiErrorMessage = message, apiErrorCode = code)

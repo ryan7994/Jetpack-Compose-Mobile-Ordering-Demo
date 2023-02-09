@@ -1,7 +1,7 @@
-package com.ryanjames.composemobileordering.network.model
+package com.ryanjames.composemobileordering.network.model.request
 
 data class CreateUpdateOrderRequest(
-    val orderId: String,
+    val orderId: String?,
     val lineItems: List<LineItemRequestBody>,
     val status: String?,
     val customerName: String?,
@@ -32,4 +32,14 @@ data class ModifierSelectionRequestBody(
 
 data class GetOrderRequest(
     val orderId: String
+)
+
+data class CancelOrderRequest(
+    val orderId: String
+)
+
+data class CheckoutOrderRequest(
+    val orderId: String,
+    val pickup: Boolean,
+    val deliveryAddress: String?
 )

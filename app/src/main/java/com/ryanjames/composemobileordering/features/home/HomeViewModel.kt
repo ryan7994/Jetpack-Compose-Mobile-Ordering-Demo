@@ -8,24 +8,23 @@ import androidx.lifecycle.viewModelScope
 import com.ryanjames.composemobileordering.TAG
 import com.ryanjames.composemobileordering.clearAndAddAll
 import com.ryanjames.composemobileordering.domain.Venue
-import com.ryanjames.composemobileordering.repository.AbsOrderRepository
-import com.ryanjames.composemobileordering.repository.AbsVenueRepository
-import com.ryanjames.composemobileordering.ui.toFeaturedRestaurantCardState
-import com.ryanjames.composemobileordering.ui.toRestaurantCardState
+import com.ryanjames.composemobileordering.repository.OrderRepository
+import com.ryanjames.composemobileordering.repository.VenueRepository
+import com.ryanjames.composemobileordering.util.toFeaturedRestaurantCardState
+import com.ryanjames.composemobileordering.util.toRestaurantCardState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val venueRepository: AbsVenueRepository,
-    private val orderRepository: AbsOrderRepository,
+    private val venueRepository: VenueRepository,
+    private val orderRepository: OrderRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 

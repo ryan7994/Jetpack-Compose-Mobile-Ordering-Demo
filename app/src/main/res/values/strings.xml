@@ -38,7 +38,6 @@
     <string name="enter_deliver_address">Enter delivery address</string>
     <string name="address">Address</string>
     <string name="save">Save</string>
-    <string name="password">Password</string>
     <string name="mobile_ordering_demo">Mobile Ordering Demo</string>
     <string name="using_jetpack_compose">Using Jetpack Compose</string>
     <string name="lets_get_started">Let\'s get started.</string>
@@ -47,7 +46,7 @@
     <string name="map">Map</string>
     <string name="restaurants">Restaurants</string>
     <string name="set_delivery_address">Set delivery address</string>
-    <string name="username">Username</string>
+
     <string name="loading_menu">Loading menu…</string>
     <string name="phone">Phone</string>
     <string name="other_items_title">You have other items from another restaurant.</string>
@@ -62,4 +61,30 @@
     <string name="hours">Hours</string>
     <string name="bag_empty">Your bag is empty</string>
     <string name="browse_restaurants">Browse restaurants</string>
+    <string name="generic_error_message">Something went wrong. Please try again.</string>
+
+    <!-- Login and email form -->
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="username">Username</string>
+    <string name="first_name">First name</string>
+    <string name="last_name">Last name</string>
+    <string name="address_field">Address</string>
+    <string name="phone_number">Phone number</string>
+    <string name="join">Join</string>
+    <string name="username_error">Username should be at least 6 characters long.</string>
+    <string name="password_error">Password should be 8 characters long.</string>
+    <string name="confirm_password_error">Password should be 8 characters long. Both passwords should match.</string>
+    <string name="first_name_error">First name cannot be empty.</string>
+    <string name="last_name_error">Last name cannot be empty.</string>
+    <string name="email_error">The email you entered is invalid.</string>
+    <string name="phone_number_error">The phone number you entered is invalid.</string>
+    <string name="enrollment_failed">Enrollment Failed</string>
+    <string name="enrolling">Enrolling…</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="enroll_login_failed">We created your account successfully. However, we can\'t log you in at this time. Please try again later.</string>
+    <string name="checkout">Place order</string>
+    <string name="placing_order">Placing order…</string>
+    <string name="missing_delivery_address_error">Enter a delivery address.</string>
+
 </resources>

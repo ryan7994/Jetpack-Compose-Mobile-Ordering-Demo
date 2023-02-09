@@ -7,14 +7,15 @@ import com.google.common.truth.Truth.assertThat
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.features.productdetail.ModifierOptionDisplayModel
 import com.ryanjames.composemobileordering.features.productdetail.ProductDetailViewModel
-import com.ryanjames.composemobileordering.repository.AbsMenuRepository
-import com.ryanjames.composemobileordering.repository.AbsOrderRepository
-import com.ryanjames.composemobileordering.repository.AbsVenueRepository
+import com.ryanjames.composemobileordering.repository.MenuRepository
+import com.ryanjames.composemobileordering.repository.OrderRepository
+import com.ryanjames.composemobileordering.repository.VenueRepository
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.advanceTimeBy
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -23,6 +24,7 @@ import org.junit.runners.JUnit4
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnit
+import org.mockito.junit.MockitoRule
 
 @ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
@@ -31,16 +33,16 @@ class ProductDetailViewModelTest {
 
     @Rule
     @JvmField
-    val rule = MockitoJUnit.rule()
+    val rule: MockitoRule = MockitoJUnit.rule()
 
     @Mock
-    private lateinit var orderRepository: AbsOrderRepository
+    private lateinit var orderRepository: OrderRepository
 
     @Mock
-    private lateinit var menuRepository: AbsMenuRepository
+    private lateinit var menuRepository: MenuRepository
 
     @Mock
-    private lateinit var venueRepository: AbsVenueRepository
+    private lateinit var venueRepository: VenueRepository
 
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
@@ -69,17 +71,20 @@ class ProductDetailViewModelTest {
     }
 
     @Test
-    fun test_button_label() {
-        var viewModel = createViewModel(lineItemId = "asdsdsdsds")
-        assertEquals(viewModel.productDetailScreenState.value.btnLabel.id, R.string.update_item)
-
-        viewModel = createViewModel(lineItemId = null)
+    fun `test button label - new item`() {
+        val viewModel = createViewModel(lineItemId = null)
         assertEquals(viewModel.productDetailScreenState.value.btnLabel.id, R.string.add_to_bag)
+    }
+
+    @Test
+    fun `test button label - modifying item`() {
+        val viewModel = createViewModel(lineItemId = "asdsdsdsds")
+        assertEquals(viewModel.productDetailScreenState.value.btnLabel.id, R.string.update_item)
     }
 
 
     @Test
-    fun test_loading_product_details_successfully() {
+    fun `test loading product details successfully`() {
         runBlocking {
             val product = PRODUCT_COKE
 
@@ -95,8 +100,8 @@ class ProductDetailViewModelTest {
                 val emission1 = awaitItem()
                 assertThat(emission1.loadingProductDetail).isEqualTo(true)
                 assertThat(emission1.product).isEqualTo(null)
-                //
-                // coroutineRule.advanceTimeBy(10)
+
+                coroutineRule.advanceTimeBy(10)
                 val emission2 = awaitItem()
                 assertThat(emission2.loadingProductDetail).isEqualTo(false)
                 assertThat(emission2.product).isEqualTo(PRODUCT_COKE)

@@ -1,4 +1,4 @@
-package com.ryanjames.composemobileordering.network.model
+package com.ryanjames.composemobileordering.network.model.response
 
 import com.google.gson.annotations.SerializedName
 
@@ -7,9 +7,5 @@ data class LoginResponse(
     @SerializedName("refresh_token") val refreshToken: String
 )
 
-data class LoginRequestBody(
-    val username: String,
-    val password: String
-)
 
 data class RefreshTokenResponse(@SerializedName("access_token") val accessToken: String?)

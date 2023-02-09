@@ -1,5 +1,6 @@
 package com.ryanjames.composemobileordering.features.venuemapfinder
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
@@ -12,15 +13,16 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.*
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.ui.widget.FeaturedRestaurantCard
 import com.ryanjames.composemobileordering.util.getBitmapDescriptor
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
+import kotlin.math.absoluteValue
 
 @ExperimentalPagerApi
 @Composable
@@ -66,12 +68,13 @@ private fun VenueFinderLayout(
                 val dimension = if (venue.isSelected) 48.dp else 40.dp
                 Marker(
                     icon = getBitmapDescriptor(LocalContext.current, icon, dimension, dimension),
-                    position = venue.latLng,
+                    state = MarkerState(venue.latLng),
                     title = null,
                     onClick = {
                         onClickMarker.invoke(venue.id)
                         false
-                    }
+                    },
+                    zIndex = venue.zIndex
                 )
             }
 
@@ -82,7 +85,7 @@ private fun VenueFinderLayout(
                 .align(Alignment.BottomCenter)
         ) {
 
-            val pagerState = rememberPagerState(pageCount = venues.size)
+            val pagerState = rememberPagerState()
 
             LaunchedEffect(key1 = venueFinderScreenState.clickedMarkerIndex, block = {
                 if (pagerState.pageCount > 0 && venueFinderScreenState.clickedMarkerIndex >= 0) {
@@ -90,15 +93,16 @@ private fun VenueFinderLayout(
                 }
             })
 
-            LaunchedEffect(pagerState) {
-                // Collect from the pager state a snapshotFlow reading the currentPage
-                snapshotFlow { pagerState.currentPage }.collect {
-                    onPagerSwipeChange.invoke(it)
 
+            LaunchedEffect(pagerState) {
+                // Collect from the pager state a snapshotFlow reading the targetPage
+                snapshotFlow { pagerState.targetPage }.distinctUntilChanged().collectLatest {
+                    onPagerSwipeChange.invoke(it)
                 }
             }
 
-            HorizontalPager(pagerState) { page ->
+
+            HorizontalPager(count = venues.size, state = pagerState) { page ->
                 Box(modifier = Modifier.clickable {
                     onClickCard.invoke(venues[page].id)
                 }) {

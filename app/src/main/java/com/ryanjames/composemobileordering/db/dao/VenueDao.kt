@@ -1,7 +1,7 @@
 package com.ryanjames.composemobileordering.db.dao
 
 import androidx.room.*
-import com.ryanjames.composemobileordering.db.*
+import com.ryanjames.composemobileordering.db.model.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao

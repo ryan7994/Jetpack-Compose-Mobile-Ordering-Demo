@@ -1,9 +1,9 @@
 package com.ryanjames.composemobileordering.features.bottomnav
 
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
-import androidx.navigation.compose.NamedNavArgument
-import androidx.navigation.compose.navArgument
+import androidx.navigation.navArgument
 import com.ryanjames.composemobileordering.R
 
 private const val TAB_ROUTE_BROWSE = "tabBrowse"
@@ -15,6 +15,8 @@ private const val SCREEN_ROUTE_PRODUCT_DETAIL_FROM_BAG = "productDetailFromBag"
 private const val SCREEN_ROUTE_HOME = "screenHome"
 private const val SCREEN_ROUTE_BAG = "screenBag"
 private const val SCREEN_ROUTE_MAP = "screenVenueFinder"
+private const val SCREEN_ROUTE_LOGIN = "login"
+private const val SCREEN_ROUTE_SIGNUP = "signup"
 
 sealed class BottomNavTabs(open val tabRoute: String, val labelResId: Int = -1, val icon: ImageVector? = null, val drawableId: Int? = null) {
     object BrowseTab : BottomNavTabs(TAB_ROUTE_BROWSE, R.string.bottom_nav_browse, drawableId = R.drawable.search)
@@ -27,12 +29,12 @@ sealed class BottomNavScreens(open val route: String) {
     object Bag : BottomNavScreens(SCREEN_ROUTE_BAG)
 
     object VenueDetail : BottomNavScreens("$SCREEN_ROUTE_VENUE_DETAIL/{venueId}") {
-        fun routeWithArgs(venueId: String, rootTab: String? = null): String {
+        fun routeWithArgs(venueId: String): String {
             return "$SCREEN_ROUTE_VENUE_DETAIL/$venueId"
         }
     }
 
-    object VenueFinder: BottomNavScreens(SCREEN_ROUTE_MAP)
+    object VenueFinder : BottomNavScreens(SCREEN_ROUTE_MAP)
 
 
     object ProductDetailModal : BottomNavScreens("$SCREEN_ROUTE_PRODUCT_DETAIL/{productId}/{venueId}") {
@@ -64,5 +66,13 @@ sealed class BottomNavScreens(open val route: String) {
                 })
         }
     }
+}
+
+sealed class Screens(val route: String) {
+
+    object Login : Screens(SCREEN_ROUTE_LOGIN)
+    object SignUp : Screens(SCREEN_ROUTE_SIGNUP)
+
+
 }
 

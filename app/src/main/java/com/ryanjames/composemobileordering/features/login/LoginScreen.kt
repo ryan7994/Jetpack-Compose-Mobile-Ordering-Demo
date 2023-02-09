@@ -1,4 +1,4 @@
-package com.ryanjames.composemobileordering.ui.screens
+package com.ryanjames.composemobileordering.features.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,19 +25,20 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ryanjames.composemobileordering.R
-import com.ryanjames.composemobileordering.features.login.LoginFormField
-import com.ryanjames.composemobileordering.features.login.LoginScreenState
-import com.ryanjames.composemobileordering.features.login.LoginViewModel
+import com.ryanjames.composemobileordering.ui.core.AccentTextButton
 import com.ryanjames.composemobileordering.ui.core.Dialog
+import com.ryanjames.composemobileordering.ui.core.FullWidthButton
+import com.ryanjames.composemobileordering.ui.core.SingleLineTextField
 import com.ryanjames.composemobileordering.ui.theme.*
 
 @Composable
-fun LoginScreen(loginViewModel: LoginViewModel) {
+fun LoginScreen(loginViewModel: LoginViewModel, onClickSignUp: () -> Unit) {
     val state = loginViewModel.loginScreenState.collectAsState()
     LoginScreenLayout(
         loginScreenState = state.value,
         onValueChange = loginViewModel::onValueChange,
-        onClickSignIn = loginViewModel::onClickSignIn
+        onClickSignIn = loginViewModel::onClickSignIn,
+        onClickSignUp = onClickSignUp
     )
 }
 
@@ -46,7 +47,8 @@ fun LoginScreen(loginViewModel: LoginViewModel) {
 fun LoginScreenLayout(
     loginScreenState: LoginScreenState,
     onValueChange: (String, LoginFormField) -> Unit = { _, _ -> },
-    onClickSignIn: () -> Unit = {}
+    onClickSignIn: () -> Unit = {},
+    onClickSignUp: () -> Unit = {}
 ) {
     Surface(
         color = AppTheme.colors.materialColors.primary,
@@ -76,7 +78,7 @@ fun LoginScreenLayout(
                     text = stringResource(R.string.lets_get_started),
                     modifier = Modifier.align(CenterHorizontally),
                     style = Typography.headlineLarge,
-                    color = AppTheme.colors.darkTextColor
+                    color = AppTheme.colors.materialColors.onBackground
                 )
                 Spacer(modifier = Modifier.size(32.dp))
                 SingleLineTextField(
@@ -108,6 +110,10 @@ fun LoginScreenLayout(
                     onClick = { onClickSignIn.invoke() },
                     label = stringResource(R.string.sign_in),
                     tag = "btnSignIn"
+                )
+                AccentTextButton(
+                    onClick = { onClickSignUp.invoke() },
+                    label = "Sign Up"
                 )
                 Spacer(modifier = Modifier.size(16.dp))
                 Text(

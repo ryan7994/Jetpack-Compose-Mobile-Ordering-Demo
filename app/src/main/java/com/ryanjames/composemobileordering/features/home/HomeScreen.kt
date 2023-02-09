@@ -1,4 +1,4 @@
-package com.ryanjames.composemobileordering.ui.screens
+package com.ryanjames.composemobileordering.features.home
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
@@ -32,7 +32,6 @@ import com.google.accompanist.pager.rememberPagerState
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.DeliveryAddressState
 import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.EditDeliveryAddressViewModel
-import com.ryanjames.composemobileordering.features.home.*
 import com.ryanjames.composemobileordering.ui.theme.*
 import com.ryanjames.composemobileordering.ui.widget.*
 import kotlinx.coroutines.launch
@@ -159,9 +158,9 @@ fun HomeScreenContent(
                                 )
                                 Spacer(modifier = Modifier.size(16.dp))
 
-                                val pagerState = rememberPagerState(pageCount = featuredList.size)
+                                val pagerState = rememberPagerState()
 
-                                HorizontalPager(pagerState) { page ->
+                                HorizontalPager(count = featuredList.size, state = pagerState) { page ->
                                     FeaturedCard(featuredRestaurantCardState = featuredList[page], onClickCard)
                                 }
 

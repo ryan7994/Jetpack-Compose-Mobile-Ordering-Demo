@@ -1,14 +1,16 @@
 package com.ryanjames.composemobileordering.features.bag
 
 import com.google.android.gms.maps.model.LatLng
+import com.ryanjames.composemobileordering.domain.OrderSummary
+import com.ryanjames.composemobileordering.toTwoDigitString
 import com.ryanjames.composemobileordering.ui.core.AlertDialogState
 
 data class BagScreenState(
     val bagItems: List<BagItemRowDisplayModel>,
     val venueId: String?,
     val venueName: String?,
-    val btnRemoveState: ButtonState,
-    val btnCancelState: ButtonState,
+    val btnRemoveState: ButtonState = ButtonState(enabled = false, visible = true),
+    val btnCancelState: ButtonState = ButtonState(enabled = false, visible = true),
     val btnRemoveSelectedState: ButtonState,
     val isRemoving: Boolean,
     val alertDialog: AlertDialogState?,

@@ -2,11 +2,13 @@ package com.ryanjames.composemobileordering.di
 
 import android.content.SharedPreferences
 import com.ryanjames.composemobileordering.BuildConfig
+import com.ryanjames.composemobileordering.constants.NETWORK_READ_TIMEOUT_IN_SEC
+import com.ryanjames.composemobileordering.constants.NETWORK_WRITE_TIMEOUT_IN_SEC
 import com.ryanjames.composemobileordering.core.LoginManager
-import com.ryanjames.composemobileordering.network.ApiService
+import com.ryanjames.composemobileordering.network.LoginService
 import com.ryanjames.composemobileordering.network.MobilePosApi
-import com.ryanjames.swabergersmobilepos.network.retrofit.authenticator.TokenAuthenticator
-import com.ryanjames.swabergersmobilepos.network.retrofit.interceptors.AuthTokenInterceptor
+import com.ryanjames.composemobileordering.network.authenticator.TokenAuthenticator
+import com.ryanjames.composemobileordering.network.interceptors.AuthTokenInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,16 +26,16 @@ open class NetworkModule {
 
     @Singleton
     @Provides
-    open fun provideApiService(sharedPreferences: SharedPreferences, mobilePosApi: MobilePosApi): ApiService {
-        return ApiService(sharedPreferences, mobilePosApi)
+    open fun provideApiService(sharedPreferences: SharedPreferences, mobilePosApi: MobilePosApi): LoginService {
+        return LoginService(sharedPreferences, mobilePosApi)
     }
 
     @Singleton
     @Provides
     open fun provideRetrofitBuilder(): Retrofit.Builder {
-        val apiBaseUrl = "https://test-swabergers.herokuapp.com/"
-//        val apiBaseUrl = "http://192.168.254.18:5000/"
-//        val apiBaseUrl = "http://10.0.2.2:5000/"
+//        val apiBaseUrl = "https://test-swabergers.herokuapp.com/"
+        val apiBaseUrl = "http://192.168.254.132:3000/"
+//        val apiBaseUrl = "http://10.0.2.2:5000/v1/auth/"
         return Retrofit.Builder()
             .baseUrl(apiBaseUrl)
             .addConverterFactory(GsonConverterFactory.create())
@@ -60,8 +62,8 @@ open class NetworkModule {
         retrofitBuilder: Retrofit.Builder
     ): MobilePosApi {
         val httpClientBuilder = okHttpClientBuilder.connectTimeout(60, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
-            .writeTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(NETWORK_READ_TIMEOUT_IN_SEC, TimeUnit.SECONDS)
+            .writeTimeout(NETWORK_WRITE_TIMEOUT_IN_SEC, TimeUnit.SECONDS)
             .addInterceptor(authTokenInterceptor)
             .authenticator(tokenAuthenticator)
 

@@ -23,16 +23,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.CameraPositionState
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.*
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.features.bottomnav.LocalCoroutineScope
 import com.ryanjames.composemobileordering.features.bottomnav.LocalSnackbarHostState
 import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.DeliveryAddressState
 import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.EditDeliveryAddressViewModel
-import com.ryanjames.composemobileordering.ui.core.Dialog
+import com.ryanjames.composemobileordering.ui.core.*
 import com.ryanjames.composemobileordering.ui.theme.*
 import com.ryanjames.composemobileordering.ui.widget.DeliveryAddressBottomSheetLayout
 import com.ryanjames.composemobileordering.util.getBitmapDescriptor
@@ -61,7 +58,8 @@ fun BagScreen(
         onClickDelivery = bagViewModel::onClickDelivery,
         onDeliveryAddressValueChange = editDeliveryAddressViewModel::onDeliveryAddressInputChange,
         onClickSaveDeliveryAddress = editDeliveryAddressViewModel::updateDeliveryAddress,
-        onClickBrowseRestaurants = onClickBrowseRestaurants
+        onClickBrowseRestaurants = onClickBrowseRestaurants,
+        onClickCheckout = bagViewModel::onClickCheckout
     )
     val globalScope = LocalCoroutineScope.current
     val snackbarHostState = LocalSnackbarHostState.current
@@ -71,7 +69,7 @@ fun BagScreen(
         globalScope.launch {
             bagViewModel.onItemRemoval.collect { event ->
                 if (event.peekContent()) {
-                    event.handleSuspendingEvent {
+                    event.handleSuspending {
                         snackbarHostState.showSnackbar(snackbarMessage)
                     }
                 }
@@ -97,7 +95,8 @@ fun BagLayout(
     onClickDelivery: () -> Unit,
     onDeliveryAddressValueChange: (String) -> Unit,
     onClickSaveDeliveryAddress: () -> Unit,
-    onClickBrowseRestaurants: () -> Unit
+    onClickBrowseRestaurants: () -> Unit,
+    onClickCheckout: () -> Unit
 ) {
 
     val modalBottomSheetState = rememberModalBottomSheetState(
@@ -212,6 +211,9 @@ fun BagLayout(
 
                     Spacer(modifier = Modifier.size(24.dp))
                     OrderPriceBreakdown(bagScreenState.subtotal, bagScreenState.tax, bagScreenState.total)
+                    Spacer(modifier = Modifier.size(16.dp))
+                    FullWidthButton(onClick = onClickCheckout, label = stringResource(id = R.string.checkout))
+                    Spacer(modifier = Modifier.size(24.dp))
                 }
             }
             Dialog(bagScreenState.alertDialog)
@@ -375,7 +377,7 @@ fun MapCard(latLng: LatLng, address: String) {
             ) {
                 Marker(
                     icon = getBitmapDescriptor(LocalContext.current, R.drawable.marker, 48.dp, 48.dp),
-                    position = latLng,
+                    state = MarkerState(latLng),
                     title = ".",
                     onClick = {
                         false

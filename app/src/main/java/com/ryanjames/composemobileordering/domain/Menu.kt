@@ -31,7 +31,7 @@ data class Product(
     val productName: String,
     val productDescription: String,
     val price: Float,
-    val receiptText: String,
+    val receiptText: String?,
     val bundles: List<ProductBundle>,
     val modifierGroups: List<ModifierGroup>,
     val imageUrl: String?

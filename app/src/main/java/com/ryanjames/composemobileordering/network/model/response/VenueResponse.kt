@@ -1,4 +1,4 @@
-package com.ryanjames.composemobileordering.network.model
+package com.ryanjames.composemobileordering.network.model.response
 
 data class VenueResponse(
     val storeId: String?,
@@ -13,7 +13,7 @@ data class VenueResponse(
     val prepMax: Int?,
     val categories: List<String>?,
     val featuredImage: String?,
-    val storeHours: List<StoreHoursResponse>?
+    val storeHours: List<StoreHoursResponse>? = listOf()
 )
 
 data class StoreHoursResponse(

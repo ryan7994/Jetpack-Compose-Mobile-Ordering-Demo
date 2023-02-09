@@ -15,7 +15,7 @@ class DatabaseModule {
 
     @Singleton
     @Provides
-    open fun provideRoomDatabase(application: Application): AppDatabase {
+    fun provideRoomDatabase(application: Application): AppDatabase {
         return Room.databaseBuilder(
             application.applicationContext,
             AppDatabase::class.java, "mobile-ordering-db"

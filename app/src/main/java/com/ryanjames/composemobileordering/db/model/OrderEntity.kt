@@ -10,7 +10,9 @@ data class CurrentOrderEntity(
     val orderId: String,
     val subtotal: Float,
     val tax: Float,
-    val total: Float
+    val total: Float,
+    val storeId: String,
+    val storeName: String
 )
 
 @Entity(tableName = "LineItemEntity")

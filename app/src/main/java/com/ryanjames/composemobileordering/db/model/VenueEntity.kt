@@ -1,4 +1,4 @@
-package com.ryanjames.composemobileordering.db
+package com.ryanjames.composemobileordering.db.model
 
 import androidx.room.*
 
@@ -17,7 +17,8 @@ data class VenueEntity(
     val deliveryTimeInMinsHigh: Int,
     val priceIndicator: String,
     val featuredImage: String?,
-    val type: String?
+    val type: String?,
+    val creationTimeInMills: Long?
 )
 
 @Entity(tableName = "StoreHoursEntity")

@@ -1,11 +1,11 @@
-package com.ryanjames.swabergersmobilepos.network.retrofit.authenticator
+package com.ryanjames.composemobileordering.network.authenticator
 
 import android.content.SharedPreferences
 import android.util.Log
 import com.ryanjames.composemobileordering.constants.SharedPrefsKeys
 import com.ryanjames.composemobileordering.core.LoginManager
 import com.ryanjames.composemobileordering.network.MobilePosApi
-import com.ryanjames.swabergersmobilepos.network.retrofit.interceptors.RefreshAuthTokenInterceptor
+import com.ryanjames.composemobileordering.network.interceptors.RefreshAuthTokenInterceptor
 import kotlinx.coroutines.runBlocking
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
@@ -56,7 +56,7 @@ class TokenAuthenticator(
                     newBearerToken = "Bearer $newAccessToken"
 
                 } catch (e: Exception) {
-                    if (e is HttpException && e.code() == 401) {
+                    if (e is HttpException && (e.code() == 401 || e.code() == 403)) {
                         loginManager.logOut()
                     }
                     e.printStackTrace()
