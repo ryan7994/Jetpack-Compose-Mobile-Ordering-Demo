@@ -58,7 +58,8 @@ fun BagScreen(
         onClickDelivery = bagViewModel::onClickDelivery,
         onDeliveryAddressValueChange = editDeliveryAddressViewModel::onDeliveryAddressInputChange,
         onClickSaveDeliveryAddress = editDeliveryAddressViewModel::updateDeliveryAddress,
-        onClickBrowseRestaurants = onClickBrowseRestaurants
+        onClickBrowseRestaurants = onClickBrowseRestaurants,
+        onClickCheckout = bagViewModel::onClickCheckout
     )
     val globalScope = LocalCoroutineScope.current
     val snackbarHostState = LocalSnackbarHostState.current
@@ -94,7 +95,8 @@ fun BagLayout(
     onClickDelivery: () -> Unit,
     onDeliveryAddressValueChange: (String) -> Unit,
     onClickSaveDeliveryAddress: () -> Unit,
-    onClickBrowseRestaurants: () -> Unit
+    onClickBrowseRestaurants: () -> Unit,
+    onClickCheckout: () -> Unit
 ) {
 
     val modalBottomSheetState = rememberModalBottomSheetState(
@@ -209,6 +211,9 @@ fun BagLayout(
 
                     Spacer(modifier = Modifier.size(24.dp))
                     OrderPriceBreakdown(bagScreenState.subtotal, bagScreenState.tax, bagScreenState.total)
+                    Spacer(modifier = Modifier.size(16.dp))
+                    FullWidthButton(onClick = onClickCheckout, label = stringResource(id = R.string.checkout))
+                    Spacer(modifier = Modifier.size(24.dp))
                 }
             }
             Dialog(bagScreenState.alertDialog)

@@ -14,5 +14,6 @@ data class VenueMarker(
     val name: String,
     val latLng: LatLng,
     val isSelected: Boolean,
-    val cardState: FeaturedRestaurantCardState
+    val cardState: FeaturedRestaurantCardState,
+    val zIndex: Float = 0.0f
 )

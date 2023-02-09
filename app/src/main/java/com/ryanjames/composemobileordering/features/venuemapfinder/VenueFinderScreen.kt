@@ -73,7 +73,8 @@ private fun VenueFinderLayout(
                     onClick = {
                         onClickMarker.invoke(venue.id)
                         false
-                    }
+                    },
+                    zIndex = venue.zIndex
                 )
             }
 

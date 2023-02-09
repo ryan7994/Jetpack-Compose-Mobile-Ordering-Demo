@@ -7,7 +7,9 @@ data class GetOrderResponse(
     val lineItems: List<GetOrderLineItemResponse>,
     val price: Float,
     val creationDate: String,
-    val status: String
+    val status: String,
+    val storeId: String,
+    val storeName: String
 )
 
 data class GetOrderLineItemResponse(
@@ -45,7 +47,7 @@ data class ProductDetailsResponse(
     val productName: String,
     val productDescription: String?,
     val price: Float,
-    val receiptText: String,
+    val receiptText: String?,
     val modifierGroups: List<ModifierGroupResponse>,
     val bundles: List<GetOrderMenuBundleResponse>,
     val imageUrl: String?

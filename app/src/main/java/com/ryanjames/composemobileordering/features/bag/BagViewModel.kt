@@ -10,6 +10,7 @@ import com.ryanjames.composemobileordering.network.model.Event
 import com.ryanjames.composemobileordering.repository.OrderRepository
 import com.ryanjames.composemobileordering.repository.VenueRepository
 import com.ryanjames.composemobileordering.toTwoDigitString
+import com.ryanjames.composemobileordering.ui.core.AlertDialogState
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
 import com.ryanjames.composemobileordering.util.toDisplayModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -160,6 +161,47 @@ class BagViewModel @Inject constructor(
 
     fun onClickDelivery() {
         _bagItemScreenState.value = _bagItemScreenState.value.copy(isPickupSelected = false)
+    }
+
+    private fun dismissDialog() {
+        _bagItemScreenState.update { it.copy(alertDialog = null) }
+    }
+
+    fun onClickCheckout() {
+        val isPickup = _bagItemScreenState.value.isPickupSelected
+        val deliveryAddress = _bagItemScreenState.value.deliveryAddress
+        if (!isPickup && deliveryAddress.isNullOrEmpty()) {
+            _bagItemScreenState.update {
+                it.copy(
+                    alertDialog = AlertDialogState(
+                        message = StringResource(R.string.missing_delivery_address_error),
+                        onDismiss = this::dismissDialog
+                    )
+                )
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            orderRepository.checkoutOrder(isPickup, deliveryAddress).collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> _bagItemScreenState.update { it.copy(alertDialog = LoadingDialogState(StringResource(R.string.placing_order))) }
+                    is Resource.Error -> _bagItemScreenState.update {
+                        it.copy(
+                            alertDialog = AlertDialogState(
+                                message = StringResource(R.string.generic_error_message),
+                                onDismiss = { dismissDialog() }
+                            )
+                        )
+                    }
+                    is Resource.Success -> {
+                        dismissDialog()
+                        orderRepository.clearBag()
+                    }
+                }
+            }
+        }
+
     }
 
     fun onRemoveCbCheckChanged(checked: Boolean, lineItemId: String) {

@@ -1,6 +1,8 @@
 package com.ryanjames.composemobileordering
 
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -32,13 +34,8 @@ class ExampleInstrumentedTest {
         assertEquals("Sign In", composeTestRule.onNodeWithTag("btnSignIn").getText())
     }
 
-    private fun SemanticsNodeInteraction.getText(): String? {
-        return try {
-            this.assertTextEquals(UUID.randomUUID().toString())
-            ""
-        } catch (e: AssertionError) {
-            e.message?.split("Text = '[")?.get(1)?.split("]")?.get(0)
-        }
+    private fun SemanticsNodeInteraction.getText(): String {
+        return this.fetchSemanticsNode().config[SemanticsProperties.Text][0].toString()
     }
 
 //    Failed to assert the following: (Text + EditableText = [Sign In 2])

@@ -33,7 +33,15 @@ class VenueFinderViewModel @Inject constructor(
         get() = selectedVenue?.getLatLng() ?: LatLng(0.0, 0.0)
 
     private val venueMarkers: List<VenueMarker>
-        get() = venues.map { VenueMarker(it.id, it.name, LatLng(it.lat.toDouble(), it.long.toDouble()), selectedVenue?.id == it.id, it.toFeaturedRestaurantCardState()) }
+        get() = venues.map {
+            VenueMarker(
+                id = it.id,
+                name = it.name, latLng = LatLng(it.lat.toDouble(), it.long.toDouble()),
+                isSelected = selectedVenue?.id == it.id,
+                cardState = it.toFeaturedRestaurantCardState(),
+                zIndex = if (selectedVenue?.id == it.id) 1.0f else 0.0f
+            )
+        }
 
     init {
         getVenues()
@@ -56,7 +64,7 @@ class VenueFinderViewModel @Inject constructor(
     }
 
     fun onPagerSwipeChange(index: Int) {
-        if (index == -1 ) return
+        if (index == -1) return
         Log.d(TAG, "onPagerSwipeChange: $index")
         selectedVenue = venues.getOrNull(index)
         updateMap(index)

@@ -4,24 +4,19 @@ import android.util.Log
 import com.ryanjames.composemobileordering.TAG
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.db.AppDatabase
-import com.ryanjames.composemobileordering.domain.BagLineItem
-import com.ryanjames.composemobileordering.domain.BagSummary
-import com.ryanjames.composemobileordering.domain.LineItem
-import com.ryanjames.composemobileordering.domain.OrderStatus
+import com.ryanjames.composemobileordering.domain.*
 import com.ryanjames.composemobileordering.network.MobilePosApi
+import com.ryanjames.composemobileordering.network.model.request.CheckoutOrderRequest
 import com.ryanjames.composemobileordering.network.model.request.CreateUpdateOrderRequest
 import com.ryanjames.composemobileordering.network.model.request.GetOrderRequest
+import com.ryanjames.composemobileordering.network.networkAndDomainResourceFlow
 import com.ryanjames.composemobileordering.replaceOrAdd
 import com.ryanjames.composemobileordering.util.toBagSummary
 import com.ryanjames.composemobileordering.util.toDomain
 import com.ryanjames.composemobileordering.util.toLineItemRequest
 import com.ryanjames.composemobileordering.util.toOrderEntity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import java.util.*
+import kotlinx.coroutines.flow.*
 
 class OrderRepositoryImpl(
     private val mobilePosApi: MobilePosApi,
@@ -29,19 +24,19 @@ class OrderRepositoryImpl(
 ) : OrderRepository {
 
 
-    override fun addOrUpdateLineItem(lineItem: LineItem, venueId: String) = channelFlow {
-        send(Resource.Loading)
+    override fun addOrUpdateLineItem(lineItem: LineItem, venueId: String) = flow {
+        emit(Resource.Loading)
 
         try {
             val currentOrderId = getCurrentOrderId()
             if (currentOrderId == null) {
-                val orderId = UUID.randomUUID().toString()
-                roomDb.globalDao().createLocalBagOrderId(orderId = orderId, venueId = venueId)
+
                 val lineItems = listOf(lineItem.toLineItemRequest())
                 val getOrderResponse =
-                    mobilePosApi.postOrder(CreateUpdateOrderRequest(orderId = orderId, lineItems = lineItems, status = null, customerName = null, storeId = venueId))
+                    mobilePosApi.postOrder(CreateUpdateOrderRequest(orderId = null, lineItems = lineItems, status = null, customerName = null, storeId = venueId))
                 roomDb.orderDao().updateLocalBag(getOrderResponse.toOrderEntity())
-                send(Resource.Success(getOrderResponse.toBagSummary()))
+                emit(Resource.Success(getOrderResponse.toBagSummary()))
+                roomDb.globalDao().createLocalBagOrderId(orderId = getOrderResponse.orderId, venueId = venueId)
             } else {
                 val lineItems = roomDb.orderDao().getAllLineItems()
                 val newLineItem = lineItem.toLineItemRequest()
@@ -57,17 +52,17 @@ class OrderRepositoryImpl(
                         )
                     )
                 roomDb.orderDao().updateLocalBag(getOrderResponse.toOrderEntity())
-                send(Resource.Success(getOrderResponse.toBagSummary()))
+                emit(Resource.Success(getOrderResponse.toBagSummary()))
 
             }
         } catch (t: Throwable) {
-            send(Resource.Error.Generic(t))
+            emit(Resource.Error.Generic(t))
             t.printStackTrace()
         }
     }.flowOn(Dispatchers.IO)
 
-    override fun removeLineItems(lineItemIds: List<String>, venueId: String): Flow<Resource<BagSummary>> = channelFlow<Resource<BagSummary>> {
-        send(Resource.Loading)
+    override fun removeLineItems(lineItemIds: List<String>, venueId: String): Flow<Resource<OrderSummary>> = flow<Resource<OrderSummary>> {
+        emit(Resource.Loading)
 
         try {
             val currentOrderId = getCurrentOrderId()
@@ -86,19 +81,19 @@ class OrderRepositoryImpl(
                     )
                 roomDb.orderDao().updateLocalBag(getOrderResponse.toOrderEntity())
                 val bagSummary = getOrderResponse.toBagSummary()
-                send(Resource.Success(bagSummary))
+                emit(Resource.Success(bagSummary))
                 if (bagSummary.lineItems.isEmpty()) {
                     roomDb.globalDao().clearLocalBag()
                 }
             }
         } catch (t: Throwable) {
-            send(Resource.Error.Generic(t))
+            emit(Resource.Error.Generic(t))
             Log.e(TAG, t.message, t)
         }
 
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun retrieveCurrentOrder(): Flow<Resource<BagSummary>> = channelFlow {
+    override suspend fun retrieveCurrentOrder(): Flow<Resource<OrderSummary>> = channelFlow {
         send(Resource.Loading)
         try {
             val orderId = getCurrentOrderId()
@@ -114,24 +109,26 @@ class OrderRepositoryImpl(
         }
     }.flowOn(Dispatchers.IO)
 
-    override fun getBagSummaryFlow(): Flow<BagSummary?> {
+    override fun getBagSummaryFlow(): Flow<OrderSummary?> {
 
         return roomDb.orderDao().getCurrentOrderFlow().map { currentOrder ->
             if (currentOrder == null || currentOrder.lineItems.isEmpty()) {
                 null
             } else {
                 val lineItems = currentOrder.lineItems.map { it.toDomain() }
-                BagSummary(
+                OrderSummary(
                     lineItems = lineItems,
                     price = currentOrder.order.total,
                     status = OrderStatus.CREATED,
-                    orderId = currentOrder.order.orderId
+                    orderId = currentOrder.order.orderId,
+                    storeId = currentOrder.order.storeId,
+                    storeName = currentOrder.order.storeName
                 )
             }
         }
     }
 
-    override suspend fun getLineItems(): List<BagLineItem> {
+    override suspend fun getLineItems(): List<OrderSummaryLineItem> {
         return roomDb.orderDao().getAllLineItems().map { it.toDomain() }
     }
 
@@ -154,5 +151,13 @@ class OrderRepositoryImpl(
         roomDb.globalDao().updateDeliveryAddress(a)
     }
 
-
+    override fun checkoutOrder(pickup: Boolean, deliveryAddress: String?): Flow<Resource<OrderSummary>> = networkAndDomainResourceFlow(
+        fetchFromApi = {
+            val orderId = getCurrentOrderId() ?: throw java.lang.Exception("No order id")
+            mobilePosApi.checkoutOrder(CheckoutOrderRequest(orderId = orderId, pickup, deliveryAddress)).also {
+                clearBag()
+            }
+        },
+        mapToDomainModel = { it.toBagSummary() }
+    )
 }

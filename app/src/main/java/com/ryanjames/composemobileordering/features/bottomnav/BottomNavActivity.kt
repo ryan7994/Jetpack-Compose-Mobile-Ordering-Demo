@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.*
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -24,6 +25,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.ryanjames.composemobileordering.core.LoginManager
 import com.ryanjames.composemobileordering.features.bag.BagScreen
 import com.ryanjames.composemobileordering.features.productdetail.ProductDetailScreen
 import com.ryanjames.composemobileordering.features.venuedetail.VenueDetailScreen
@@ -31,9 +33,12 @@ import com.ryanjames.composemobileordering.features.venuemapfinder.VenueFinderSc
 import com.ryanjames.composemobileordering.ui.core.CustomSnackbar
 import com.ryanjames.composemobileordering.ui.core.customTextSelectionColors
 import com.ryanjames.composemobileordering.features.home.HomeScreen
+import com.ryanjames.composemobileordering.features.login.LoginActivity
 import com.ryanjames.composemobileordering.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 val LocalSnackbarHostState = compositionLocalOf<SnackbarHostState> { error("No SnackbarHostState provided") }
 val LocalCoroutineScope = compositionLocalOf<CoroutineScope> { error("No coroutine scope provided") }
@@ -43,8 +48,24 @@ val LocalCoroutineScope = compositionLocalOf<CoroutineScope> { error("No corouti
 @AndroidEntryPoint
 class BottomNavActivity : ComponentActivity() {
 
+    @Inject
+    lateinit var loginManager: LoginManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        lifecycleScope.launch {
+            loginManager.logOutStateFlow.collect { event ->
+                event.handle { shouldLogOut ->
+                    if (shouldLogOut) {
+                        startActivity(Intent(this@BottomNavActivity, LoginActivity::class.java))
+                        finish()
+                    }
+                }
+
+            }
+        }
+
 
         setContent {
             MyComposeAppTheme {

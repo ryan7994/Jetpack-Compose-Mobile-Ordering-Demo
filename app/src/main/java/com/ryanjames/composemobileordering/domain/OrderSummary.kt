@@ -1,14 +1,18 @@
 package com.ryanjames.composemobileordering.domain
 
 import android.os.Parcelable
+import com.ryanjames.composemobileordering.features.bag.BagScreenState
+import com.ryanjames.composemobileordering.features.bag.ButtonState
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class BagSummary(
-    val lineItems: List<BagLineItem>,
+data class OrderSummary(
+    val lineItems: List<OrderSummaryLineItem>,
     val price: Float,
     val status: OrderStatus,
-    val orderId: String
+    val orderId: String,
+    val storeId: String,
+    val storeName: String
 ) : Parcelable {
 
     // TODO: Replace with API value
@@ -22,14 +26,20 @@ data class BagSummary(
     }
 
     companion object {
-        val emptyBag: BagSummary
-            get() = BagSummary(emptyList(), 0f, OrderStatus.UNKNOWN, "")
-    }
 
+        val EMPTY = OrderSummary(
+            lineItems = listOf(),
+            price = 0f,
+            status = OrderStatus.UNKNOWN,
+            orderId = "",
+            storeId = "",
+            storeName = ""
+        )
+    }
 }
 
 @Parcelize
-data class BagLineItem(
+data class OrderSummaryLineItem(
     val lineItemId: String,
     val productId: String,
     val bundleId: String?,
@@ -39,17 +49,7 @@ data class BagLineItem(
     val productsInBundle: HashMap<String, List<String>>,
     val modifiers: HashMap<ProductIdModifierGroupIdKey, List<String>>,
     val quantity: Int
-) : Parcelable {
-
-    fun deepCopy(): BagLineItem {
-        return this.copy(productsInBundle = HashMap(this.productsInBundle), modifiers = HashMap(this.modifiers))
-    }
-
-    companion object {
-        val EMPTY: BagLineItem
-            get() = BagLineItem("", "", null, "", "", 0f, hashMapOf(), hashMapOf(), 0)
-    }
-}
+) : Parcelable
 
 @Parcelize
 data class ProductIdModifierGroupIdKey(val productId: String, val modifierGroupId: String) : Parcelable {

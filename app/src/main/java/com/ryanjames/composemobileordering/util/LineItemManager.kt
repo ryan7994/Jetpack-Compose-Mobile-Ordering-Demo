@@ -2,13 +2,13 @@ package com.ryanjames.composemobileordering.util
 
 import com.ryanjames.composemobileordering.domain.*
 
-class LineItemManager(val product: Product, private val bagLineItem: BagLineItem? = null, val listener: (LineItem) -> Unit = { }) {
+class LineItemManager(val product: Product, private val orderSummaryLineItem: OrderSummaryLineItem? = null, val listener: (LineItem) -> Unit = { }) {
 
     private var lineItem: LineItem = LineItem.EMPTY
 
     init {
         this.lineItem = LineItem.ofProduct(product)
-        if (bagLineItem == null) {
+        if (orderSummaryLineItem == null) {
             initializeDefaultModifiers()
         } else {
             initializeLineItemSelections()
@@ -21,9 +21,9 @@ class LineItemManager(val product: Product, private val bagLineItem: BagLineItem
         initializeModifierSelectionsFor(product)
 
         // Products in bundle
-        val bundle = product.bundles.find { bagLineItem?.bundleId == it.bundleId }
-        lineItem = lineItem.copy(bundle = bundle, quantity = bagLineItem?.quantity ?: 1, lineItemId = bagLineItem?.lineItemId ?: lineItem.lineItemId)
-        bagLineItem?.productsInBundle?.forEach { map ->
+        val bundle = product.bundles.find { orderSummaryLineItem?.bundleId == it.bundleId }
+        lineItem = lineItem.copy(bundle = bundle, quantity = orderSummaryLineItem?.quantity ?: 1, lineItemId = orderSummaryLineItem?.lineItemId ?: lineItem.lineItemId)
+        orderSummaryLineItem?.productsInBundle?.forEach { map ->
             val productGroupId = map.key
             val productIds = map.value
 
@@ -41,7 +41,7 @@ class LineItemManager(val product: Product, private val bagLineItem: BagLineItem
     }
 
     private fun initializeModifierSelectionsFor(product: Product) {
-        val productModifiers = bagLineItem?.modifiers?.filterKeys { it.productId == product.productId }
+        val productModifiers = orderSummaryLineItem?.modifiers?.filterKeys { it.productId == product.productId }
         productModifiers?.forEach {
             val modifierGroupId = it.key.modifierGroupId
             val modifierIds = it.value
@@ -162,7 +162,7 @@ class LineItemManager(val product: Product, private val bagLineItem: BagLineItem
         return lineItem.deepCopy()
     }
 
-    fun isModifying(): Boolean = bagLineItem != null
+    fun isModifying(): Boolean = orderSummaryLineItem != null
 
     private fun notifyObserver() {
         listener.invoke(lineItem)

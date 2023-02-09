@@ -8,7 +8,7 @@ import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.TAG
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.core.StringResource
-import com.ryanjames.composemobileordering.domain.BagLineItem
+import com.ryanjames.composemobileordering.domain.OrderSummaryLineItem
 import com.ryanjames.composemobileordering.domain.LineItem
 import com.ryanjames.composemobileordering.domain.Product
 import com.ryanjames.composemobileordering.network.model.Event
@@ -16,6 +16,7 @@ import com.ryanjames.composemobileordering.repository.MenuRepository
 import com.ryanjames.composemobileordering.repository.OrderRepository
 import com.ryanjames.composemobileordering.repository.VenueRepository
 import com.ryanjames.composemobileordering.toTwoDigitString
+import com.ryanjames.composemobileordering.ui.core.AlertDialogState
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
 import com.ryanjames.composemobileordering.ui.core.TwoButtonsDialogState
 import com.ryanjames.composemobileordering.util.LineItemManager
@@ -50,7 +51,7 @@ class ProductDetailViewModel @Inject constructor(
     private lateinit var lineItemManager: LineItemManager
 
     init {
-        var bagLineItem: BagLineItem?
+        var orderSummaryLineItem: OrderSummaryLineItem?
         lineItemId = savedStateHandle.get<String>("lineItemId")
         isModifying = lineItemId != null
 
@@ -65,18 +66,25 @@ class ProductDetailViewModel @Inject constructor(
 
         viewModelScope.launch {
 
-            bagLineItem = orderRepository.getLineItems().find { it.lineItemId == lineItemId }
-            val productId = savedStateHandle.get<String>("productId") ?: bagLineItem?.productId
+            orderSummaryLineItem = orderRepository.getLineItems().find { it.lineItemId == lineItemId }
+            val productId = savedStateHandle.get<String>("productId") ?: orderSummaryLineItem?.productId
             venueId = savedStateHandle.get<String>("venueId") ?: venueRepository.getCurrentVenueId() ?: ""
 
             productId?.let { id ->
                 menuRepository.getProductById(id).collect { resource ->
                     when (resource) {
                         is Resource.Success -> {
-                            setupLineItemManager(product = resource.data, bagLineItem)
+                            setupLineItemManager(product = resource.data, orderSummaryLineItem)
                         }
                         is Resource.Error -> {
-                            resource.throwable.printStackTrace()
+                            _productDetailScreenState.update {
+                                _productDetailScreenState.value.copy(
+                                    dialogState = AlertDialogState(
+                                        message = StringResource(id = R.string.generic_error_message),
+                                        onDismiss = { dismissDialog() }
+                                    )
+                                )
+                            }
                         }
                         is Resource.Loading -> {
                             _productDetailScreenState.value = _productDetailScreenState.value.copy(loadingProductDetail = true)
@@ -85,6 +93,10 @@ class ProductDetailViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun dismissDialog() {
+        _productDetailScreenState.update { _productDetailScreenState.value.copy(dialogState = null) }
     }
 
     fun onClickPlusQty() {
@@ -116,9 +128,7 @@ class ProductDetailViewModel @Inject constructor(
                     message = StringResource(R.string.other_items_message),
                     positiveButton = StringResource(R.string.yes),
                     negativeButton = StringResource(R.string.no),
-                    onClickNegativeBtn = {
-                        _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = null)
-                    },
+                    onClickNegativeBtn = { dismissDialog() },
                     onClickPositiveBtn = {
                         viewModelScope.launch {
                             orderRepository.clearBag()
@@ -135,12 +145,25 @@ class ProductDetailViewModel @Inject constructor(
 
     private suspend fun addOrUpdateLineItem() {
         orderRepository.addOrUpdateLineItem(lineItemManager.getLineItem(), venueId).collect {
-            if (it is Resource.Loading) {
-                val loadingDialogLabel = if (isModifying) R.string.updating_item else R.string.adding_item_to_bag
-                _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = LoadingDialogState(StringResource(loadingDialogLabel)))
-            } else if (it is Resource.Success) {
-                _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = null)
-                _onSuccessfulAddOrUpdate.value = Event(true)
+            when (it) {
+                is Resource.Loading -> {
+                    val loadingDialogLabel = if (isModifying) R.string.updating_item else R.string.adding_item_to_bag
+                    _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = LoadingDialogState(StringResource(loadingDialogLabel)))
+                }
+                is Resource.Success -> {
+                    _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = null)
+                    _onSuccessfulAddOrUpdate.value = Event(true)
+                }
+                is Resource.Error -> {
+                    _productDetailScreenState.update {
+                        _productDetailScreenState.value.copy(
+                            dialogState = AlertDialogState(
+                                message = StringResource(id = R.string.generic_error_message),
+                                onDismiss = { dismissDialog() }
+                            )
+                        )
+                    }
+                }
             }
         }
     }
@@ -176,10 +199,10 @@ class ProductDetailViewModel @Inject constructor(
         }
     }
 
-    private fun setupLineItemManager(product: Product, bagLineItem: BagLineItem?) {
+    private fun setupLineItemManager(product: Product, orderSummaryLineItem: OrderSummaryLineItem?) {
         lineItemManager = LineItemManager(product, listener = { lineItem ->
             updateData(product = product, lineItem)
-        }, bagLineItem = bagLineItem)
+        }, orderSummaryLineItem = orderSummaryLineItem)
     }
 
     private fun updateData(product: Product, lineItem: LineItem) {

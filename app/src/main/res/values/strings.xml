@@ -83,5 +83,8 @@
     <string name="enrolling">Enrolling…</string>
     <string name="sign_up">Sign Up</string>
     <string name="enroll_login_failed">We created your account successfully. However, we can\'t log you in at this time. Please try again later.</string>
+    <string name="checkout">Place order</string>
+    <string name="placing_order">Placing order…</string>
+    <string name="missing_delivery_address_error">Enter a delivery address.</string>
 
 </resources>

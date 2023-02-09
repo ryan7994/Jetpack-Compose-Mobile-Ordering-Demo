@@ -15,6 +15,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.advanceTimeBy
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -70,17 +71,20 @@ class ProductDetailViewModelTest {
     }
 
     @Test
-    fun test_button_label() {
-        var viewModel = createViewModel(lineItemId = "asdsdsdsds")
-        assertEquals(viewModel.productDetailScreenState.value.btnLabel.id, R.string.update_item)
-
-        viewModel = createViewModel(lineItemId = null)
+    fun `test button label - new item`() {
+        val viewModel = createViewModel(lineItemId = null)
         assertEquals(viewModel.productDetailScreenState.value.btnLabel.id, R.string.add_to_bag)
+    }
+
+    @Test
+    fun `test button label - modifying item`() {
+        val viewModel = createViewModel(lineItemId = "asdsdsdsds")
+        assertEquals(viewModel.productDetailScreenState.value.btnLabel.id, R.string.update_item)
     }
 
 
     @Test
-    fun test_loading_product_details_successfully() {
+    fun `test loading product details successfully`() {
         runBlocking {
             val product = PRODUCT_COKE
 
@@ -96,8 +100,8 @@ class ProductDetailViewModelTest {
                 val emission1 = awaitItem()
                 assertThat(emission1.loadingProductDetail).isEqualTo(true)
                 assertThat(emission1.product).isEqualTo(null)
-                //
-                // coroutineRule.advanceTimeBy(10)
+
+                coroutineRule.advanceTimeBy(10)
                 val emission2 = awaitItem()
                 assertThat(emission2.loadingProductDetail).isEqualTo(false)
                 assertThat(emission2.product).isEqualTo(PRODUCT_COKE)

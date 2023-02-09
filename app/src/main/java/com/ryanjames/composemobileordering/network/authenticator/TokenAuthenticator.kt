@@ -56,7 +56,7 @@ class TokenAuthenticator(
                     newBearerToken = "Bearer $newAccessToken"
 
                 } catch (e: Exception) {
-                    if (e is HttpException && e.code() == 401) {
+                    if (e is HttpException && (e.code() == 401 || e.code() == 403)) {
                         loginManager.logOut()
                     }
                     e.printStackTrace()
