@@ -30,7 +30,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.core.StringResource
-import com.ryanjames.composemobileordering.features.bottomnav.LocalCoroutineScope
 import com.ryanjames.composemobileordering.features.bottomnav.LocalSnackbarHostState
 import com.ryanjames.composemobileordering.ui.core.Dialog
 import com.ryanjames.composemobileordering.ui.core.HorizontalLine
@@ -47,8 +46,8 @@ fun ProductDetailScreen(
     onLoadFail: () -> Unit
 ) {
 
-    val productDetalScreenState = viewModel.productDetailScreenState.collectAsState().value
-    val snackbarMessage = stringResource(productDetalScreenState.addOrUpdateSuccessMessage.id)
+    val productDetailScreenState = viewModel.productDetailScreenState.collectAsState().value
+    val snackbarMessage = stringResource(productDetailScreenState.addOrUpdateSuccessMessage.id)
 
     val snackbarHostState = LocalSnackbarHostState.current
 
@@ -74,7 +73,7 @@ fun ProductDetailScreen(
     }
 
     ProductDetailLayout(
-        productDetailScreenState = productDetalScreenState,
+        productDetailScreenState = productDetailScreenState,
         onClickModifierSummary = viewModel::onClickModifierSummary,
         onClickModifier = viewModel::onClickModifierOption,
         onClickPlusQty = viewModel::onClickPlusQty,
@@ -129,7 +128,7 @@ fun ProductDetailLayout(
                 ProductDetailLayout(productDetailScreenState = productDetailScreenState) {
                     scope.launch {
                         onClickModifierSummary.invoke(it)
-                        modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                        modalBottomSheetState.show()
                     }
                 }
                 Column(
@@ -219,10 +218,7 @@ private fun QtySelector(modifier: Modifier, onClickPlus: () -> Unit, onClickMinu
                 fontWeight = FontWeight.Bold
             )
         }
-
-
     }
-
 }
 
 @Composable

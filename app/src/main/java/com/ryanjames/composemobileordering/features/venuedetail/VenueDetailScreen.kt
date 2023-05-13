@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -69,7 +70,6 @@ fun VenueDetailScreen(
         sheetContent = {
             Spacer(modifier = Modifier.size(32.dp))
             StoreInfoBottomSheetLayout(venueDetailScreenState.storeInfoDisplayModel)
-
         },
         sheetState = modalBottomSheetState,
         scrimColor = Color.Transparent,
@@ -155,7 +155,7 @@ private fun NoMenuView(phoneUri: Uri?, email: String?, addressUri: Uri?) {
 
     Column {
 
-        androidx.compose.material3.Card(
+        Card(
             shape = RectangleShape,
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {

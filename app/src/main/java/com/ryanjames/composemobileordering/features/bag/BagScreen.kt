@@ -204,7 +204,7 @@ fun BagLayout(
                     } else {
                         DeliveryAddressCard(deliveryAddress = bagScreenState.deliveryAddress) {
                             scope.launch {
-                                modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                                modalBottomSheetState.show()
                             }
                         }
                     }
