@@ -2,11 +2,9 @@
 
 package com.ryanjames.composemobileordering.ui.core
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,32 +13,28 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.features.bag.ButtonState
 import com.ryanjames.composemobileordering.ui.theme.*
 import kotlinx.coroutines.launch
@@ -57,7 +51,7 @@ fun SingleLineTextField(
         autoCorrect = false
     ),
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    isError: Boolean = true,
+    isError: Boolean = false,
     onFocusChanged: (FocusState) -> Unit = {},
     errorMessage: String? = null
 ) {
@@ -81,7 +75,7 @@ fun SingleLineTextField(
         singleLine = true,
         modifier = modifier
             .fillMaxWidth()
-            .onFocusChanged { onFocusChanged.invoke(it) },
+            .onFocusChanged(onFocusChanged),
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions ?: KeyboardActions(
             onNext = { focusManager.moveFocus(FocusDirection.Down) },
@@ -200,21 +194,26 @@ fun FullWidthButton(onClick: () -> Unit, label: String, tag: String? = null) {
 @Composable
 fun TextTabs(
     tabs: List<String>,
-    selectedIndex: Int,
     listState: LazyListState,
-    selectedContent: @Composable (text: String) -> Unit,
-    unselectedContent: @Composable (text: String) -> Unit,
+    selectedTabContent: @Composable (text: String) -> Unit,
+    unselectedTabContent: @Composable (text: String) -> Unit,
 ) {
-    val tabIndex = remember { mutableStateOf(selectedIndex) }
+    val firstItemVisibleIndex by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex
+        }
+    }
+
+    val selectedTabIndex = remember { mutableStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
     val tabClicked = remember { mutableStateOf(false) }
 
-    if (listState.isScrollInProgress && !tabClicked.value) {
-        tabIndex.value = listState.firstVisibleItemIndex
+    if (listState.isScrollInProgress && !tabClicked.value && selectedTabIndex.value != firstItemVisibleIndex) {
+        selectedTabIndex.value = firstItemVisibleIndex
     }
 
     ScrollableTabRow(
-        selectedTabIndex = tabIndex.value,
+        selectedTabIndex = selectedTabIndex.value,
         containerColor = AppTheme.colors.bottomNavBackground,
         edgePadding = 16.dp,
         indicator = {
@@ -222,16 +221,16 @@ fun TextTabs(
                 height = 4.dp,
                 color = CoralRed,
                 modifier = Modifier
-                    .tabIndicatorOffset(it[tabIndex.value])
+                    .tabIndicatorOffset(it[selectedTabIndex.value])
                     .clip(RoundedCornerShape(2.dp))
             )
         }
     ) {
         tabs.forEachIndexed { index, text ->
-            val isSelected = tabIndex.value == index
+            val isSelected = selectedTabIndex.value == index
             Tab(selected = isSelected,
                 onClick = {
-                    tabIndex.value = index
+                    selectedTabIndex.value = index
                     coroutineScope.launch {
                         tabClicked.value = true
                         listState.animateScrollToItem(index)
@@ -240,9 +239,9 @@ fun TextTabs(
                 },
                 text = {
                     if (isSelected) {
-                        selectedContent.invoke(text)
+                        selectedTabContent.invoke(text)
                     } else {
-                        unselectedContent.invoke(text)
+                        unselectedTabContent.invoke(text)
                     }
 
                 })
@@ -284,15 +283,13 @@ fun TopAppBarWithUpButton(title: String, onClickUpBtn: () -> Unit) {
             Text(text = title)
         },
         navigationIcon = {
-            IconButton(onClick = {
-                onClickUpBtn.invoke()
-            }) {
-                Icon(Icons.Default.ArrowBack, "Navigate up", tint = Color.White)
+            IconButton(onClick = onClickUpBtn) {
+                Icon(Icons.Default.ArrowBack, stringResource(R.string.navigate_up), tint = AppTheme.colors.topBarTextColor)
             }
         },
         colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = CoralRed,
-            titleContentColor = Color.White
+            containerColor = AppTheme.colors.topBarColor,
+            titleContentColor = AppTheme.colors.topBarTextColor
         )
     )
 }

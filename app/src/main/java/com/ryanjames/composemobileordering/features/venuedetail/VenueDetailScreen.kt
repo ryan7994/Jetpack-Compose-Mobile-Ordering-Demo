@@ -12,9 +12,7 @@ import androidx.compose.material.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +26,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.R.drawable
 import com.ryanjames.composemobileordering.core.Resource
+import com.ryanjames.composemobileordering.core.StringResource
+import com.ryanjames.composemobileordering.features.bottomnav.LocalSnackbarHostState
+import com.ryanjames.composemobileordering.network.model.getSnackbarMessage
 import com.ryanjames.composemobileordering.ui.core.TextTabs
 import com.ryanjames.composemobileordering.ui.theme.*
 import com.ryanjames.composemobileordering.ui.widget.*
@@ -89,6 +90,12 @@ fun VenueDetailScreen(
 
                 val listState = rememberLazyListState()
 
+//                val firstItemVisibleIndex by remember {
+//                    derivedStateOf {
+//                         listState.firstVisibleItemIndex
+//                    }
+//                }
+
                 when (venueDetailScreenState.menuCategoriesResource) {
                     is Resource.Loading -> {
                         LoadingSpinnerWithText(text = stringResource(R.string.loading_menu))
@@ -99,12 +106,11 @@ fun VenueDetailScreen(
                         if (menuCategories.isNotEmpty()) {
                             TextTabs(
                                 tabs = menuCategories.map { it.categoryName },
-                                selectedIndex = listState.firstVisibleItemIndex,
                                 listState = listState,
-                                selectedContent = { tabText ->
+                                selectedTabContent = { tabText ->
                                     Text(text = tabText, fontWeight = FontWeight.Bold, color = CoralRed, style = Typography.titleMedium)
                                 },
-                                unselectedContent = { tabText ->
+                                unselectedTabContent = { tabText ->
                                     Text(text = tabText, fontWeight = FontWeight.Bold, color = HintGray, style = Typography.titleMedium)
                                 }
                             )

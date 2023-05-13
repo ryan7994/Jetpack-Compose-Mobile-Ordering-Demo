@@ -1,6 +1,5 @@
 package com.ryanjames.composemobileordering.features.signup
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -8,6 +7,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
@@ -17,10 +17,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.ryanjames.composemobileordering.R
-import com.ryanjames.composemobileordering.ui.core.TopAppBarWithUpButton
 import com.ryanjames.composemobileordering.ui.core.Dialog
 import com.ryanjames.composemobileordering.ui.core.FullWidthButton
 import com.ryanjames.composemobileordering.ui.core.SingleLineTextField
+import com.ryanjames.composemobileordering.ui.core.TopAppBarWithUpButton
 import com.ryanjames.composemobileordering.ui.theme.AppTheme
 import com.ryanjames.composemobileordering.ui.theme.Typography
 
@@ -36,7 +36,6 @@ fun SignUpScreen(signUpViewModel: SignUpViewModel, onUpBtnClicked: () -> Unit) {
     )
 }
 
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SignUpScreenLayout(
     signUpScreenState: SignUpScreenState,
@@ -58,7 +57,6 @@ fun SignUpScreenLayout(
 
             Column(
                 modifier = Modifier
-
                     .padding(horizontal = 16.dp)
                     .verticalScroll(rememberScrollState())
             ) {
@@ -66,7 +64,7 @@ fun SignUpScreenLayout(
                 Spacer(modifier = Modifier.size(16.dp))
 
                 Text(
-                    text = "All fields are required.",
+                    text = stringResource(R.string.all_fields_required),
                     style = Typography.bodyMedium, color =
                     AppTheme.colors.darkTextColor
                 )
@@ -75,60 +73,60 @@ fun SignUpScreenLayout(
 
                 SingleLineTextField(
                     value = signUpScreenState.username,
-                    onValueChange = { onValueChange.invoke(it, SignUpFormField.Username) },
+                    onValueChange = { newValue -> onValueChange.invoke(newValue, SignUpFormField.Username) },
                     hintText = stringResource(R.string.username),
                     isError = signUpScreenState.fieldsWithError.contains(SignUpFormField.Username),
-                    onFocusChanged = { onFocusChanged.invoke(it.isFocused, SignUpFormField.Username) },
+                    onFocusChanged = { focusState -> onFocusChanged.invoke(focusState.isFocused, SignUpFormField.Username) },
                     errorMessage = stringResource(R.string.username_error)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
 
                 SingleLineTextField(
                     value = signUpScreenState.password,
-                    onValueChange = { onValueChange.invoke(it, SignUpFormField.Password) },
+                    onValueChange = { newValue -> onValueChange.invoke(newValue, SignUpFormField.Password) },
 
                     hintText = stringResource(R.string.password),
                     visualTransformation = PasswordVisualTransformation(),
                     isError = signUpScreenState.fieldsWithError.contains(SignUpFormField.Password),
-                    onFocusChanged = { onFocusChanged.invoke(it.isFocused, SignUpFormField.Password) },
+                    onFocusChanged = { focusState -> onFocusChanged.invoke(focusState.isFocused, SignUpFormField.Password) },
                     errorMessage = stringResource(R.string.password_error)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
 
                 SingleLineTextField(
                     value = signUpScreenState.confirmPassword,
-                    onValueChange = { onValueChange.invoke(it, SignUpFormField.ConfirmPassword) },
+                    onValueChange = { newValue -> onValueChange.invoke(newValue, SignUpFormField.ConfirmPassword) },
                     hintText = stringResource(R.string.confirm_password),
                     visualTransformation = PasswordVisualTransformation(),
                     isError = signUpScreenState.fieldsWithError.contains(SignUpFormField.ConfirmPassword),
-                    onFocusChanged = { onFocusChanged.invoke(it.isFocused, SignUpFormField.ConfirmPassword) },
+                    onFocusChanged = { focusState -> onFocusChanged.invoke(focusState.isFocused, SignUpFormField.ConfirmPassword) },
                     errorMessage = stringResource(R.string.confirm_password_error)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
 
                 SingleLineTextField(
                     value = signUpScreenState.firstName,
-                    onValueChange = { onValueChange.invoke(it, SignUpFormField.FirstName) },
+                    onValueChange = { newValue -> onValueChange.invoke(newValue, SignUpFormField.FirstName) },
                     hintText = stringResource(R.string.first_name),
                     isError = signUpScreenState.fieldsWithError.contains(SignUpFormField.FirstName),
-                    onFocusChanged = { onFocusChanged.invoke(it.isFocused, SignUpFormField.FirstName) },
+                    onFocusChanged = { focusState -> onFocusChanged.invoke(focusState.isFocused, SignUpFormField.FirstName) },
                     errorMessage = stringResource(R.string.first_name_error)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
 
                 SingleLineTextField(
                     value = signUpScreenState.lastName,
-                    onValueChange = { onValueChange.invoke(it, SignUpFormField.LastName) },
+                    onValueChange = { newValue -> onValueChange.invoke(newValue, SignUpFormField.LastName) },
                     hintText = stringResource(R.string.last_name),
                     isError = signUpScreenState.fieldsWithError.contains(SignUpFormField.LastName),
-                    onFocusChanged = { onFocusChanged.invoke(it.isFocused, SignUpFormField.LastName) },
+                    onFocusChanged = { focusState -> onFocusChanged.invoke(focusState.isFocused, SignUpFormField.LastName) },
                     errorMessage = stringResource(R.string.last_name_error)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
 
                 SingleLineTextField(
                     value = signUpScreenState.email,
-                    onValueChange = { onValueChange.invoke(it, SignUpFormField.Email) },
+                    onValueChange = { newValue -> onValueChange.invoke(newValue, SignUpFormField.Email) },
                     hintText = stringResource(R.string.email),
                     keyboardOptions = KeyboardOptions(
                         autoCorrect = false,
@@ -136,14 +134,14 @@ fun SignUpScreenLayout(
                         imeAction = ImeAction.Next
                     ),
                     isError = signUpScreenState.fieldsWithError.contains(SignUpFormField.Email),
-                    onFocusChanged = { onFocusChanged.invoke(it.isFocused, SignUpFormField.Email) },
+                    onFocusChanged = { focusState -> onFocusChanged.invoke(focusState.isFocused, SignUpFormField.Email) },
                     errorMessage = stringResource(R.string.email_error)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
 
                 SingleLineTextField(
                     value = signUpScreenState.phoneNumber,
-                    onValueChange = { onValueChange.invoke(it, SignUpFormField.PhoneNumber) },
+                    onValueChange = { newValue -> onValueChange.invoke(newValue, SignUpFormField.PhoneNumber) },
                     hintText = stringResource(R.string.phone_number),
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done,
@@ -151,7 +149,7 @@ fun SignUpScreenLayout(
                         keyboardType = KeyboardType.Phone
                     ),
                     isError = signUpScreenState.fieldsWithError.contains(SignUpFormField.PhoneNumber),
-                    onFocusChanged = { onFocusChanged.invoke(it.isFocused, SignUpFormField.PhoneNumber) },
+                    onFocusChanged = { focusState -> onFocusChanged.invoke(focusState.isFocused, SignUpFormField.PhoneNumber) },
                     errorMessage = stringResource(R.string.phone_number_error)
                 )
                 Spacer(modifier = Modifier.size(16.dp))
@@ -159,6 +157,7 @@ fun SignUpScreenLayout(
                 FullWidthButton(onClick = onClickJoin, label = stringResource(id = R.string.join))
                 Spacer(modifier = Modifier.size(16.dp))
             }
+
             Dialog(signUpScreenState.alertDialogState)
         }
 

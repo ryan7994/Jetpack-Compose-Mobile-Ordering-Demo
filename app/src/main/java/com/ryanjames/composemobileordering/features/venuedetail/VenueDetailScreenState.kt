@@ -2,7 +2,9 @@ package com.ryanjames.composemobileordering.features.venuedetail
 
 import android.net.Uri
 import com.ryanjames.composemobileordering.core.Resource
+import com.ryanjames.composemobileordering.core.SnackbarContent
 import com.ryanjames.composemobileordering.domain.Venue
+import com.ryanjames.composemobileordering.network.model.Event
 import com.ryanjames.composemobileordering.toTwoDigitString
 import com.ryanjames.composemobileordering.ui.widget.MenuItemCardDisplayModel
 import com.ryanjames.composemobileordering.ui.widget.RestaurantDisplayModel

@@ -6,8 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.TAG
-import com.ryanjames.composemobileordering.core.Resource
-import com.ryanjames.composemobileordering.core.StringResource
+import com.ryanjames.composemobileordering.core.*
 import com.ryanjames.composemobileordering.domain.OrderSummaryLineItem
 import com.ryanjames.composemobileordering.domain.LineItem
 import com.ryanjames.composemobileordering.domain.Product
@@ -32,7 +31,8 @@ class ProductDetailViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val menuRepository: MenuRepository,
     private val orderRepository: OrderRepository,
-    private val venueRepository: VenueRepository
+    private val venueRepository: VenueRepository,
+    private val snackbarManager: SnackbarManager
 ) : ViewModel() {
 
     private var isModifying = false
@@ -159,6 +159,9 @@ class ProductDetailViewModel @Inject constructor(
                 is Resource.Success -> {
                     _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = null)
                     _onSuccessfulAddOrUpdate.value = Event(true)
+
+                    val message = if (isModifying) R.string.item_updated else R.string.item_added
+                    snackbarManager.showSnackbar(SnackbarData(EVENT_SUCCESSFUL_BAG_UPDATE, SnackbarContent(StringResource(message))))
                 }
                 is Resource.Error -> {
                     _productDetailScreenState.update {

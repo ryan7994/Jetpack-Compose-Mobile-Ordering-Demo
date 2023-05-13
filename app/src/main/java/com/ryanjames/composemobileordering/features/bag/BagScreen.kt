@@ -29,6 +29,7 @@ import com.ryanjames.composemobileordering.features.bottomnav.LocalCoroutineScop
 import com.ryanjames.composemobileordering.features.bottomnav.LocalSnackbarHostState
 import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.DeliveryAddressState
 import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.EditDeliveryAddressViewModel
+import com.ryanjames.composemobileordering.network.model.getSnackbarMessage
 import com.ryanjames.composemobileordering.ui.core.*
 import com.ryanjames.composemobileordering.ui.theme.*
 import com.ryanjames.composemobileordering.ui.widget.DeliveryAddressBottomSheetLayout
@@ -61,22 +62,6 @@ fun BagScreen(
         onClickBrowseRestaurants = onClickBrowseRestaurants,
         onClickCheckout = bagViewModel::onClickCheckout
     )
-    val globalScope = LocalCoroutineScope.current
-    val snackbarHostState = LocalSnackbarHostState.current
-    val snackbarMessage = stringResource(R.string.item_removed)
-
-    LaunchedEffect(Unit) {
-        globalScope.launch {
-            bagViewModel.onItemRemoval.collect { event ->
-                if (event.peekContent()) {
-                    event.handleSuspending {
-                        snackbarHostState.showSnackbar(snackbarMessage)
-                    }
-                }
-
-            }
-        }
-    }
 }
 
 

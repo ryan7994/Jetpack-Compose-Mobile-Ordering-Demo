@@ -51,7 +51,9 @@ data class AppColors(
     val bottomNavBackground: Color,
     val placeholderColor: Color,
     val textBackground: Color,
-    val materialColors: ColorScheme
+    val materialColors: ColorScheme,
+    val topBarColor: Color,
+    val topBarTextColor: Color
 )
 
 private val lightThemeColors = AppColors(
@@ -61,7 +63,9 @@ private val lightThemeColors = AppColors(
     hintTextColor = HintGray,
     bottomNavBackground = Color.White,
     placeholderColor = PlaceholderGray,
-    textBackground = LighterGray
+    textBackground = LighterGray,
+    topBarColor = CoralRed,
+    topBarTextColor = Color.White
 )
 
 private val darkThemeColors = AppColors(
@@ -71,7 +75,9 @@ private val darkThemeColors = AppColors(
     bottomNavBackground = BlueGray,
     placeholderColor = PlaceholderBlueGray,
     textBackground = PlaceholderBlueGray,
-    materialColors = DarkColorScheme
+    materialColors = DarkColorScheme,
+    topBarColor = BlueGray,
+    topBarTextColor = Color.White
 )
 
 @Composable

@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -43,20 +44,16 @@ import kotlinx.coroutines.launch
 fun ProductDetailScreen(
     viewModel: ProductDetailViewModel,
     onSuccessfulAddOrUpdate: () -> Unit,
-    onLoadFail: () -> Unit
+    onLoadFail: () -> Unit,
 ) {
 
     val productDetailScreenState = viewModel.productDetailScreenState.collectAsState().value
-    val snackbarMessage = stringResource(productDetailScreenState.addOrUpdateSuccessMessage.id)
-
-    val snackbarHostState = LocalSnackbarHostState.current
 
     LaunchedEffect(Unit) {
         viewModel.onSuccessfulAddOrUpdate.collect { event ->
             event.handleSuspending { isSuccessful ->
                 if (isSuccessful) {
                     onSuccessfulAddOrUpdate.invoke()
-                    snackbarHostState.showSnackbar(snackbarMessage)
                 }
             }
         }
