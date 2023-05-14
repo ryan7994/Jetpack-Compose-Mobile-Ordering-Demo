@@ -11,6 +11,7 @@ import androidx.compose.material.*
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -25,7 +26,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.core.LoginManager
+import com.ryanjames.composemobileordering.core.SnackbarManager
 import com.ryanjames.composemobileordering.features.bag.BagScreen
 import com.ryanjames.composemobileordering.features.productdetail.ProductDetailScreen
 import com.ryanjames.composemobileordering.features.venuedetail.VenueDetailScreen
@@ -37,6 +40,7 @@ import com.ryanjames.composemobileordering.features.login.LoginActivity
 import com.ryanjames.composemobileordering.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -50,6 +54,9 @@ class BottomNavActivity : ComponentActivity() {
 
     @Inject
     lateinit var loginManager: LoginManager
+
+    @Inject
+    lateinit var snackbarManager: SnackbarManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,11 +117,25 @@ class BottomNavActivity : ComponentActivity() {
                     BottomNavScreenNavigationConfig(
                         navController = navController,
                     )
+
+                    Snackbar()
                 }
             }
         }
+    }
 
-
+    @Composable
+    private fun Snackbar() {
+        val context = LocalContext.current
+        val snackbarHostState = LocalSnackbarHostState.current
+        LaunchedEffect(Unit) {
+            snackbarManager.snackbarFlow.collect { event ->
+                event?.handleSuspending { snackbarData ->
+                    val snackbarMessage = context.getString(snackbarData.content.message.id)
+                    snackbarHostState.showSnackbar(snackbarMessage)
+                }
+            }
+        }
     }
 
     private fun NavGraphBuilder.bagGraph(navController: NavController) {
@@ -148,9 +169,14 @@ class BottomNavActivity : ComponentActivity() {
                 BottomNavScreens.ProductDetailFromBag.route,
                 arguments = BottomNavScreens.ProductDetailFromBag.navArguments()
             ) {
-                NavigateToProductDetailScreen() {
-                    navController.popBackStack(BottomNavScreens.Bag.route, false)
-                }
+                NavigateToProductDetailScreen(
+                    onSuccessfulAddOrUpdate = {
+                        navController.popBackStack(BottomNavScreens.Bag.route, false)
+                    },
+                    onLoadFail = {
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }
@@ -167,11 +193,15 @@ class BottomNavActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun NavigateToProductDetailScreen(onSuccessfulAddOrUpdate: () -> Unit) {
-        ProductDetailScreen(viewModel = hiltViewModel(),
-            onSuccessfulAddOrUpdate = {
-                onSuccessfulAddOrUpdate.invoke()
-            })
+    private fun NavigateToProductDetailScreen(
+        onSuccessfulAddOrUpdate: () -> Unit,
+        onLoadFail: () -> Unit,
+    ) {
+        ProductDetailScreen(
+            viewModel = hiltViewModel(),
+            onSuccessfulAddOrUpdate = onSuccessfulAddOrUpdate,
+            onLoadFail = onLoadFail
+        )
     }
 
     private fun NavGraphBuilder.mapGraph(navController: NavController) {
@@ -204,9 +234,11 @@ class BottomNavActivity : ComponentActivity() {
             }
 
             composable(BottomNavScreens.ProductDetailModal.route) {
-                NavigateToProductDetailScreen {
+                NavigateToProductDetailScreen(onSuccessfulAddOrUpdate = {
                     navController.popBackStack(BottomNavScreens.VenueDetail.route, false)
-                }
+                }, onLoadFail = {
+                    navController.popBackStack()
+                })
             }
         }
     }

@@ -4,8 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.ryanjames.composemobileordering.R
-import com.ryanjames.composemobileordering.core.Resource
-import com.ryanjames.composemobileordering.core.StringResource
+import com.ryanjames.composemobileordering.core.*
 import com.ryanjames.composemobileordering.network.model.Event
 import com.ryanjames.composemobileordering.repository.OrderRepository
 import com.ryanjames.composemobileordering.repository.VenueRepository
@@ -22,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class BagViewModel @Inject constructor(
     private val orderRepository: OrderRepository,
-    private val venueRepository: VenueRepository
+    private val venueRepository: VenueRepository,
+    private val snackbarManager: SnackbarManager
 ) : ViewModel() {
 
     private val _bagItemScreenState = MutableStateFlow(
@@ -39,9 +39,6 @@ class BagViewModel @Inject constructor(
     )
     val bagScreenState: StateFlow<BagScreenState>
         get() = _bagItemScreenState.asStateFlow()
-
-    private val _onItemRemoval = MutableStateFlow(Event(false))
-    val onItemRemoval = _onItemRemoval.asStateFlow()
 
     init {
 
@@ -128,14 +125,13 @@ class BagViewModel @Inject constructor(
                             alertDialog = null,
                             isRemoving = false
                         )
-                        _onItemRemoval.value = Event(true)
+                        snackbarManager.showSnackbar(SnackbarData(EVENT_SUCCESSFUL_ITEM_REMOVAL, SnackbarContent(StringResource(R.string.item_removed))))
                     }
                     is Resource.Error -> {
                         _bagItemScreenState.value = _bagItemScreenState.value.copy(
                             alertDialog = null
                         )
                     }
-                    else -> {}
                 }
             }
         }

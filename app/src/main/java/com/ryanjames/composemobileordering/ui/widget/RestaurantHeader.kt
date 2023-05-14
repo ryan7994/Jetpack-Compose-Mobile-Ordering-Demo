@@ -15,10 +15,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.flowlayout.FlowRow
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.ui.theme.*
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RestaurantHeader(state: RestaurantDisplayModel, onClickUp: () -> Unit, onClickInfo: () -> Unit) {
     Box(
@@ -87,7 +87,7 @@ fun RestaurantHeader(state: RestaurantDisplayModel, onClickUp: () -> Unit, onCli
 
             Spacer(modifier = Modifier.size(4.dp))
 
-            FlowRow(crossAxisSpacing = 8.dp, mainAxisSpacing = 8.dp) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 state.categories.forEach { category ->
                     DisplayChip(label = category, textColor = Color.White, backgroundColor = ChipGray)
                 }

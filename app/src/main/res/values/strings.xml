@@ -86,5 +86,7 @@
     <string name="checkout">Place order</string>
     <string name="placing_order">Placing order…</string>
     <string name="missing_delivery_address_error">Enter a delivery address.</string>
+    <string name="all_fields_required">All fields are required.</string>
+    <string name="navigate_up">Navigate up</string>
 
 </resources>

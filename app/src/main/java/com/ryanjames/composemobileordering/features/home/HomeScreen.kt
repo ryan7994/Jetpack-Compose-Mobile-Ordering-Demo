@@ -1,15 +1,15 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package com.ryanjames.composemobileordering.features.home
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,10 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
-import com.google.accompanist.pager.rememberPagerState
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.DeliveryAddressState
 import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.EditDeliveryAddressViewModel
@@ -38,7 +35,6 @@ import kotlinx.coroutines.launch
 
 
 @ExperimentalMaterialApi
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel,
@@ -57,7 +53,6 @@ fun HomeScreen(
 }
 
 @ExperimentalMaterialApi
-@ExperimentalPagerApi
 @Composable
 fun HomeScreenLayout(
     homeScreenState: HomeScreenState,
@@ -109,7 +104,6 @@ fun HomeScreenLayout(
 }
 
 @ExperimentalMaterialApi
-@ExperimentalPagerApi
 @Composable
 fun HomeScreenContent(
     featuredList: List<FeaturedRestaurantCardState>,
@@ -158,16 +152,17 @@ fun HomeScreenContent(
                                 )
                                 Spacer(modifier = Modifier.size(16.dp))
 
-                                val pagerState = rememberPagerState()
+                                val pagerState = androidx.compose.foundation.pager.rememberPagerState()
 
-                                HorizontalPager(count = featuredList.size, state = pagerState) { page ->
+                                HorizontalPager(pageCount = featuredList.size, state = pagerState) { page ->
                                     FeaturedCard(featuredRestaurantCardState = featuredList[page], onClickCard)
                                 }
 
                                 Spacer(modifier = Modifier.size(16.dp))
 
                                 HorizontalPagerIndicator(
-                                    pagerState,
+                                    pagerState = pagerState,
+                                    pageCount = featuredList.size,
                                     activeColor = CoralRed,
                                     inactiveColor = AppTheme.colors.lightTextColor,
                                     modifier = Modifier
@@ -301,7 +296,6 @@ fun HomeScreenShimmer() {
 }
 
 @ExperimentalMaterialApi
-@ExperimentalPagerApi
 @Preview
 @Composable
 fun PreviewHomeScreen() {
@@ -315,7 +309,6 @@ fun PreviewHomeScreen() {
 }
 
 @ExperimentalMaterialApi
-@ExperimentalPagerApi
 @Preview
 @Composable
 fun PreviewHomeScreenDarkMode() {
