@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.ryanjames.composemobileordering.TAG
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.domain.EmptyVenue
+import com.ryanjames.composemobileordering.features.bottomnav.BottomNavScreens
+import com.ryanjames.composemobileordering.navigation.RouteNavigator
 import com.ryanjames.composemobileordering.repository.MenuRepository
 import com.ryanjames.composemobileordering.repository.VenueRepository
 import com.ryanjames.composemobileordering.util.toCategoryViewStateList
@@ -25,8 +27,9 @@ import javax.inject.Inject
 class VenueDetailViewModel @Inject constructor(
     private val venueRepository: VenueRepository,
     private val menuRepository: MenuRepository,
+    private val routeNavigator: RouteNavigator,
     savedStateHandle: SavedStateHandle
-) : ViewModel() {
+) : ViewModel(), RouteNavigator by routeNavigator {
 
     private val _venueDetailScreenState = MutableStateFlow(VenueDetailScreenState(null, Resource.Loading, null))
     val venueDetailScreenState: StateFlow<VenueDetailScreenState>
@@ -82,6 +85,14 @@ class VenueDetailViewModel @Inject constructor(
                 })
             }
         }
+    }
+
+    fun onClickMenuItemCard(productId: String, venueId: String) {
+        routeNavigator.navigateToRoute(BottomNavScreens.ProductDetailModal.routeWithArgs(productId, venueId))
+    }
+
+    fun onClickUp() {
+        routeNavigator.popBackStack()
     }
 
     override fun onCleared() {

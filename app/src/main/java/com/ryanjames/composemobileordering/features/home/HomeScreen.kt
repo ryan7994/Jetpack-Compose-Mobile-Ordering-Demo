@@ -38,14 +38,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel,
-    editDeliveryAddressViewModel: EditDeliveryAddressViewModel,
-    onClickCard: (id: String) -> Unit = {}
+    editDeliveryAddressViewModel: EditDeliveryAddressViewModel
 ) {
     val homeScreenState = homeViewModel.homeViewState.collectAsState()
     val editDeliveryAddressState = editDeliveryAddressViewModel.deliveryAddressState.collectAsState()
     HomeScreenLayout(
         homeScreenState = homeScreenState.value,
-        onClickCard = onClickCard,
+        onClickCard = homeViewModel::onClickCard,
         onDeliveryAddressValueChange = editDeliveryAddressViewModel::onDeliveryAddressInputChange,
         onClickSaveDeliveryAddress = editDeliveryAddressViewModel::updateDeliveryAddress,
         deliveryAddressState = editDeliveryAddressState.value

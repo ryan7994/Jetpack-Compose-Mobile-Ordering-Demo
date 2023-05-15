@@ -8,6 +8,9 @@ import com.ryanjames.composemobileordering.TAG
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.domain.Venue
 import com.ryanjames.composemobileordering.domain.getLatLng
+import com.ryanjames.composemobileordering.features.bottomnav.BottomNavScreens
+import com.ryanjames.composemobileordering.features.bottomnav.BottomNavTabs
+import com.ryanjames.composemobileordering.navigation.RouteNavigator
 import com.ryanjames.composemobileordering.repository.VenueRepository
 import com.ryanjames.composemobileordering.util.toFeaturedRestaurantCardState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class VenueFinderViewModel @Inject constructor(
     private val venueRepository: VenueRepository,
-) : ViewModel() {
+    private val routeNavigator: RouteNavigator
+) : ViewModel(), RouteNavigator by routeNavigator {
 
     private val _venueFinderScreenState = MutableStateFlow(VenueFinderScreenState())
     val venueFinderScreenState: StateFlow<VenueFinderScreenState>
@@ -77,4 +81,7 @@ class VenueFinderViewModel @Inject constructor(
         updateMap(index)
     }
 
+    fun onClickCard(venueId: String) {
+        routeNavigator.navigateToAnotherTab(BottomNavTabs.BrowseTab, BottomNavScreens.Home.route, BottomNavScreens.VenueDetail.routeWithArgs(venueId))
+    }
 }

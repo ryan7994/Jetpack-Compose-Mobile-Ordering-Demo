@@ -7,10 +7,10 @@ import androidx.lifecycle.viewModelScope
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.TAG
 import com.ryanjames.composemobileordering.core.*
-import com.ryanjames.composemobileordering.domain.OrderSummaryLineItem
 import com.ryanjames.composemobileordering.domain.LineItem
+import com.ryanjames.composemobileordering.domain.OrderSummaryLineItem
 import com.ryanjames.composemobileordering.domain.Product
-import com.ryanjames.composemobileordering.network.model.Event
+import com.ryanjames.composemobileordering.navigation.RouteNavigator
 import com.ryanjames.composemobileordering.repository.MenuRepository
 import com.ryanjames.composemobileordering.repository.OrderRepository
 import com.ryanjames.composemobileordering.repository.VenueRepository
@@ -32,19 +32,14 @@ class ProductDetailViewModel @Inject constructor(
     private val menuRepository: MenuRepository,
     private val orderRepository: OrderRepository,
     private val venueRepository: VenueRepository,
-    private val snackbarManager: SnackbarManager
-) : ViewModel() {
+    private val snackbarManager: SnackbarManager,
+    private val routeNavigator: RouteNavigator
+) : ViewModel(), RouteNavigator by routeNavigator {
 
     private var isModifying = false
 
     private val _productDetailScreenState = MutableStateFlow(ProductDetailScreenState())
     val productDetailScreenState = _productDetailScreenState.asStateFlow()
-
-    private val _onSuccessfulAddOrUpdate = MutableStateFlow(Event(false))
-    val onSuccessfulAddOrUpdate = _onSuccessfulAddOrUpdate.asStateFlow()
-
-    private val _onLoadingFail = MutableStateFlow(Event(false))
-    val onLoadingFail = _onLoadingFail.asStateFlow()
 
     private val rowDataHolders = mutableListOf<ProductDetailRowData>()
     private var selectedModifierSummaryId: String = ""
@@ -86,7 +81,7 @@ class ProductDetailViewModel @Inject constructor(
                                         message = StringResource(id = R.string.generic_error_message),
                                         onDismiss = {
                                             dismissDialog()
-                                            _onLoadingFail.update { Event(true) }
+                                            routeNavigator.popBackStack()
                                         }
                                     )
                                 )
@@ -158,10 +153,11 @@ class ProductDetailViewModel @Inject constructor(
                 }
                 is Resource.Success -> {
                     _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = null)
-                    _onSuccessfulAddOrUpdate.value = Event(true)
 
                     val message = if (isModifying) R.string.item_updated else R.string.item_added
                     snackbarManager.showSnackbar(SnackbarData(EVENT_SUCCESSFUL_BAG_UPDATE, SnackbarContent(StringResource(message))))
+
+                    routeNavigator.popBackStack()
                 }
                 is Resource.Error -> {
                     _productDetailScreenState.update {
@@ -274,6 +270,10 @@ class ProductDetailViewModel @Inject constructor(
         }
 
         return list
+    }
+
+    fun onSuccessfulAddOrUpdate() {
+
     }
 
     override fun onCleared() {

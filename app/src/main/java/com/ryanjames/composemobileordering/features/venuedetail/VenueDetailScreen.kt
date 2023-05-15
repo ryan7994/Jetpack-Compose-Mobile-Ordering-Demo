@@ -22,29 +22,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.R.drawable
 import com.ryanjames.composemobileordering.core.Resource
-import com.ryanjames.composemobileordering.core.StringResource
-import com.ryanjames.composemobileordering.features.bottomnav.LocalSnackbarHostState
-import com.ryanjames.composemobileordering.network.model.getSnackbarMessage
 import com.ryanjames.composemobileordering.ui.core.TextTabs
 import com.ryanjames.composemobileordering.ui.theme.*
 import com.ryanjames.composemobileordering.ui.widget.*
 import kotlinx.coroutines.launch
 
 @Composable
-fun VenueDetailScreen(
-    venueDetailViewModel: VenueDetailViewModel = hiltViewModel(),
-    onClickMenuItemCard: (productId: String, venueId: String) -> Unit = { _, _ -> },
-    onClickUpBtn: () -> Unit
-) {
+fun VenueDetailScreen(venueDetailViewModel: VenueDetailViewModel) {
     val state = venueDetailViewModel.venueDetailScreenState.collectAsState()
     VenueDetailScreen(
         venueDetailScreenState = state.value,
-        onClickMenuItemCard = onClickMenuItemCard,
-        onClickUp = onClickUpBtn
+        onClickMenuItemCard = venueDetailViewModel::onClickMenuItemCard,
+        onClickUp = venueDetailViewModel::onClickUp
     )
 }
 

@@ -33,8 +33,8 @@ open class NetworkModule {
     @Singleton
     @Provides
     open fun provideRetrofitBuilder(): Retrofit.Builder {
-//        val apiBaseUrl = "https://test-swabergers.herokuapp.com/"
-        val apiBaseUrl = "http://192.168.254.132:3000/"
+        val apiBaseUrl = "https://spring-boot-mobile-pos-production.up.railway.app/"
+//        val apiBaseUrl = "http://192.168.254.132:3000/"
 //        val apiBaseUrl = "http://10.0.2.2:5000/v1/auth/"
         return Retrofit.Builder()
             .baseUrl(apiBaseUrl)

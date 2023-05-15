@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.core.*
-import com.ryanjames.composemobileordering.network.model.Event
+import com.ryanjames.composemobileordering.features.bottomnav.BottomNavScreens
+import com.ryanjames.composemobileordering.features.bottomnav.BottomNavTabs
+import com.ryanjames.composemobileordering.navigation.RouteNavigator
 import com.ryanjames.composemobileordering.repository.OrderRepository
 import com.ryanjames.composemobileordering.repository.VenueRepository
 import com.ryanjames.composemobileordering.toTwoDigitString
@@ -13,8 +15,14 @@ import com.ryanjames.composemobileordering.ui.core.AlertDialogState
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
 import com.ryanjames.composemobileordering.util.toDisplayModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @FlowPreview
@@ -22,8 +30,9 @@ import javax.inject.Inject
 class BagViewModel @Inject constructor(
     private val orderRepository: OrderRepository,
     private val venueRepository: VenueRepository,
-    private val snackbarManager: SnackbarManager
-) : ViewModel() {
+    private val snackbarManager: SnackbarManager,
+    private val routeNavigator: RouteNavigator
+) : ViewModel(), RouteNavigator by routeNavigator {
 
     private val _bagItemScreenState = MutableStateFlow(
         BagScreenState(
@@ -198,6 +207,18 @@ class BagViewModel @Inject constructor(
             }
         }
 
+    }
+
+    fun onClickBrowseRestaurants() {
+        routeNavigator.navigateToAnotherTab(BottomNavTabs.BrowseTab, BottomNavScreens.Home.route, BottomNavScreens.Home.route)
+    }
+
+    fun onClickLineItem(lineItemId: String) {
+        routeNavigator.navigateToRoute(BottomNavScreens.ProductDetailFromBag.routeWithArgs(lineItemId = lineItemId))
+    }
+
+    fun onClickAddMoreItems(venueId: String) {
+        routeNavigator.navigateToAnotherTab(BottomNavTabs.BrowseTab, BottomNavScreens.Home.route, BottomNavScreens.VenueDetail.routeWithArgs(venueId))
     }
 
     fun onRemoveCbCheckChanged(checked: Boolean, lineItemId: String) {

@@ -10,7 +10,6 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -25,11 +24,8 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import com.ryanjames.composemobileordering.R
-import com.ryanjames.composemobileordering.features.bottomnav.LocalCoroutineScope
-import com.ryanjames.composemobileordering.features.bottomnav.LocalSnackbarHostState
 import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.DeliveryAddressState
 import com.ryanjames.composemobileordering.features.common.editdeliveryaddress.EditDeliveryAddressViewModel
-import com.ryanjames.composemobileordering.network.model.getSnackbarMessage
 import com.ryanjames.composemobileordering.ui.core.*
 import com.ryanjames.composemobileordering.ui.theme.*
 import com.ryanjames.composemobileordering.ui.widget.DeliveryAddressBottomSheetLayout
@@ -394,7 +390,7 @@ fun EmptyBag(onClickBrowseRestaurants: () -> Unit) {
         Spacer(modifier = Modifier.size(16.dp))
         Text(text = stringResource(R.string.bag_empty), style = Typography.bodyLarge, color = AppTheme.colors.darkTextColor)
         Spacer(modifier = Modifier.size(8.dp))
-        OutlinedAccentButton(onClick = { onClickBrowseRestaurants.invoke() }, label = stringResource(R.string.browse_restaurants))
+        OutlinedAccentButton(onClick = onClickBrowseRestaurants, label = stringResource(R.string.browse_restaurants))
     }
 
 }

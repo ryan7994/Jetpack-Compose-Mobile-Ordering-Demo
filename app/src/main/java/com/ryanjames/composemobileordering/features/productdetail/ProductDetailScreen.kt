@@ -9,11 +9,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -31,7 +29,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.core.StringResource
-import com.ryanjames.composemobileordering.features.bottomnav.LocalSnackbarHostState
 import com.ryanjames.composemobileordering.ui.core.Dialog
 import com.ryanjames.composemobileordering.ui.core.HorizontalLine
 import com.ryanjames.composemobileordering.ui.theme.*
@@ -42,32 +39,10 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProductDetailScreen(
-    viewModel: ProductDetailViewModel,
-    onSuccessfulAddOrUpdate: () -> Unit,
-    onLoadFail: () -> Unit,
+    viewModel: ProductDetailViewModel
 ) {
 
     val productDetailScreenState = viewModel.productDetailScreenState.collectAsState().value
-
-    LaunchedEffect(Unit) {
-        viewModel.onSuccessfulAddOrUpdate.collect { event ->
-            event.handleSuspending { isSuccessful ->
-                if (isSuccessful) {
-                    onSuccessfulAddOrUpdate.invoke()
-                }
-            }
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.onLoadingFail.collect { event ->
-            event.handleSuspending { failed ->
-                if (failed) {
-                    onLoadFail.invoke()
-                }
-            }
-        }
-    }
 
     ProductDetailLayout(
         productDetailScreenState = productDetailScreenState,

@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.ryanjames.composemobileordering.TAG
 import com.ryanjames.composemobileordering.clearAndAddAll
 import com.ryanjames.composemobileordering.domain.Venue
+import com.ryanjames.composemobileordering.features.bottomnav.BottomNavScreens
+import com.ryanjames.composemobileordering.navigation.RouteNavigator
 import com.ryanjames.composemobileordering.repository.OrderRepository
 import com.ryanjames.composemobileordering.repository.VenueRepository
 import com.ryanjames.composemobileordering.util.toFeaturedRestaurantCardState
@@ -25,8 +27,9 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val venueRepository: VenueRepository,
     private val orderRepository: OrderRepository,
+    private val routeNavigator: RouteNavigator,
     private val savedStateHandle: SavedStateHandle
-) : ViewModel() {
+) : ViewModel(), RouteNavigator by routeNavigator {
 
     private val _homeViewState =
         MutableStateFlow(HomeScreenState(listOf(), listOf(), HomeScreenDataState.Loading, ""))
@@ -69,5 +72,9 @@ class HomeViewModel @Inject constructor(
 
     override fun onCleared() {
         Log.d(TAG, "Home Screen onCleared()")
+    }
+
+    fun onClickCard(venueId: String) {
+        routeNavigator.navigateToRoute(BottomNavScreens.VenueDetail.routeWithArgs(venueId))
     }
 }

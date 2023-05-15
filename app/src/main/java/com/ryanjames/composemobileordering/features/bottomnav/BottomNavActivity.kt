@@ -15,32 +15,30 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.*
+import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.core.LoginManager
 import com.ryanjames.composemobileordering.core.SnackbarManager
-import com.ryanjames.composemobileordering.features.bag.BagScreen
-import com.ryanjames.composemobileordering.features.productdetail.ProductDetailScreen
-import com.ryanjames.composemobileordering.features.venuedetail.VenueDetailScreen
-import com.ryanjames.composemobileordering.features.venuemapfinder.VenueFinderScreen
+import com.ryanjames.composemobileordering.features.login.LoginActivity
+import com.ryanjames.composemobileordering.navigation.*
 import com.ryanjames.composemobileordering.ui.core.CustomSnackbar
 import com.ryanjames.composemobileordering.ui.core.customTextSelectionColors
-import com.ryanjames.composemobileordering.features.home.HomeScreen
-import com.ryanjames.composemobileordering.features.login.LoginActivity
-import com.ryanjames.composemobileordering.ui.theme.*
+import com.ryanjames.composemobileordering.ui.theme.AppTheme
+import com.ryanjames.composemobileordering.ui.theme.CoralRed
+import com.ryanjames.composemobileordering.ui.theme.MyComposeAppTheme
+import com.ryanjames.composemobileordering.ui.theme.Typography
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -138,108 +136,27 @@ class BottomNavActivity : ComponentActivity() {
         }
     }
 
-    private fun NavGraphBuilder.bagGraph(navController: NavController) {
+    private fun NavGraphBuilder.bagTapGraph(navController: NavHostController) {
 
         navigation(startDestination = BottomNavScreens.Bag.route, route = BottomNavTabs.BagTab.tabRoute) {
-            composable(
-                route = BottomNavScreens.Bag.route,
-                deepLinks = listOf(
-                    navDeepLink {
-                        uriPattern = "https://jetpackmo.com/bag"
-                        action = Intent.ACTION_VIEW
-                    }
-                ),
-                arguments = listOf()
-            ) {
-                BagScreen(bagViewModel = hiltViewModel(),
-                    editDeliveryAddressViewModel = hiltViewModel(),
-                    onClickAddMoreItems = { venueId ->
-                        navController.navigateToAnotherTab(BottomNavTabs.BrowseTab, BottomNavScreens.Home.route)
-                        navController.navigate(BottomNavScreens.VenueDetail.routeWithArgs(venueId))
-                    },
-                    onClickLineItem = { lineItemId ->
-                        navController.navigate(BottomNavScreens.ProductDetailFromBag.routeWithArgs(lineItemId = lineItemId))
-                    },
-                    onClickBrowseRestaurants = {
-                        navController.navigateToAnotherTab(BottomNavTabs.BrowseTab, BottomNavScreens.Home.route)
-                    })
-            }
-
-            composable(
-                BottomNavScreens.ProductDetailFromBag.route,
-                arguments = BottomNavScreens.ProductDetailFromBag.navArguments()
-            ) {
-                NavigateToProductDetailScreen(
-                    onSuccessfulAddOrUpdate = {
-                        navController.popBackStack(BottomNavScreens.Bag.route, false)
-                    },
-                    onLoadFail = {
-                        navController.popBackStack()
-                    }
-                )
-            }
+            BagRoute.composable(this, navController)
+            ProductDetailFromBagRoute.composable(this, navController)
         }
     }
 
-    @Composable
-    private fun NavigateToVenueDetailScreen(navController: NavController) {
-        VenueDetailScreen(
-            onClickMenuItemCard = { productId, venueId ->
-                navController.navigate(BottomNavScreens.ProductDetailModal.routeWithArgs(productId, venueId))
-            },
-            venueDetailViewModel = hiltViewModel(),
-            onClickUpBtn = { navController.popBackStack() }
-        )
-    }
-
-    @Composable
-    private fun NavigateToProductDetailScreen(
-        onSuccessfulAddOrUpdate: () -> Unit,
-        onLoadFail: () -> Unit,
-    ) {
-        ProductDetailScreen(
-            viewModel = hiltViewModel(),
-            onSuccessfulAddOrUpdate = onSuccessfulAddOrUpdate,
-            onLoadFail = onLoadFail
-        )
-    }
-
-    private fun NavGraphBuilder.mapGraph(navController: NavController) {
+    private fun NavGraphBuilder.mapTabGraph(navController: NavHostController) {
         navigation(startDestination = BottomNavScreens.VenueFinder.route, route = BottomNavTabs.MapTab.tabRoute) {
-            composable(BottomNavScreens.VenueFinder.route) {
-                VenueFinderScreen(hiltViewModel()) { venueId ->
-                    navController.navigateToAnotherTab(BottomNavTabs.BrowseTab, BottomNavScreens.Home.route)
-                    navController.navigate(BottomNavScreens.VenueDetail.routeWithArgs(venueId))
-                }
-            }
+            MapVenueFinderRoute.composable(this, navController)
+
         }
     }
 
-    private fun NavGraphBuilder.browseGraph(
-        navController: NavController,
-    ) {
+    private fun NavGraphBuilder.browseTabGraph(navController: NavHostController) {
 
         navigation(startDestination = BottomNavScreens.Home.route, route = BottomNavTabs.BrowseTab.tabRoute) {
-
-            composable(BottomNavScreens.Home.route) {
-                HomeScreen(homeViewModel = hiltViewModel(),
-                    editDeliveryAddressViewModel = hiltViewModel(),
-                    onClickCard = { venueId ->
-                        navController.navigate(BottomNavScreens.VenueDetail.routeWithArgs(venueId))
-                    })
-            }
-
-            composable(BottomNavScreens.VenueDetail.route) {
-                NavigateToVenueDetailScreen(navController = navController)
-            }
-
-            composable(BottomNavScreens.ProductDetailModal.route) {
-                NavigateToProductDetailScreen(onSuccessfulAddOrUpdate = {
-                    navController.popBackStack(BottomNavScreens.VenueDetail.route, false)
-                }, onLoadFail = {
-                    navController.popBackStack()
-                })
-            }
+            HomeRoute.composable(this, navController)
+            VenueDetailRoute.composable(this, navController)
+            ProductDetailFromVenueRoute.composable(this, navController)
         }
     }
 
@@ -305,9 +222,9 @@ class BottomNavActivity : ComponentActivity() {
     ) {
 
         NavHost(navController, startDestination = BottomNavTabs.BrowseTab.tabRoute) {
-            this.browseGraph(navController = navController)
-            this.bagGraph(navController = navController)
-            this.mapGraph(navController = navController)
+            this.browseTabGraph(navController = navController)
+            this.bagTapGraph(navController = navController)
+            this.mapTabGraph(navController = navController)
         }
 
     }
