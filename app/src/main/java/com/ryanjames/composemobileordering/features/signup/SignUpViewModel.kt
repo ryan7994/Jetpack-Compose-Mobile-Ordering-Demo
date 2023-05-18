@@ -11,6 +11,7 @@ import com.ryanjames.composemobileordering.network.model.Event
 import com.ryanjames.composemobileordering.network.model.request.EnrollRequest
 import com.ryanjames.composemobileordering.repository.AccountRepository
 import com.ryanjames.composemobileordering.ui.core.AlertDialogState
+import com.ryanjames.composemobileordering.ui.core.DialogManager
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
 import com.ryanjames.composemobileordering.util.TextFieldValidator
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +23,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SignUpViewModel @Inject constructor(private val accountRepository: AccountRepository) : ViewModel() {
+class SignUpViewModel @Inject constructor(
+    private val accountRepository: AccountRepository,
+    private val dialogManager: DialogManager
+) : ViewModel(), DialogManager by dialogManager {
 
     private val _signUpViewState = MutableStateFlow(SignUpScreenState())
     val signUpViewState = _signUpViewState.asStateFlow()
@@ -117,10 +121,6 @@ class SignUpViewModel @Inject constructor(private val accountRepository: Account
         }
     }
 
-    private fun dismissDialog() {
-        _signUpViewState.update { _signUpViewState.value.copy(alertDialogState = null) }
-    }
-
     private fun makeEnrollCall() {
         with(signUpViewState.value) {
             val enrollRequest = EnrollRequest(
@@ -137,53 +137,41 @@ class SignUpViewModel @Inject constructor(private val accountRepository: Account
                 accountRepository.enrollAndLogin(enrollRequest).collect { resource ->
                     when (resource) {
                         is Resource.Error.Generic -> {
-                            _signUpViewState.update {
-                                _signUpViewState.value.copy(
-                                    alertDialogState = AlertDialogState(
-                                        title = StringResource(R.string.enrollment_failed),
-                                        message = StringResource(R.string.generic_error_message),
-                                        onDismiss = this@SignUpViewModel::dismissDialog
-                                    )
+                            dialogManager.showDialog(
+                                AlertDialogState(
+                                    title = StringResource(R.string.enrollment_failed),
+                                    message = StringResource(R.string.generic_error_message),
+                                    onDismiss = dialogManager::hideDialog
                                 )
-                            }
+                            )
                         }
 
                         Resource.Loading -> {
-                            _signUpViewState.update {
-                                _signUpViewState.value.copy(
-                                    alertDialogState = LoadingDialogState(StringResource(R.string.enrolling))
-                                )
-                            }
+                            dialogManager.showDialog(LoadingDialogState(StringResource(R.string.enrolling)))
                         }
                         is Resource.Success -> {
-                            dismissDialog()
+                            dialogManager.hideDialog()
                             _autoLoginEvent.update { Event(LoginEvent.LoginSuccess) }
                         }
                         is Resource.Error.Custom -> {
                             val apiErrorMessage = resource.error.apiErrorMessage
 
                             if (resource.error.userDefinedErrorCode == ERROR_CODE_LOGIN_FAILURE) {
-
-                                _signUpViewState.update {
-                                    _signUpViewState.value.copy(
-                                        alertDialogState = AlertDialogState(
-                                            title = StringResource(R.string.login_failed),
-                                            message = StringResource(R.string.enroll_login_failed),
-                                            onDismiss = this@SignUpViewModel::dismissDialog
-                                        )
+                                dialogManager.showDialog(
+                                    AlertDialogState(
+                                        title = StringResource(R.string.login_failed),
+                                        message = StringResource(R.string.enroll_login_failed),
+                                        onDismiss = dialogManager::hideDialog
                                     )
-                                }
-
+                                )
                             } else if (apiErrorMessage != null) {
-                                _signUpViewState.update {
-                                    _signUpViewState.value.copy(
-                                        alertDialogState = AlertDialogState(
-                                            title = StringResource(R.string.enrollment_failed),
-                                            stringMessage = apiErrorMessage,
-                                            onDismiss = this@SignUpViewModel::dismissDialog
-                                        )
+                                dialogManager.showDialog(
+                                    AlertDialogState(
+                                        title = StringResource(R.string.enrollment_failed),
+                                        stringMessage = apiErrorMessage,
+                                        onDismiss = dialogManager::hideDialog
                                     )
-                                }
+                                )
                             }
 
                         }

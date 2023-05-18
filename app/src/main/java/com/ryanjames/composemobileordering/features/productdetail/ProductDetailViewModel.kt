@@ -16,6 +16,7 @@ import com.ryanjames.composemobileordering.repository.OrderRepository
 import com.ryanjames.composemobileordering.repository.VenueRepository
 import com.ryanjames.composemobileordering.toTwoDigitString
 import com.ryanjames.composemobileordering.ui.core.AlertDialogState
+import com.ryanjames.composemobileordering.ui.core.DialogManager
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
 import com.ryanjames.composemobileordering.ui.core.TwoButtonsDialogState
 import com.ryanjames.composemobileordering.util.LineItemManager
@@ -33,8 +34,9 @@ class ProductDetailViewModel @Inject constructor(
     private val orderRepository: OrderRepository,
     private val venueRepository: VenueRepository,
     private val snackbarManager: SnackbarManager,
-    private val routeNavigator: RouteNavigator
-) : ViewModel(), RouteNavigator by routeNavigator {
+    private val routeNavigator: RouteNavigator,
+    private val dialogManager: DialogManager
+) : ViewModel(), RouteNavigator by routeNavigator, DialogManager by dialogManager {
 
     private var isModifying = false
 
@@ -75,17 +77,13 @@ class ProductDetailViewModel @Inject constructor(
                             setupLineItemManager(product = resource.data, orderSummaryLineItem)
                         }
                         is Resource.Error -> {
-                            _productDetailScreenState.update {
-                                _productDetailScreenState.value.copy(
-                                    dialogState = AlertDialogState(
-                                        message = StringResource(id = R.string.generic_error_message),
-                                        onDismiss = {
-                                            dismissDialog()
-                                            routeNavigator.popBackStack()
-                                        }
-                                    )
-                                )
-                            }
+                            dialogManager.showDialog( AlertDialogState(
+                                message = StringResource(id = R.string.generic_error_message),
+                                onDismiss = {
+                                    dialogManager.hideDialog()
+                                    routeNavigator.popBackStack()
+                                }
+                            ))
                         }
                         is Resource.Loading -> {
                             _productDetailScreenState.value = _productDetailScreenState.value.copy(loadingProductDetail = true)
@@ -94,10 +92,6 @@ class ProductDetailViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    private fun dismissDialog() {
-        _productDetailScreenState.update { _productDetailScreenState.value.copy(dialogState = null) }
     }
 
     fun onClickPlusQty() {
@@ -129,7 +123,7 @@ class ProductDetailViewModel @Inject constructor(
                     message = StringResource(R.string.other_items_message),
                     positiveButton = StringResource(R.string.yes),
                     negativeButton = StringResource(R.string.no),
-                    onClickNegativeBtn = { dismissDialog() },
+                    onClickNegativeBtn = { dialogManager.hideDialog() },
                     onClickPositiveBtn = {
                         viewModelScope.launch {
                             orderRepository.clearBag()
@@ -137,7 +131,7 @@ class ProductDetailViewModel @Inject constructor(
                         }
                     }
                 )
-                _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = dialog)
+                dialogManager.showDialog(dialog)
             } else {
                 addOrUpdateLineItem()
             }
@@ -149,10 +143,10 @@ class ProductDetailViewModel @Inject constructor(
             when (it) {
                 is Resource.Loading -> {
                     val loadingDialogLabel = if (isModifying) R.string.updating_item else R.string.adding_item_to_bag
-                    _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = LoadingDialogState(StringResource(loadingDialogLabel)))
+                    dialogManager.showDialog(LoadingDialogState(StringResource(loadingDialogLabel)))
                 }
                 is Resource.Success -> {
-                    _productDetailScreenState.value = _productDetailScreenState.value.copy(dialogState = null)
+                    dialogManager.hideDialog()
 
                     val message = if (isModifying) R.string.item_updated else R.string.item_added
                     snackbarManager.showSnackbar(SnackbarData(EVENT_SUCCESSFUL_BAG_UPDATE, SnackbarContent(StringResource(message))))
@@ -160,14 +154,10 @@ class ProductDetailViewModel @Inject constructor(
                     routeNavigator.popBackStack()
                 }
                 is Resource.Error -> {
-                    _productDetailScreenState.update {
-                        _productDetailScreenState.value.copy(
-                            dialogState = AlertDialogState(
-                                message = StringResource(id = R.string.generic_error_message),
-                                onDismiss = { dismissDialog() }
-                            )
-                        )
-                    }
+                    dialogManager.showDialog(AlertDialogState(
+                        message = StringResource(id = R.string.generic_error_message),
+                        onDismiss = { dialogManager.hideDialog() }
+                    ))
                 }
             }
         }

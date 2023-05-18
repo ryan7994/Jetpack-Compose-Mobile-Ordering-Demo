@@ -26,16 +26,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.ui.core.AccentTextButton
-import com.ryanjames.composemobileordering.ui.core.Dialog
 import com.ryanjames.composemobileordering.ui.core.FullWidthButton
 import com.ryanjames.composemobileordering.ui.core.SingleLineTextField
-import com.ryanjames.composemobileordering.ui.theme.*
+import com.ryanjames.composemobileordering.ui.theme.AppTheme
+import com.ryanjames.composemobileordering.ui.theme.MyComposeAppTheme
+import com.ryanjames.composemobileordering.ui.theme.Typography
 
 @Composable
-fun LoginScreen(loginViewModel: LoginViewModel, onClickSignUp: () -> Unit) {
-    val state = loginViewModel.loginScreenState.collectAsState()
+fun LoginScreen(
+    loginViewModel: LoginViewModel,
+    onClickSignUp: () -> Unit
+) {
     LoginScreenLayout(
-        loginScreenState = state.value,
+        loginScreenState = loginViewModel.loginScreenState.collectAsState().value,
         onValueChange = loginViewModel::onValueChange,
         onClickSignIn = loginViewModel::onClickSignIn,
         onClickSignUp = onClickSignUp
@@ -127,10 +130,6 @@ fun LoginScreenLayout(
                     style = Typography.bodyLarge
                 )
             }
-
-
-            Dialog(loginScreenState.alertDialogState)
-
         }
 
     }

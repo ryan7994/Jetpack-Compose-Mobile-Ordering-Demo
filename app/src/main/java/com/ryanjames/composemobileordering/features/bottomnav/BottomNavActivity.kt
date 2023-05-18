@@ -32,6 +32,8 @@ import com.ryanjames.composemobileordering.core.SnackbarManager
 import com.ryanjames.composemobileordering.features.login.LoginActivity
 import com.ryanjames.composemobileordering.navigation.*
 import com.ryanjames.composemobileordering.ui.core.CustomSnackbar
+import com.ryanjames.composemobileordering.ui.core.Dialog
+import com.ryanjames.composemobileordering.ui.core.DialogManager
 import com.ryanjames.composemobileordering.ui.core.customTextSelectionColors
 import com.ryanjames.composemobileordering.ui.theme.AppTheme
 import com.ryanjames.composemobileordering.ui.theme.CoralRed
@@ -55,6 +57,9 @@ class BottomNavActivity : ComponentActivity() {
 
     @Inject
     lateinit var snackbarManager: SnackbarManager
+
+    @Inject
+    lateinit var dialogManager: DialogManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,6 +101,7 @@ class BottomNavActivity : ComponentActivity() {
 
         val scaffoldState = rememberScaffoldState()
         val coroutineScope = rememberCoroutineScope()
+
         CompositionLocalProvider(
             LocalSnackbarHostState provides scaffoldState.snackbarHostState,
             LocalCoroutineScope provides coroutineScope,
@@ -115,7 +121,7 @@ class BottomNavActivity : ComponentActivity() {
                     BottomNavScreenNavigationConfig(
                         navController = navController,
                     )
-
+                    Dialog(alertDialogState = dialogManager.alertDialogState.collectAsState().value)
                     Snackbar()
                 }
             }

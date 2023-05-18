@@ -18,7 +18,7 @@ interface RouteNavigator {
     val navigationState: StateFlow<NavigationState>
 }
 
-class MyRouteNavigator : RouteNavigator {
+class RouteNavigatorImpl : RouteNavigator {
 
     /**
      * Note that I'm using a single state here, not a list of states. As a result, if you quickly

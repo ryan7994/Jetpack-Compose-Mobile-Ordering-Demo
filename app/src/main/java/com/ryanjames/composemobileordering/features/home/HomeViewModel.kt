@@ -2,7 +2,6 @@ package com.ryanjames.composemobileordering.features.home
 
 
 import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryanjames.composemobileordering.TAG
@@ -27,8 +26,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val venueRepository: VenueRepository,
     private val orderRepository: OrderRepository,
-    private val routeNavigator: RouteNavigator,
-    private val savedStateHandle: SavedStateHandle
+    private val routeNavigator: RouteNavigator
 ) : ViewModel(), RouteNavigator by routeNavigator {
 
     private val _homeViewState =
@@ -39,12 +37,9 @@ class HomeViewModel @Inject constructor(
     private val restaurantList = mutableListOf<Venue>()
 
     init {
-        Log.d(TAG, "Home Screen init()")
-
         viewModelScope.launch {
             awaitAll(async { getVenues() },
                 async { getDeliveryAddress() })
-
         }
     }
 

@@ -1,9 +1,6 @@
 package com.ryanjames.composemobileordering.features.bag
 
 import com.google.android.gms.maps.model.LatLng
-import com.ryanjames.composemobileordering.domain.OrderSummary
-import com.ryanjames.composemobileordering.toTwoDigitString
-import com.ryanjames.composemobileordering.ui.core.AlertDialogState
 
 data class BagScreenState(
     val bagItems: List<BagItemRowDisplayModel>,
@@ -13,7 +10,6 @@ data class BagScreenState(
     val btnCancelState: ButtonState = ButtonState(enabled = false, visible = true),
     val btnRemoveSelectedState: ButtonState,
     val isRemoving: Boolean,
-    val alertDialog: AlertDialogState?,
     val subtotal: String = "",
     val tax: String = "",
     val total: String = "",

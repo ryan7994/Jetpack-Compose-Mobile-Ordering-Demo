@@ -3,7 +3,6 @@ package com.ryanjames.composemobileordering.features.productdetail
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.core.StringResource
 import com.ryanjames.composemobileordering.domain.Product
-import com.ryanjames.composemobileordering.ui.core.AlertDialogState
 
 data class ProductDetailScreenState(
     val product: Product? = null,
@@ -14,7 +13,6 @@ data class ProductDetailScreenState(
     val quantity: String = "",
     val price: String = "",
     val loadingProductDetail: Boolean = true,
-    val dialogState: AlertDialogState? = null,
     val btnLabel: StringResource = StringResource(R.string.add_to_bag),
     val addOrUpdateSuccessMessage: StringResource = StringResource(R.string.item_added)
 )

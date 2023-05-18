@@ -29,7 +29,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.core.StringResource
-import com.ryanjames.composemobileordering.ui.core.Dialog
 import com.ryanjames.composemobileordering.ui.core.HorizontalLine
 import com.ryanjames.composemobileordering.ui.theme.*
 import com.ryanjames.composemobileordering.ui.widget.LoadingSpinnerWithText
@@ -133,8 +132,6 @@ fun ProductDetailLayout(
                     }
                 }
             }
-
-            Dialog(productDetailScreenState.dialogState)
         }
 
     }

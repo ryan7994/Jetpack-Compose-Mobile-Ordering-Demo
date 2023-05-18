@@ -6,7 +6,7 @@ import androidx.activity.viewModels
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
@@ -19,8 +19,11 @@ import com.ryanjames.composemobileordering.features.bottomnav.Screens
 import com.ryanjames.composemobileordering.features.signup.SignUpScreen
 import com.ryanjames.composemobileordering.features.signup.SignUpViewModel
 import com.ryanjames.composemobileordering.network.model.Event
+import com.ryanjames.composemobileordering.ui.core.Dialog
+import com.ryanjames.composemobileordering.ui.core.DialogManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @ExperimentalPagerApi
 @ExperimentalMaterialApi
@@ -28,6 +31,9 @@ import kotlinx.coroutines.launch
 class LoginActivity : BaseActivity() {
 
     private val loginViewModel: LoginViewModel by viewModels()
+
+    @Inject
+    lateinit var dialogManager: DialogManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,10 +73,12 @@ class LoginActivity : BaseActivity() {
         val navController = rememberNavController()
         NavHost(navController = navController, startDestination = Screens.Login.route) {
 
+
             composable(route = Screens.Login.route) {
                 LoginScreen(
                     loginViewModel = loginViewModel,
-                    onClickSignUp = { navController.navigate(Screens.SignUp.route) })
+                    onClickSignUp = { navController.navigate(Screens.SignUp.route) }
+                )
             }
 
             composable(route = Screens.SignUp.route) {
@@ -88,6 +96,7 @@ class LoginActivity : BaseActivity() {
             }
         }
 
+        Dialog(dialogManager.alertDialogState.collectAsState().value)
 
     }
 }

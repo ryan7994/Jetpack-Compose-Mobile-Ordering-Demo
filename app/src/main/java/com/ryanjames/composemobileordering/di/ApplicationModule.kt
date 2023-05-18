@@ -5,8 +5,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.ryanjames.composemobileordering.core.LoginManager
 import com.ryanjames.composemobileordering.core.SnackbarManager
-import com.ryanjames.composemobileordering.navigation.MyRouteNavigator
 import com.ryanjames.composemobileordering.navigation.RouteNavigator
+import com.ryanjames.composemobileordering.navigation.RouteNavigatorImpl
+import com.ryanjames.composemobileordering.ui.core.DialogManager
+import com.ryanjames.composemobileordering.ui.core.DialogManagerImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,7 +40,13 @@ open class ApplicationModule {
     @Singleton
     @Provides
     open fun provideRouteNavigator(): RouteNavigator {
-        return MyRouteNavigator()
+        return RouteNavigatorImpl()
+    }
+
+    @Singleton
+    @Provides
+    open fun provideDialogManager(): DialogManager {
+        return DialogManagerImpl()
     }
 
 

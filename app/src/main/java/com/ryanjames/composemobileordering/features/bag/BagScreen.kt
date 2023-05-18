@@ -197,7 +197,6 @@ fun BagLayout(
                     Spacer(modifier = Modifier.size(24.dp))
                 }
             }
-            Dialog(bagScreenState.alertDialog)
         }
     }
 

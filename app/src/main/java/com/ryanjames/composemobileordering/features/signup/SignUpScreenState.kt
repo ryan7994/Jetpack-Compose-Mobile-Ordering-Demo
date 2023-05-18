@@ -1,9 +1,5 @@
 package com.ryanjames.composemobileordering.features.signup
 
-import com.ryanjames.composemobileordering.ui.core.AlertDialogState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
-
 data class SignUpScreenState(
     val username: String = "",
     val password: String = "",
@@ -12,8 +8,7 @@ data class SignUpScreenState(
     val lastName: String = "",
     val email: String = "",
     val phoneNumber: String = "",
-    val fieldsWithError: List<SignUpFormField> = listOf(),
-    val alertDialogState: AlertDialogState? = null
+    val fieldsWithError: List<SignUpFormField> = listOf()
 )
 
 sealed class SignUpFormField {

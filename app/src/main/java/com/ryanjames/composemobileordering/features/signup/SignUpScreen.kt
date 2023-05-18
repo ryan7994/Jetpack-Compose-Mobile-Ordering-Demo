@@ -7,7 +7,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
@@ -17,7 +16,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.ryanjames.composemobileordering.R
-import com.ryanjames.composemobileordering.ui.core.Dialog
 import com.ryanjames.composemobileordering.ui.core.FullWidthButton
 import com.ryanjames.composemobileordering.ui.core.SingleLineTextField
 import com.ryanjames.composemobileordering.ui.core.TopAppBarWithUpButton
@@ -157,8 +155,6 @@ fun SignUpScreenLayout(
                 FullWidthButton(onClick = onClickJoin, label = stringResource(id = R.string.join))
                 Spacer(modifier = Modifier.size(16.dp))
             }
-
-            Dialog(signUpScreenState.alertDialogState)
         }
 
     }

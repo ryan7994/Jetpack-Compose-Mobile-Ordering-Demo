@@ -12,6 +12,7 @@ import com.ryanjames.composemobileordering.repository.OrderRepository
 import com.ryanjames.composemobileordering.repository.VenueRepository
 import com.ryanjames.composemobileordering.toTwoDigitString
 import com.ryanjames.composemobileordering.ui.core.AlertDialogState
+import com.ryanjames.composemobileordering.ui.core.DialogManager
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
 import com.ryanjames.composemobileordering.util.toDisplayModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,8 +32,9 @@ class BagViewModel @Inject constructor(
     private val orderRepository: OrderRepository,
     private val venueRepository: VenueRepository,
     private val snackbarManager: SnackbarManager,
-    private val routeNavigator: RouteNavigator
-) : ViewModel(), RouteNavigator by routeNavigator {
+    private val routeNavigator: RouteNavigator,
+    private val dialogManager: DialogManager
+) : ViewModel(), RouteNavigator by routeNavigator, DialogManager by dialogManager {
 
     private val _bagItemScreenState = MutableStateFlow(
         BagScreenState(
@@ -42,8 +44,7 @@ class BagViewModel @Inject constructor(
             btnRemoveState = ButtonState(enabled = true, visible = true),
             btnCancelState = ButtonState(enabled = true, visible = false),
             btnRemoveSelectedState = ButtonState(enabled = false, visible = false),
-            isRemoving = false,
-            alertDialog = null
+            isRemoving = false
         )
     )
     val bagScreenState: StateFlow<BagScreenState>
@@ -120,26 +121,22 @@ class BagViewModel @Inject constructor(
             orderRepository.removeLineItems(lineItemsToRemove, venueId).collect {
                 when (it) {
                     is Resource.Loading -> {
-                        _bagItemScreenState.value = _bagItemScreenState.value.copy(
-                            alertDialog = LoadingDialogState(StringResource(R.string.removing_from_bag))
-                        )
+                        dialogManager.showDialog(LoadingDialogState(StringResource(R.string.removing_from_bag)))
                     }
                     is Resource.Success -> {
                         val newLineItems = it.data.lineItems.map { lineItem -> lineItem.toDisplayModel() }
+                        dialogManager.hideDialog()
                         _bagItemScreenState.value = _bagItemScreenState.value.copy(
                             bagItems = newLineItems,
                             btnRemoveState = ButtonState(true, true),
                             btnCancelState = ButtonState(true, false),
                             btnRemoveSelectedState = ButtonState(false, false),
-                            alertDialog = null,
                             isRemoving = false
                         )
                         snackbarManager.showSnackbar(SnackbarData(EVENT_SUCCESSFUL_ITEM_REMOVAL, SnackbarContent(StringResource(R.string.item_removed))))
                     }
                     is Resource.Error -> {
-                        _bagItemScreenState.value = _bagItemScreenState.value.copy(
-                            alertDialog = null
-                        )
+                        dialogManager.hideDialog()
                     }
                 }
             }
@@ -168,39 +165,33 @@ class BagViewModel @Inject constructor(
         _bagItemScreenState.value = _bagItemScreenState.value.copy(isPickupSelected = false)
     }
 
-    private fun dismissDialog() {
-        _bagItemScreenState.update { it.copy(alertDialog = null) }
-    }
-
     fun onClickCheckout() {
         val isPickup = _bagItemScreenState.value.isPickupSelected
         val deliveryAddress = _bagItemScreenState.value.deliveryAddress
         if (!isPickup && deliveryAddress.isNullOrEmpty()) {
-            _bagItemScreenState.update {
-                it.copy(
-                    alertDialog = AlertDialogState(
-                        message = StringResource(R.string.missing_delivery_address_error),
-                        onDismiss = this::dismissDialog
-                    )
+            dialogManager.showDialog(
+                AlertDialogState(
+                    message = StringResource(R.string.missing_delivery_address_error),
+                    onDismiss = dialogManager::hideDialog
                 )
-            }
+            )
             return
         }
 
         viewModelScope.launch {
             orderRepository.checkoutOrder(isPickup, deliveryAddress).collect { resource ->
                 when (resource) {
-                    is Resource.Loading -> _bagItemScreenState.update { it.copy(alertDialog = LoadingDialogState(StringResource(R.string.placing_order))) }
-                    is Resource.Error -> _bagItemScreenState.update {
-                        it.copy(
-                            alertDialog = AlertDialogState(
+                    is Resource.Loading -> dialogManager.showDialog(LoadingDialogState(StringResource(R.string.placing_order)))
+                    is Resource.Error ->
+                        dialogManager.showDialog(
+                            AlertDialogState(
                                 message = StringResource(R.string.generic_error_message),
-                                onDismiss = { dismissDialog() }
+                                onDismiss = dialogManager::hideDialog
                             )
                         )
-                    }
+
                     is Resource.Success -> {
-                        dismissDialog()
+                        dialogManager.hideDialog()
                         orderRepository.clearBag()
                     }
                 }

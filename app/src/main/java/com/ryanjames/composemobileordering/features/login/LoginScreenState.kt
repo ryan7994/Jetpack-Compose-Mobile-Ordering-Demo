@@ -1,11 +1,9 @@
 package com.ryanjames.composemobileordering.features.login
-import com.ryanjames.composemobileordering.ui.core.AlertDialogState
 
 
 data class LoginScreenState(
     val username: String = "",
-    val password: String = "",
-    val alertDialogState: AlertDialogState? = null
+    val password: String = ""
 )
 
 sealed class LoginFormField {
