@@ -1,5 +1,7 @@
 package com.ryanjames.composemobileordering
 
+import com.ryanjames.composemobileordering.core.Resource
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 fun Float.toTwoDigitString(): String {
@@ -23,5 +25,21 @@ fun <T> List<T>.replaceOrAdd(newValue: T, block: (T) -> Boolean): List<T> {
     }
     return map {
         if (block(it)) newValue else it
+    }
+}
+
+suspend fun <K, T : Resource<K>> Flow<T>.collectResource(
+    onLoading: suspend () -> Unit,
+    onSuccess: suspend (K) -> Unit,
+    onError: suspend (error: Resource.Error) -> Unit
+) {
+    this.collect { resource ->
+        resource.onError {
+            onError(it)
+        }.onSuccess {
+            onSuccess(it)
+        }.onLoading {
+            onLoading()
+        }
     }
 }

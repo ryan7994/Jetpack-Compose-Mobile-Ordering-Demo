@@ -1,17 +1,19 @@
+@file:OptIn(ExperimentalMaterialApi::class)
+
 package com.ryanjames.composemobileordering.features.bag
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
@@ -36,27 +39,24 @@ import kotlinx.coroutines.launch
 @FlowPreview
 @Composable
 fun BagScreen(
-    bagViewModel: BagViewModel,
-    editDeliveryAddressViewModel: EditDeliveryAddressViewModel,
-    onClickAddMoreItems: (venueId: String) -> Unit,
-    onClickLineItem: (lineItemId: String) -> Unit,
-    onClickBrowseRestaurants: () -> Unit
+
+    editDeliveryAddressViewModel: EditDeliveryAddressViewModel
 ) {
+    val bagViewModel = hiltViewModel<BagViewModel>()
     BagLayout(
         bagScreenState = bagViewModel.bagScreenState.collectAsState().value,
         deliveryAddressState = editDeliveryAddressViewModel.deliveryAddressState.collectAsState().value,
-        onClickAddMoreItems = onClickAddMoreItems,
-        onClickLineItem = onClickLineItem,
+        onClickAddMoreItems = bagViewModel::onClickAddMoreItems,
+        onClickLineItem = bagViewModel::onClickLineItem,
         onClickRemove = bagViewModel::onClickRemove,
         onClickCancel = bagViewModel::onClickCancel,
         onClickRemoveSelected = bagViewModel::onClickRemoveSelected,
         onCheckChanged = bagViewModel::onRemoveCbCheckChanged,
-        onClickPickup = bagViewModel::onClickPickup,
-        onClickDelivery = bagViewModel::onClickDelivery,
         onDeliveryAddressValueChange = editDeliveryAddressViewModel::onDeliveryAddressInputChange,
         onClickSaveDeliveryAddress = editDeliveryAddressViewModel::updateDeliveryAddress,
-        onClickBrowseRestaurants = onClickBrowseRestaurants,
-        onClickCheckout = bagViewModel::onClickCheckout
+        onClickBrowseRestaurants = bagViewModel::onClickBrowseRestaurants,
+        onClickCheckout = bagViewModel::onClickCheckout,
+        onDeliveryOptionSelected = bagViewModel::onDeliverOptionSelected
     )
 }
 
@@ -66,14 +66,13 @@ fun BagScreen(
 fun BagLayout(
     bagScreenState: BagScreenState,
     deliveryAddressState: DeliveryAddressState,
-    onClickAddMoreItems: (venueId: String) -> Unit,
+    onClickAddMoreItems: () -> Unit,
     onClickLineItem: (lineItemId: String) -> Unit,
     onClickRemove: () -> Unit,
     onClickCancel: () -> Unit,
     onClickRemoveSelected: () -> Unit,
     onCheckChanged: (checked: Boolean, lineItemId: String) -> Unit,
-    onClickPickup: () -> Unit,
-    onClickDelivery: () -> Unit,
+    onDeliveryOptionSelected: (DeliveryOption) -> Unit,
     onDeliveryAddressValueChange: (String) -> Unit,
     onClickSaveDeliveryAddress: () -> Unit,
     onClickBrowseRestaurants: () -> Unit,
@@ -81,7 +80,8 @@ fun BagLayout(
 ) {
 
     val modalBottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
     )
 
     val scope = rememberCoroutineScope()
@@ -92,15 +92,17 @@ fun BagLayout(
         }
     }
 
-
     ModalBottomSheetLayout(
         sheetContent = {
-            DeliveryAddressBottomSheetLayout(value = deliveryAddressState.deliveryAddressInput, onValueChange = onDeliveryAddressValueChange, onClickSave = {
-                onClickSaveDeliveryAddress.invoke()
-                scope.launch {
-                    modalBottomSheetState.hide()
-                }
-            })
+            DeliveryAddressBottomSheetLayout(
+                value = deliveryAddressState.deliveryAddressInput,
+                onValueChange = onDeliveryAddressValueChange,
+                onClickSave = {
+                    onClickSaveDeliveryAddress()
+                    scope.launch {
+                        modalBottomSheetState.hide()
+                    }
+                })
         },
         sheetState = modalBottomSheetState,
         scrimColor = Color.Transparent,
@@ -137,20 +139,19 @@ fun BagLayout(
                     }
 
                     OutlinedAccentButton(
-                        onClick = {
-                            bagScreenState.venueId?.let { onClickAddMoreItems.invoke(it) }
-                        },
+                        onClick = { onClickAddMoreItems() },
                         label = stringResource(R.string.add_more_items)
                     )
 
                     Spacer(modifier = Modifier.size(8.dp))
 
                     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+
                         if (bagScreenState.btnRemoveState.visible) {
                             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                                 AccentTextButton(
                                     onClick = {
-                                        onClickRemove.invoke()
+                                        onClickRemove()
                                     },
                                     label = stringResource(R.string.remove),
                                     buttonState = bagScreenState.btnRemoveState
@@ -160,7 +161,7 @@ fun BagLayout(
 
                         AccentTextButton(
                             onClick = {
-                                onClickRemoveSelected.invoke()
+                                onClickRemoveSelected()
                             },
                             label = stringResource(R.string.remove_selected),
                             buttonState = bagScreenState.btnRemoveSelectedState
@@ -168,16 +169,17 @@ fun BagLayout(
 
                         AccentTextButton(
                             onClick = {
-                                onClickCancel.invoke()
+                                onClickCancel()
                             },
                             label = stringResource(R.string.cancel),
                             buttonState = bagScreenState.btnCancelState
                         )
                     }
 
-                    BagSummaryCard(bagScreenState.bagItems, onClickLineItem = onClickLineItem, isRemoving = bagScreenState.isRemoving, onCheckChanged = onCheckChanged)
+                    BagSummaryCard(bagScreenState.bagItems, onClickLineItem = onClickLineItem, bagListMode = bagScreenState.bagListMode, onCheckChanged = onCheckChanged)
+
                     Spacer(modifier = Modifier.size(24.dp))
-                    DeliveryOptionToggle(bagScreenState.isPickupSelected, onClickPickup = onClickPickup, onClickDelivery = onClickDelivery)
+                    DeliveryOptionToggle(onDeliveryOptionSelected = onDeliveryOptionSelected)
                     Spacer(modifier = Modifier.size(16.dp))
 
                     if (bagScreenState.isPickupSelected) {
@@ -191,20 +193,18 @@ fun BagLayout(
                     }
 
                     Spacer(modifier = Modifier.size(24.dp))
-                    OrderPriceBreakdown(bagScreenState.subtotal, bagScreenState.tax, bagScreenState.total)
+                    PriceBreakdown(bagScreenState.priceBreakdownState)
                     Spacer(modifier = Modifier.size(16.dp))
-                    FullWidthButton(onClick = onClickCheckout, label = stringResource(id = R.string.checkout))
+                    FullWidthButton(onClick = { onClickCheckout() }, label = stringResource(id = R.string.checkout))
                     Spacer(modifier = Modifier.size(24.dp))
                 }
             }
         }
     }
-
-
 }
 
 @Composable
-fun OrderPriceBreakdown(subtotal: String, tax: String, total: String) {
+fun PriceBreakdown(priceBreakdownState: PriceBreakdownState) {
     Column {
         Text(text = stringResource(R.string.summary), style = Typography.titleLarge, color = AppTheme.colors.darkTextColor)
         Row(
@@ -218,7 +218,7 @@ fun OrderPriceBreakdown(subtotal: String, tax: String, total: String) {
                 color = AppTheme.colors.lightTextColor
             )
             Text(
-                text = subtotal,
+                text = priceBreakdownState.subtotal,
                 style = Typography.bodyLarge,
                 color = AppTheme.colors.darkTextColor
             )
@@ -234,7 +234,7 @@ fun OrderPriceBreakdown(subtotal: String, tax: String, total: String) {
                 color = AppTheme.colors.lightTextColor
             )
             Text(
-                text = tax,
+                text = priceBreakdownState.tax,
                 style = Typography.bodyLarge,
                 color = AppTheme.colors.darkTextColor
             )
@@ -253,7 +253,7 @@ fun OrderPriceBreakdown(subtotal: String, tax: String, total: String) {
                 color = AppTheme.colors.darkTextColor
             )
             Text(
-                text = total,
+                text = priceBreakdownState.total,
                 style = Typography.titleMedium,
                 color = AppTheme.colors.darkTextColor
             )
@@ -266,7 +266,7 @@ fun OrderPriceBreakdown(subtotal: String, tax: String, total: String) {
 fun BagSummaryCard(
     bagItems: List<BagItemRowDisplayModel>,
     onClickLineItem: (lineItemId: String) -> Unit,
-    isRemoving: Boolean,
+    bagListMode: BagListMode,
     onCheckChanged: (checked: Boolean, lineItemId: String) -> Unit
 ) {
     Card(
@@ -282,10 +282,10 @@ fun BagSummaryCard(
 
             bagItems.forEachIndexed { index, bagItemRowState ->
                 Column(modifier = Modifier.clickable {
-                    onClickLineItem.invoke(bagItemRowState.lineItemId)
+                    onClickLineItem(bagItemRowState.lineItemId)
                 }) {
                     Spacer(modifier = Modifier.size(16.dp))
-                    BagItemRow(bagItemRowDisplayModel = bagItemRowState, isRemoving = isRemoving, onCheckChanged = onCheckChanged)
+                    BagItemRow(bagItemRowDisplayModel = bagItemRowState, bagListMode = bagListMode, onCheckChanged = onCheckChanged)
                     Spacer(modifier = Modifier.size(16.dp))
                     if (index < bagItems.size - 1) {
                         HorizontalLine()
@@ -299,37 +299,47 @@ fun BagSummaryCard(
 }
 
 @Composable
-fun DeliveryOptionToggle(pickupSelected: Boolean, onClickPickup: () -> Unit, onClickDelivery: () -> Unit) {
-    val radius = 8.dp
+fun DeliveryOptionToggle(
+    onDeliveryOptionSelected: (DeliveryOption) -> Unit
+) {
+    val radius = remember { 8.dp }
     val selectedColor = ButtonDefaults.outlinedButtonColors(containerColor = CoralRed)
     val unselectedColor = ButtonDefaults.outlinedButtonColors(containerColor = AppTheme.colors.materialColors.surfaceVariant)
-    val selectedTextColor = Color.White
+    val selectedTextColor = remember { Color.White }
     val unselectedTextColor = AppTheme.colors.darkTextColor
+
+    var selectedDeliveryOption by rememberSaveable {
+        mutableStateOf(DeliveryOption.Pickup)
+    }
+
+    LaunchedEffect(selectedDeliveryOption) {
+        onDeliveryOptionSelected(selectedDeliveryOption)
+    }
 
     Row(modifier = Modifier.fillMaxWidth()) {
         OutlinedButton(
-            colors = if (pickupSelected) selectedColor else unselectedColor,
+            colors = if (selectedDeliveryOption == DeliveryOption.Pickup) selectedColor else unselectedColor,
             shape = RoundedCornerShape(topStart = radius, bottomStart = radius),
-            onClick = { onClickPickup.invoke() },
+            onClick = { selectedDeliveryOption = DeliveryOption.Pickup },
             modifier = Modifier.weight(1f),
             border = BorderStroke(1.dp, Color.LightGray)
         ) {
             Text(
                 text = stringResource(R.string.pickup),
-                color = if (pickupSelected) selectedTextColor else unselectedTextColor,
+                color = if (selectedDeliveryOption == DeliveryOption.Pickup) selectedTextColor else unselectedTextColor,
                 style = Typography.titleLarge
             )
         }
         OutlinedButton(
-            colors = if (!pickupSelected) selectedColor else unselectedColor,
+            colors = if (selectedDeliveryOption == DeliveryOption.Delivery) selectedColor else unselectedColor,
             shape = RoundedCornerShape(topEnd = radius, bottomEnd = radius),
-            onClick = { onClickDelivery.invoke() },
+            onClick = { selectedDeliveryOption = DeliveryOption.Delivery },
             modifier = Modifier.weight(1f),
             border = BorderStroke(1.dp, Color.LightGray)
         ) {
             Text(
                 text = stringResource(R.string.delivery),
-                color = if (!pickupSelected) selectedTextColor else unselectedTextColor,
+                color = if (selectedDeliveryOption == DeliveryOption.Delivery) selectedTextColor else unselectedTextColor,
                 style = Typography.titleLarge
             )
         }
@@ -406,7 +416,7 @@ fun DeliveryAddressCard(deliveryAddress: String?, onClickAddEditAddress: () -> U
                         style = Typography.bodyLarge
                     )
                     AccentTextButton(
-                        onClick = { onClickAddEditAddress.invoke() },
+                        onClick = { onClickAddEditAddress() },
                         label = stringResource(R.string.add)
                     )
                 }
@@ -429,7 +439,7 @@ fun DeliveryAddressCard(deliveryAddress: String?, onClickAddEditAddress: () -> U
                             .weight(3f)
                             .fillMaxWidth(), horizontalArrangement = Arrangement.End
                     ) {
-                        AccentTextButton(onClick = { onClickAddEditAddress.invoke() }, label = stringResource(R.string.edit))
+                        AccentTextButton(onClick = { onClickAddEditAddress() }, label = stringResource(R.string.edit))
                     }
                 }
             }
@@ -440,7 +450,7 @@ fun DeliveryAddressCard(deliveryAddress: String?, onClickAddEditAddress: () -> U
 @Composable
 fun BagItemRow(
     bagItemRowDisplayModel: BagItemRowDisplayModel,
-    isRemoving: Boolean,
+    bagListMode: BagListMode,
     onCheckChanged: (checked: Boolean, lineItemId: String) -> Unit
 ) {
 
@@ -479,10 +489,10 @@ fun BagItemRow(
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (isRemoving) {
+            if (bagListMode == BagListMode.Removing) {
                 Checkbox(
                     onCheckedChange = { checked ->
-                        onCheckChanged.invoke(checked, bagItemRowDisplayModel.lineItemId)
+                        onCheckChanged(checked, bagItemRowDisplayModel.lineItemId)
                     },
                     checked = bagItemRowDisplayModel.forRemoval,
                     colors = CheckboxDefaults.colors(checkedColor = CoralRed, checkmarkColor = Color.White)

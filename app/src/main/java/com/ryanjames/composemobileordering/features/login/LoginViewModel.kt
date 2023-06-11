@@ -3,8 +3,8 @@ package com.ryanjames.composemobileordering.features.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryanjames.composemobileordering.R
+import com.ryanjames.composemobileordering.collectResource
 import com.ryanjames.composemobileordering.core.LoginManager
-import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.core.StringResource
 import com.ryanjames.composemobileordering.features.login.LoginEvent.LoginErrorEvent
 import com.ryanjames.composemobileordering.network.LoginService
@@ -103,24 +103,23 @@ class LoginViewModel @Inject constructor(
     private fun login() {
         viewModelScope.launch {
 
-            apiService.authenticate(username = username, password = password).collect { resource ->
-                when (resource) {
-                    is Resource.Error -> {
-                        _loginEvent.update {
-                            Event(LoginErrorEvent(LoginError.LoginFailed))
-                        }
-                        showIncorrectCredentialsDialog()
-                    }
-                    Resource.Loading -> showLoggingInDialog()
-                    is Resource.Success -> _loginEvent.update {
-                        dialogManager.hideDialog()
+            apiService.authenticate(username = username, password = password).collectResource(
+                onLoading = {
+                    showLoggingInDialog()
+                },
+                onSuccess = {
+                    dialogManager.hideDialog()
+                    _loginEvent.update {
                         Event(LoginEvent.LoginSuccess)
                     }
+                },
+                onError = {
+                    _loginEvent.update {
+                        Event(LoginErrorEvent(LoginError.LoginFailed))
+                    }
+                    showIncorrectCredentialsDialog()
                 }
-
-            }
-
-
+            )
         }
     }
 

@@ -102,8 +102,6 @@ interface NavRoute<T : RouteNavigator> {
                 }
 
                 // If destination is already in the back stack, popUpTo destination
-
-
                 if (navigationState.destinationRoute != null && navHostController.findDestination(navigationState.destinationRoute) != null) {
                     navHostController.popBackStack(navigationState.destinationRoute, inclusive = false, saveState = false)
                 } else if (navigationState.popUpToRoute != null && navHostController.findDestination(navigationState.popUpToRoute) != null) {

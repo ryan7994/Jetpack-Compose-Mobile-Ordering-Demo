@@ -3,6 +3,7 @@ package com.ryanjames.composemobileordering.features.signup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryanjames.composemobileordering.R
+import com.ryanjames.composemobileordering.collectResource
 import com.ryanjames.composemobileordering.constants.ERROR_CODE_LOGIN_FAILURE
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.core.StringResource
@@ -134,50 +135,50 @@ class SignUpViewModel @Inject constructor(
             )
 
             viewModelScope.launch {
-                accountRepository.enrollAndLogin(enrollRequest).collect { resource ->
-                    when (resource) {
-                        is Resource.Error.Generic -> {
-                            dialogManager.showDialog(
-                                AlertDialogState(
-                                    title = StringResource(R.string.enrollment_failed),
-                                    message = StringResource(R.string.generic_error_message),
-                                    onDismiss = dialogManager::hideDialog
-                                )
-                            )
-                        }
+                accountRepository.enrollAndLogin(enrollRequest).collectResource(
+                    onLoading = {
+                        dialogManager.showDialog(LoadingDialogState(StringResource(R.string.enrolling)))
+                    },
+                    onSuccess = {
+                        dialogManager.hideDialog()
+                        _autoLoginEvent.update { Event(LoginEvent.LoginSuccess) }
+                    },
+                    onError = this@SignUpViewModel::onEnrollFailure
+                )
+            }
+        }
+    }
 
-                        Resource.Loading -> {
-                            dialogManager.showDialog(LoadingDialogState(StringResource(R.string.enrolling)))
-                        }
-                        is Resource.Success -> {
-                            dialogManager.hideDialog()
-                            _autoLoginEvent.update { Event(LoginEvent.LoginSuccess) }
-                        }
-                        is Resource.Error.Custom -> {
-                            val apiErrorMessage = resource.error.apiErrorMessage
+    private fun onEnrollFailure(errorResource: Resource.Error) {
+        when(errorResource) {
+            is Resource.Error.Custom -> {
+                val apiErrorMessage = errorResource.error.apiErrorMessage
 
-                            if (resource.error.userDefinedErrorCode == ERROR_CODE_LOGIN_FAILURE) {
-                                dialogManager.showDialog(
-                                    AlertDialogState(
-                                        title = StringResource(R.string.login_failed),
-                                        message = StringResource(R.string.enroll_login_failed),
-                                        onDismiss = dialogManager::hideDialog
-                                    )
-                                )
-                            } else if (apiErrorMessage != null) {
-                                dialogManager.showDialog(
-                                    AlertDialogState(
-                                        title = StringResource(R.string.enrollment_failed),
-                                        stringMessage = apiErrorMessage,
-                                        onDismiss = dialogManager::hideDialog
-                                    )
-                                )
-                            }
-
-                        }
-                    }
+                if (errorResource.error.userDefinedErrorCode == ERROR_CODE_LOGIN_FAILURE) {
+                    dialogManager.showDialog(
+                        AlertDialogState(
+                            title = StringResource(R.string.login_failed),
+                            message = StringResource(R.string.enroll_login_failed),
+                            onDismiss = dialogManager::hideDialog
+                        )
+                    )
+                } else if (apiErrorMessage != null) {
+                    dialogManager.showDialog(
+                        AlertDialogState(
+                            title = StringResource(R.string.enrollment_failed),
+                            stringMessage = apiErrorMessage,
+                            onDismiss = dialogManager::hideDialog
+                        )
+                    )
                 }
             }
+            is Resource.Error.Generic ->   dialogManager.showDialog(
+                AlertDialogState(
+                    title = StringResource(R.string.enrollment_failed),
+                    message = StringResource(R.string.generic_error_message),
+                    onDismiss = dialogManager::hideDialog
+                )
+            )
         }
     }
 }

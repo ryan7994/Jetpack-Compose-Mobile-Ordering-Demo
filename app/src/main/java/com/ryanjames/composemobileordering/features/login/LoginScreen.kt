@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.Center
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -14,8 +13,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -63,7 +60,7 @@ fun LoginScreenLayout(
                 .clip(RoundedCornerShape(48.dp))
                 .background(AppTheme.colors.materialColors.background)
         ) {
-            val focusManager = LocalFocusManager.current
+
             Column(
                 modifier = Modifier
                     .padding(start = 32.dp, end = 32.dp)
@@ -71,52 +68,39 @@ fun LoginScreenLayout(
                 horizontalAlignment = CenterHorizontally,
                 verticalArrangement = Center
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.order_food),
-                    contentDescription = "",
-                    modifier = Modifier.size(64.dp)
-                )
-                Spacer(modifier = Modifier.size(16.dp))
-                Text(
-                    text = stringResource(R.string.lets_get_started),
-                    modifier = Modifier.align(CenterHorizontally),
-                    style = Typography.headlineLarge,
-                    color = AppTheme.colors.materialColors.onBackground
-                )
+                LoginHeader()
                 Spacer(modifier = Modifier.size(32.dp))
                 SingleLineTextField(
                     modifier = Modifier.testTag("Username"),
                     value = loginScreenState.username,
-                    onValueChange = { onValueChange.invoke(it, LoginFormField.Username) },
+                    onValueChange = { onValueChange(it, LoginFormField.Username) },
                     hintText = stringResource(R.string.username),
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Next,
                         autoCorrect = false
-                    ),
-                    keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
+                    )
                 )
                 Spacer(modifier = Modifier.size(16.dp))
                 SingleLineTextField(
                     value = loginScreenState.password,
-                    onValueChange = { onValueChange.invoke(it, LoginFormField.Password) },
+                    onValueChange = { onValueChange(it, LoginFormField.Password) },
                     hintText = stringResource(R.string.password),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done,
                         autoCorrect = false
                     ),
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
+                    visualTransformation = PasswordVisualTransformation()
                 )
                 Spacer(modifier = Modifier.size(32.dp))
                 FullWidthButton(
-                    onClick = { onClickSignIn.invoke() },
+                    onClick = { onClickSignIn() },
                     label = stringResource(R.string.sign_in),
                     tag = "btnSignIn"
                 )
                 AccentTextButton(
-                    onClick = { onClickSignUp.invoke() },
-                    label = "Sign Up"
+                    onClick = { onClickSignUp() },
+                    label = stringResource(id = R.string.sign_up)
                 )
                 Spacer(modifier = Modifier.size(16.dp))
                 Text(
@@ -133,6 +117,25 @@ fun LoginScreenLayout(
         }
 
     }
+}
+
+@Composable
+private fun LoginHeader() {
+    Column(horizontalAlignment = CenterHorizontally) {
+        Image(
+            painter = painterResource(id = R.drawable.order_food),
+            contentDescription = "",
+            modifier = Modifier.size(64.dp)
+        )
+        Spacer(modifier = Modifier.size(16.dp))
+        Text(
+            text = stringResource(R.string.lets_get_started),
+            modifier = Modifier.align(CenterHorizontally),
+            style = Typography.headlineLarge,
+            color = AppTheme.colors.materialColors.onBackground
+        )
+    }
+
 }
 
 @Preview

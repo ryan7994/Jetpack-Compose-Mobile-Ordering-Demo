@@ -45,7 +45,6 @@ fun SingleLineTextField(
     value: String,
     onValueChange: (String) -> Unit,
     hintText: String,
-    keyboardActions: KeyboardActions? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions(
         imeAction = ImeAction.Next,
         autoCorrect = false
@@ -55,7 +54,9 @@ fun SingleLineTextField(
     onFocusChanged: (FocusState) -> Unit = {},
     errorMessage: String? = null
 ) {
+
     val focusManager = LocalFocusManager.current
+
     OutlinedTextField(
         shape = RoundedCornerShape(16.dp),
         colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -77,7 +78,7 @@ fun SingleLineTextField(
             .fillMaxWidth()
             .onFocusChanged(onFocusChanged),
         keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions ?: KeyboardActions(
+        keyboardActions = KeyboardActions(
             onNext = { focusManager.moveFocus(FocusDirection.Down) },
             onDone = { focusManager.clearFocus() }
         ),
@@ -144,7 +145,7 @@ fun AccentTextButton(onClick: () -> Unit, label: String, modifier: Modifier = Mo
 
     if (buttonState?.visible == true) {
         TextButton(
-            onClick = onClick,
+            onClick =  { onClick() },
             colors = ButtonDefaults.textButtonColors(),
             enabled = buttonState.enabled
         ) {

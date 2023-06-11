@@ -1,12 +1,9 @@
 package com.ryanjames.composemobileordering.features.home
 
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ryanjames.composemobileordering.TAG
-import com.ryanjames.composemobileordering.clearAndAddAll
-import com.ryanjames.composemobileordering.domain.Venue
+import com.ryanjames.composemobileordering.collectResource
 import com.ryanjames.composemobileordering.features.bottomnav.BottomNavScreens
 import com.ryanjames.composemobileordering.navigation.RouteNavigator
 import com.ryanjames.composemobileordering.repository.OrderRepository
@@ -29,12 +26,8 @@ class HomeViewModel @Inject constructor(
     private val routeNavigator: RouteNavigator
 ) : ViewModel(), RouteNavigator by routeNavigator {
 
-    private val _homeViewState =
-        MutableStateFlow(HomeScreenState(listOf(), listOf(), HomeScreenDataState.Loading, ""))
+    private val _homeViewState = MutableStateFlow(HomeScreenState(listOf(), listOf(), HomeScreenDataState.Loading, ""))
     val homeViewState = _homeViewState.asStateFlow()
-
-    private val featuredList = mutableListOf<Venue>()
-    private val restaurantList = mutableListOf<Venue>()
 
     init {
         viewModelScope.launch {
@@ -44,29 +37,24 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun getVenues() {
-        venueRepository.getFeaturedVenues().collect { resource ->
-            resource.mapIfSuccess { pair ->
-                featuredList.clearAndAddAll(pair.first)
-                restaurantList.clearAndAddAll(pair.second)
-                _homeViewState.update {
-                    _homeViewState.value.copy(
-                        featuredList = featuredList.map { it.toFeaturedRestaurantCardState() },
+        venueRepository.getFeaturedVenues().collectResource(
+            onLoading = {},
+            onSuccess = { (featuredVenues, restaurantList) ->
+                _homeViewState.update { oldState -> oldState.copy(
+                        featuredList = featuredVenues.map { it.toFeaturedRestaurantCardState() },
                         restaurantList = restaurantList.map { it.toRestaurantCardState() },
                         dataState = HomeScreenDataState.Success
                     )
                 }
-            }
-        }
+            },
+            onError = {}
+        )
     }
 
     private suspend fun getDeliveryAddress() {
         orderRepository.getDeliveryAddressFlow().collect { deliveryAddress ->
             _homeViewState.update { it.copy(deliveryAddress = deliveryAddress) }
         }
-    }
-
-    override fun onCleared() {
-        Log.d(TAG, "Home Screen onCleared()")
     }
 
     fun onClickCard(venueId: String) {

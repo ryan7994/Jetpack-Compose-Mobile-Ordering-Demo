@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.ryanjames.composemobileordering.R
+import com.ryanjames.composemobileordering.collectResource
 import com.ryanjames.composemobileordering.core.*
 import com.ryanjames.composemobileordering.features.bottomnav.BottomNavScreens
 import com.ryanjames.composemobileordering.features.bottomnav.BottomNavTabs
@@ -16,7 +17,6 @@ import com.ryanjames.composemobileordering.ui.core.DialogManager
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
 import com.ryanjames.composemobileordering.util.toDisplayModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@FlowPreview
 @HiltViewModel
 class BagViewModel @Inject constructor(
     private val orderRepository: OrderRepository,
@@ -41,10 +40,8 @@ class BagViewModel @Inject constructor(
             bagItems = listOf(),
             venueId = null,
             venueName = null,
-            btnRemoveState = ButtonState(enabled = true, visible = true),
-            btnCancelState = ButtonState(enabled = true, visible = false),
-            btnRemoveSelectedState = ButtonState(enabled = false, visible = false),
-            isRemoving = false
+            bagListMode = BagListMode.Viewing,
+            priceBreakdownState = PriceBreakdownState()
         )
     )
     val bagScreenState: StateFlow<BagScreenState>
@@ -92,25 +89,23 @@ class BagViewModel @Inject constructor(
                 _bagItemScreenState.update {
                     it.copy(
                         bagItems = items,
-                        subtotal = "$${bagSummary.subtotal().toTwoDigitString()}",
-                        total = "$${bagSummary.price.toTwoDigitString()}",
-                        tax = "$${bagSummary.tax().toTwoDigitString()}",
-                        isBagEmpty = false,
+                        priceBreakdownState = PriceBreakdownState(
+                            subtotal = "$${bagSummary.subtotal.toTwoDigitString()}",
+                            total = "$${bagSummary.price.toTwoDigitString()}",
+                            tax = "$${bagSummary.tax.toTwoDigitString()}",
+                        ),
                         isLoading = false
                     )
                 }
             } else {
-                _bagItemScreenState.update { it.copy(isBagEmpty = true, isLoading = false) }
+                _bagItemScreenState.update { it.copy(isLoading = false, bagItems = listOf()) }
             }
         }
     }
 
     fun onClickRemove() {
         _bagItemScreenState.value = _bagItemScreenState.value.copy(
-            btnRemoveState = ButtonState(enabled = true, visible = false),
-            btnCancelState = ButtonState(enabled = true, visible = true),
-            btnRemoveSelectedState = ButtonState(enabled = false, visible = true),
-            isRemoving = true
+            bagListMode = BagListMode.Removing
         )
     }
 
@@ -128,10 +123,7 @@ class BagViewModel @Inject constructor(
                         dialogManager.hideDialog()
                         _bagItemScreenState.value = _bagItemScreenState.value.copy(
                             bagItems = newLineItems,
-                            btnRemoveState = ButtonState(true, true),
-                            btnCancelState = ButtonState(true, false),
-                            btnRemoveSelectedState = ButtonState(false, false),
-                            isRemoving = false
+                            bagListMode = BagListMode.Viewing
                         )
                         snackbarManager.showSnackbar(SnackbarData(EVENT_SUCCESSFUL_ITEM_REMOVAL, SnackbarContent(StringResource(R.string.item_removed))))
                     }
@@ -146,23 +138,14 @@ class BagViewModel @Inject constructor(
 
     fun onClickCancel() {
         val newBagItems = _bagItemScreenState.value.bagItems.map { it.copy(forRemoval = false) }
-        _bagItemScreenState.value = _bagItemScreenState.value.copy(bagItems = newBagItems)
-
         _bagItemScreenState.value = _bagItemScreenState.value.copy(
-            btnRemoveState = ButtonState(true, true),
-            btnCancelState = ButtonState(true, false),
-            btnRemoveSelectedState = ButtonState(false, false),
-            isRemoving = false,
+            bagListMode = BagListMode.Viewing,
             bagItems = newBagItems
         )
     }
 
-    fun onClickPickup() {
-        _bagItemScreenState.value = _bagItemScreenState.value.copy(isPickupSelected = true)
-    }
-
-    fun onClickDelivery() {
-        _bagItemScreenState.value = _bagItemScreenState.value.copy(isPickupSelected = false)
+    fun onDeliverOptionSelected(deliveryOption: DeliveryOption) {
+        _bagItemScreenState.value = _bagItemScreenState.value.copy(isPickupSelected = deliveryOption == DeliveryOption.Pickup)
     }
 
     fun onClickCheckout() {
@@ -179,23 +162,24 @@ class BagViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            orderRepository.checkoutOrder(isPickup, deliveryAddress).collect { resource ->
-                when (resource) {
-                    is Resource.Loading -> dialogManager.showDialog(LoadingDialogState(StringResource(R.string.placing_order)))
-                    is Resource.Error ->
-                        dialogManager.showDialog(
-                            AlertDialogState(
-                                message = StringResource(R.string.generic_error_message),
-                                onDismiss = dialogManager::hideDialog
-                            )
-                        )
 
-                    is Resource.Success -> {
-                        dialogManager.hideDialog()
-                        orderRepository.clearBag()
-                    }
+            orderRepository.checkoutOrder(isPickup, deliveryAddress).collectResource(
+                onLoading = {
+                    dialogManager.showDialog(LoadingDialogState(StringResource(R.string.placing_order)))
+                },
+                onSuccess = {
+                    dialogManager.hideDialog()
+                    orderRepository.clearBag()
+                },
+                onError = {
+                    dialogManager.showDialog(
+                        AlertDialogState(
+                            message = StringResource(R.string.generic_error_message),
+                            onDismiss = dialogManager::hideDialog
+                        )
+                    )
                 }
-            }
+            )
         }
 
     }
@@ -208,8 +192,8 @@ class BagViewModel @Inject constructor(
         routeNavigator.navigateToRoute(BottomNavScreens.ProductDetailFromBag.routeWithArgs(lineItemId = lineItemId))
     }
 
-    fun onClickAddMoreItems(venueId: String) {
-        routeNavigator.navigateToAnotherTab(BottomNavTabs.BrowseTab, BottomNavScreens.Home.route, BottomNavScreens.VenueDetail.routeWithArgs(venueId))
+    fun onClickAddMoreItems() {
+        bagScreenState.value.venueId?.let { routeNavigator.navigateToAnotherTab(BottomNavTabs.BrowseTab, BottomNavScreens.Home.route, BottomNavScreens.VenueDetail.routeWithArgs(it)) }
     }
 
     fun onRemoveCbCheckChanged(checked: Boolean, lineItemId: String) {
@@ -220,11 +204,9 @@ class BagViewModel @Inject constructor(
                 it
             }
         }
-        val itemsForRemoval = newBagItems.count { it.forRemoval }
 
         _bagItemScreenState.value = _bagItemScreenState.value.copy(
-            bagItems = newBagItems,
-            btnRemoveSelectedState = ButtonState(itemsForRemoval > 0, true)
+            bagItems = newBagItems
         )
     }
 }

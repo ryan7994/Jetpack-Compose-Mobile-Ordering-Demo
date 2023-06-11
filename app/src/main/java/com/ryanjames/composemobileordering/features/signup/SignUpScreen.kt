@@ -71,7 +71,7 @@ fun SignUpScreenLayout(
 
                 SingleLineTextField(
                     value = signUpScreenState.username,
-                    onValueChange = { newValue -> onValueChange.invoke(newValue, SignUpFormField.Username) },
+                    onValueChange = { newValue -> onValueChange(newValue, SignUpFormField.Username) },
                     hintText = stringResource(R.string.username),
                     isError = signUpScreenState.fieldsWithError.contains(SignUpFormField.Username),
                     onFocusChanged = { focusState -> onFocusChanged.invoke(focusState.isFocused, SignUpFormField.Username) },
@@ -152,7 +152,7 @@ fun SignUpScreenLayout(
                 )
                 Spacer(modifier = Modifier.size(16.dp))
 
-                FullWidthButton(onClick = onClickJoin, label = stringResource(id = R.string.join))
+                FullWidthButton(onClick = { onClickJoin() }, label = stringResource(id = R.string.join))
                 Spacer(modifier = Modifier.size(16.dp))
             }
         }

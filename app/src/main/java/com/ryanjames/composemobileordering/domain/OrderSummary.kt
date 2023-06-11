@@ -1,8 +1,6 @@
 package com.ryanjames.composemobileordering.domain
 
 import android.os.Parcelable
-import com.ryanjames.composemobileordering.features.bag.BagScreenState
-import com.ryanjames.composemobileordering.features.bag.ButtonState
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -15,15 +13,11 @@ data class OrderSummary(
     val storeName: String
 ) : Parcelable {
 
-    // TODO: Replace with API value
-    fun tax(): Float {
-        return subtotal() * .12f
-    }
+    val subtotal: Float
+        get() = price / 1.12f
 
-    // TODO: Replace with API value
-    fun subtotal(): Float {
-        return price / 1.12f
-    }
+    val tax: Float
+        get() = subtotal * .12f
 
     companion object {
 

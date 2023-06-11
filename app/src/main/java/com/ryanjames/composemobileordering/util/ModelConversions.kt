@@ -467,8 +467,8 @@ fun GetOrderResponse.toOrderEntity(): CurrentOrderEntityWithLineItems {
     return CurrentOrderEntityWithLineItems(
         order = CurrentOrderEntity(
             orderId = orderId,
-            subtotal = bagSummary.subtotal(),
-            tax = bagSummary.tax(),
+            subtotal = bagSummary.subtotal,
+            tax = bagSummary.tax,
             total = bagSummary.price,
             storeName = storeName,
             storeId = storeId

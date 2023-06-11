@@ -1,11 +1,9 @@
 package com.ryanjames.composemobileordering.features.productdetail
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryanjames.composemobileordering.R
-import com.ryanjames.composemobileordering.TAG
 import com.ryanjames.composemobileordering.core.*
 import com.ryanjames.composemobileordering.domain.LineItem
 import com.ryanjames.composemobileordering.domain.OrderSummaryLineItem
@@ -258,15 +256,6 @@ class ProductDetailViewModel @Inject constructor(
                 }
             }
         }
-
         return list
-    }
-
-    fun onSuccessfulAddOrUpdate() {
-
-    }
-
-    override fun onCleared() {
-        Log.d(TAG, "Product Detail onCleared()")
     }
 }
