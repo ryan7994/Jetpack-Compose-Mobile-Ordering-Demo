@@ -6,7 +6,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,6 +15,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.sp
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.features.bag.ButtonState
 import com.ryanjames.composemobileordering.ui.theme.*
-import kotlinx.coroutines.launch
 
 @Composable
 fun SingleLineTextField(
@@ -195,26 +194,20 @@ fun FullWidthButton(onClick: () -> Unit, label: String, tag: String? = null) {
 @Composable
 fun TextTabs(
     tabs: List<String>,
-    listState: LazyListState,
     selectedTabContent: @Composable (text: String) -> Unit,
     unselectedTabContent: @Composable (text: String) -> Unit,
+    firstVisibleItemIndex: () -> Int,
+    onTabClicked : (Int) -> Unit
 ) {
-    val firstItemVisibleIndex by remember {
-        derivedStateOf {
-            listState.firstVisibleItemIndex
-        }
-    }
 
-    val selectedTabIndex = remember { mutableStateOf(0) }
-    val coroutineScope = rememberCoroutineScope()
-    val tabClicked = remember { mutableStateOf(false) }
+    var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
 
-    if (listState.isScrollInProgress && !tabClicked.value && selectedTabIndex.value != firstItemVisibleIndex) {
-        selectedTabIndex.value = firstItemVisibleIndex
+    LaunchedEffect(key1 = firstVisibleItemIndex()) {
+        selectedTabIndex = firstVisibleItemIndex()
     }
 
     ScrollableTabRow(
-        selectedTabIndex = selectedTabIndex.value,
+        selectedTabIndex = selectedTabIndex,
         containerColor = AppTheme.colors.bottomNavBackground,
         edgePadding = 16.dp,
         indicator = {
@@ -222,21 +215,17 @@ fun TextTabs(
                 height = 4.dp,
                 color = CoralRed,
                 modifier = Modifier
-                    .tabIndicatorOffset(it[selectedTabIndex.value])
+                    .tabIndicatorOffset(it[selectedTabIndex])
                     .clip(RoundedCornerShape(2.dp))
             )
-        }
+        },
     ) {
         tabs.forEachIndexed { index, text ->
-            val isSelected = selectedTabIndex.value == index
+            val isSelected = selectedTabIndex == index
             Tab(selected = isSelected,
                 onClick = {
-                    selectedTabIndex.value = index
-                    coroutineScope.launch {
-                        tabClicked.value = true
-                        listState.animateScrollToItem(index)
-                        tabClicked.value = false
-                    }
+                    selectedTabIndex = index
+                    onTabClicked(index)
                 },
                 text = {
                     if (isSelected) {

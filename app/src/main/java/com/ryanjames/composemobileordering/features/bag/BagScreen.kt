@@ -96,12 +96,12 @@ fun BagLayout(
         sheetContent = {
             DeliveryAddressBottomSheetLayout(
                 value = deliveryAddressState.deliveryAddressInput,
-                onValueChange = onDeliveryAddressValueChange,
+                onValueChange = { onDeliveryAddressValueChange(it) },
                 onClickSave = {
                     onClickSaveDeliveryAddress()
-                    scope.launch {
-                        modalBottomSheetState.hide()
-                    }
+//                    scope.launch {
+//                        modalBottomSheetState.hide()
+//                    }
                 })
         },
         sheetState = modalBottomSheetState,

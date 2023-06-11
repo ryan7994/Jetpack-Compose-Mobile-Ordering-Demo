@@ -82,12 +82,6 @@ fun VenueDetailScreen(
 
                 val listState = rememberLazyListState()
 
-//                val firstItemVisibleIndex by remember {
-//                    derivedStateOf {
-//                         listState.firstVisibleItemIndex
-//                    }
-//                }
-
                 when (venueDetailScreenState.menuCategoriesResource) {
                     is Resource.Loading -> {
                         LoadingSpinnerWithText(text = stringResource(R.string.loading_menu))
@@ -98,12 +92,17 @@ fun VenueDetailScreen(
                         if (menuCategories.isNotEmpty()) {
                             TextTabs(
                                 tabs = menuCategories.map { it.categoryName },
-                                listState = listState,
                                 selectedTabContent = { tabText ->
                                     Text(text = tabText, fontWeight = FontWeight.Bold, color = CoralRed, style = Typography.titleMedium)
                                 },
                                 unselectedTabContent = { tabText ->
                                     Text(text = tabText, fontWeight = FontWeight.Bold, color = HintGray, style = Typography.titleMedium)
+                                },
+                                firstVisibleItemIndex =  { listState.firstVisibleItemIndex },
+                                onTabClicked = {
+                                    scope.launch {
+                                        listState.scrollToItem(it)
+                                    }
                                 }
                             )
 
