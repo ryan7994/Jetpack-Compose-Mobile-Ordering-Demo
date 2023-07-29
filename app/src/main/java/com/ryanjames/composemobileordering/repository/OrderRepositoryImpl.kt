@@ -4,7 +4,11 @@ import android.util.Log
 import com.ryanjames.composemobileordering.TAG
 import com.ryanjames.composemobileordering.core.Resource
 import com.ryanjames.composemobileordering.db.AppDatabase
-import com.ryanjames.composemobileordering.domain.*
+import com.ryanjames.composemobileordering.domain.LineItem
+import com.ryanjames.composemobileordering.domain.OrderStatus
+import com.ryanjames.composemobileordering.domain.OrderSummary
+import com.ryanjames.composemobileordering.domain.OrderSummaryLineItem
+import com.ryanjames.composemobileordering.features.bag.OrderMode
 import com.ryanjames.composemobileordering.network.MobilePosApi
 import com.ryanjames.composemobileordering.network.model.request.CheckoutOrderRequest
 import com.ryanjames.composemobileordering.network.model.request.CreateUpdateOrderRequest
@@ -16,7 +20,11 @@ import com.ryanjames.composemobileordering.util.toDomain
 import com.ryanjames.composemobileordering.util.toLineItemRequest
 import com.ryanjames.composemobileordering.util.toOrderEntity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 
 class OrderRepositoryImpl(
     private val mobilePosApi: MobilePosApi,
@@ -151,10 +159,13 @@ class OrderRepositoryImpl(
         roomDb.globalDao().updateDeliveryAddress(a)
     }
 
-    override fun checkoutOrder(pickup: Boolean, deliveryAddress: String?): Flow<Resource<OrderSummary>> = networkAndDomainResourceFlow(
+    override fun checkoutOrder(orderMode: OrderMode): Flow<Resource<OrderSummary>> = networkAndDomainResourceFlow(
+
         fetchFromApi = {
             val orderId = getCurrentOrderId() ?: throw java.lang.Exception("No order id")
-            mobilePosApi.checkoutOrder(CheckoutOrderRequest(orderId = orderId, pickup, deliveryAddress)).also {
+            val isPickup = orderMode is OrderMode.Pickup
+            val deliveryAddress = (orderMode as? OrderMode.Delivery)?.deliveryAddress.orEmpty()
+            mobilePosApi.checkoutOrder(CheckoutOrderRequest(orderId = orderId, pickup = isPickup, deliveryAddress)).also {
                 clearBag()
             }
         },

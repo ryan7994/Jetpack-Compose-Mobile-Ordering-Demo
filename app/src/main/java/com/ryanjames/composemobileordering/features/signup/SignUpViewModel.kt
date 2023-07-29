@@ -11,8 +11,8 @@ import com.ryanjames.composemobileordering.features.login.LoginEvent
 import com.ryanjames.composemobileordering.network.model.Event
 import com.ryanjames.composemobileordering.network.model.request.EnrollRequest
 import com.ryanjames.composemobileordering.repository.AccountRepository
-import com.ryanjames.composemobileordering.ui.core.AlertDialogState
 import com.ryanjames.composemobileordering.ui.core.DialogManager
+import com.ryanjames.composemobileordering.ui.core.DismissibleDialogState
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
 import com.ryanjames.composemobileordering.util.TextFieldValidator
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -150,33 +150,31 @@ class SignUpViewModel @Inject constructor(
     }
 
     private fun onEnrollFailure(errorResource: Resource.Error) {
-        when(errorResource) {
+        when (errorResource) {
             is Resource.Error.Custom -> {
                 val apiErrorMessage = errorResource.error.apiErrorMessage
 
                 if (errorResource.error.userDefinedErrorCode == ERROR_CODE_LOGIN_FAILURE) {
                     dialogManager.showDialog(
-                        AlertDialogState(
-                            title = StringResource(R.string.login_failed),
-                            message = StringResource(R.string.enroll_login_failed),
-                            onDismiss = dialogManager::hideDialog
+                        DismissibleDialogState(
+                            dialogTitle = StringResource(R.string.login_failed),
+                            dialogMessage = StringResource(R.string.enroll_login_failed)
                         )
                     )
                 } else if (apiErrorMessage != null) {
                     dialogManager.showDialog(
-                        AlertDialogState(
-                            title = StringResource(R.string.enrollment_failed),
-                            stringMessage = apiErrorMessage,
-                            onDismiss = dialogManager::hideDialog
+                        DismissibleDialogState(
+                            dialogTitle = StringResource(R.string.enrollment_failed),
+                            dialogStringMessage = apiErrorMessage
                         )
                     )
                 }
             }
-            is Resource.Error.Generic ->   dialogManager.showDialog(
-                AlertDialogState(
-                    title = StringResource(R.string.enrollment_failed),
-                    message = StringResource(R.string.generic_error_message),
-                    onDismiss = dialogManager::hideDialog
+
+            is Resource.Error.Generic -> dialogManager.showDialog(
+                DismissibleDialogState(
+                    dialogTitle = StringResource(R.string.enrollment_failed),
+                    dialogMessage = StringResource(R.string.generic_error_message)
                 )
             )
         }

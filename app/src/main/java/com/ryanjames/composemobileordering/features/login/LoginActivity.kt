@@ -40,11 +40,6 @@ class LoginActivity : BaseActivity() {
         subscribe()
     }
 
-    private fun loginUser() {
-        startActivity(Intent(this@LoginActivity, BottomNavActivity::class.java))
-        finish()
-    }
-
     private fun subscribe() {
         lifecycleScope.launch {
             loginViewModel.loginEvent.collect { event ->
@@ -57,11 +52,9 @@ class LoginActivity : BaseActivity() {
     private fun handleLoginEvent(event: Event<LoginEvent>) {
         event.handle { loginEvent ->
             when (loginEvent) {
-                is LoginEvent.LoginSuccess -> {
-                    loginUser()
-                }
-                LoginEvent.AutoLogin -> {
-                    loginUser()
+                is LoginEvent.LoginSuccess, LoginEvent.AutoLogin -> {
+                    startActivity(Intent(this@LoginActivity, BottomNavActivity::class.java))
+                    finish()
                 }
                 else -> {}
             }

@@ -5,15 +5,20 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.collectResource
-import com.ryanjames.composemobileordering.core.*
+import com.ryanjames.composemobileordering.core.EVENT_SUCCESSFUL_ITEM_REMOVAL
+import com.ryanjames.composemobileordering.core.SnackbarContent
+import com.ryanjames.composemobileordering.core.SnackbarData
+import com.ryanjames.composemobileordering.core.SnackbarManager
+import com.ryanjames.composemobileordering.core.StringResource
+import com.ryanjames.composemobileordering.core.getOrNull
 import com.ryanjames.composemobileordering.features.bottomnav.BottomNavScreens
 import com.ryanjames.composemobileordering.features.bottomnav.BottomNavTabs
 import com.ryanjames.composemobileordering.navigation.RouteNavigator
 import com.ryanjames.composemobileordering.repository.OrderRepository
 import com.ryanjames.composemobileordering.repository.VenueRepository
 import com.ryanjames.composemobileordering.toTwoDigitString
-import com.ryanjames.composemobileordering.ui.core.AlertDialogState
 import com.ryanjames.composemobileordering.ui.core.DialogManager
+import com.ryanjames.composemobileordering.ui.core.DismissibleDialogState
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
 import com.ryanjames.composemobileordering.util.toDisplayModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +27,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,49 +41,50 @@ class BagViewModel @Inject constructor(
     private val dialogManager: DialogManager
 ) : ViewModel(), RouteNavigator by routeNavigator, DialogManager by dialogManager {
 
-    private val _bagItemScreenState = MutableStateFlow(
-        BagScreenState(
-            bagItems = listOf(),
-            venueId = null,
-            venueName = null,
-            bagListMode = BagListMode.Viewing,
-            priceBreakdownState = PriceBreakdownState()
-        )
-    )
+    private val _bagItemScreenState = MutableStateFlow(BagScreenState())
     val bagScreenState: StateFlow<BagScreenState>
         get() = _bagItemScreenState.asStateFlow()
 
-    init {
+    private val orderMode = MutableStateFlow(OrderModeId.PICKUP)
 
+    init {
         viewModelScope.launch {
             awaitAll(
                 async { collectCurrentVenue() },
                 async { collectCurrentBagSummary() },
-                async { getDeliveryAddress() },
+                async { getOrderMode() },
             )
-
         }
     }
 
-
-    private suspend fun getDeliveryAddress() {
-        orderRepository.getDeliveryAddressFlow().collect { deliveryAddress ->
-            _bagItemScreenState.update { it.copy(deliveryAddress = deliveryAddress) }
+    private suspend fun getOrderMode() {
+        combine(orderRepository.getDeliveryAddressFlow(), orderMode, venueRepository.getCurrentVenue()) { deliveryAddress, orderModeId, venue ->
+            when (orderModeId) {
+                OrderModeId.DELIVERY -> OrderMode.Delivery(deliveryAddress = deliveryAddress)
+                OrderModeId.PICKUP -> {
+                    val storeVenue = venue.getOrNull()
+                    val address = storeVenue?.address.orEmpty()
+                    val restaurantPosition = if (storeVenue != null) {
+                        LatLng(storeVenue.lat.toDouble(), storeVenue.long.toDouble())
+                    } else {
+                        LatLng(0.0, 0.0)
+                    }
+                    OrderMode.Pickup(venueAddress = address, restaurantPosition = restaurantPosition)
+                }
+            }
+        }.collect { orderMode ->
+            _bagItemScreenState.update { it.copy(orderMode = orderMode) }
         }
     }
 
     private suspend fun collectCurrentVenue() {
         venueRepository.getCurrentVenue().collect {
-            if (it is Resource.Success) {
-                val venue = it.data ?: return@collect
-                _bagItemScreenState.update { state ->
-                    state.copy(
-                        venueId = venue.id,
-                        venueName = venue.name,
-                        restaurantPosition = LatLng(venue.lat.toDouble(), venue.long.toDouble()),
-                        venueAddress = venue.address ?: ""
-                    )
-                }
+            val venue = it.getOrNull() ?: return@collect
+            _bagItemScreenState.update { state ->
+                state.copy(
+                    venueId = venue.id,
+                    venueName = venue.name
+                )
             }
         }
     }
@@ -105,7 +112,7 @@ class BagViewModel @Inject constructor(
 
     fun onClickRemove() {
         _bagItemScreenState.value = _bagItemScreenState.value.copy(
-            bagListMode = BagListMode.Removing
+            bagListMode = BagListMode.REMOVING
         )
     }
 
@@ -113,25 +120,23 @@ class BagViewModel @Inject constructor(
         viewModelScope.launch {
             val venueId = venueRepository.getCurrentVenueId() ?: ""
             val lineItemsToRemove = _bagItemScreenState.value.bagItems.filter { it.forRemoval }.map { it.lineItemId }
-            orderRepository.removeLineItems(lineItemsToRemove, venueId).collect {
-                when (it) {
-                    is Resource.Loading -> {
-                        dialogManager.showDialog(LoadingDialogState(StringResource(R.string.removing_from_bag)))
-                    }
-                    is Resource.Success -> {
-                        val newLineItems = it.data.lineItems.map { lineItem -> lineItem.toDisplayModel() }
-                        dialogManager.hideDialog()
-                        _bagItemScreenState.value = _bagItemScreenState.value.copy(
-                            bagItems = newLineItems,
-                            bagListMode = BagListMode.Viewing
-                        )
-                        snackbarManager.showSnackbar(SnackbarData(EVENT_SUCCESSFUL_ITEM_REMOVAL, SnackbarContent(StringResource(R.string.item_removed))))
-                    }
-                    is Resource.Error -> {
-                        dialogManager.hideDialog()
-                    }
+            orderRepository.removeLineItems(lineItemsToRemove, venueId).collectResource(
+                onLoading = {
+                    dialogManager.showDialog(LoadingDialogState(StringResource(R.string.removing_from_bag)))
+                },
+                onSuccess = {
+                    val newLineItems = it.lineItems.map { lineItem -> lineItem.toDisplayModel() }
+                    dialogManager.hideDialog()
+                    _bagItemScreenState.value = _bagItemScreenState.value.copy(
+                        bagItems = newLineItems,
+                        bagListMode = BagListMode.VIEWING
+                    )
+                    snackbarManager.showSnackbar(SnackbarData(EVENT_SUCCESSFUL_ITEM_REMOVAL, SnackbarContent(StringResource(R.string.item_removed))))
+                },
+                onError = {
+                    dialogManager.showDialog(DismissibleDialogState(dialogMessage = StringResource(R.string.removing_from_bag_error)))
                 }
-            }
+            )
         }
 
     }
@@ -139,31 +144,27 @@ class BagViewModel @Inject constructor(
     fun onClickCancel() {
         val newBagItems = _bagItemScreenState.value.bagItems.map { it.copy(forRemoval = false) }
         _bagItemScreenState.value = _bagItemScreenState.value.copy(
-            bagListMode = BagListMode.Viewing,
+            bagListMode = BagListMode.VIEWING,
             bagItems = newBagItems
         )
     }
 
-    fun onDeliverOptionSelected(deliveryOption: DeliveryOption) {
-        _bagItemScreenState.value = _bagItemScreenState.value.copy(isPickupSelected = deliveryOption == DeliveryOption.Pickup)
+    fun onDeliverOptionSelected(orderModeId: OrderModeId) {
+        orderMode.update { orderModeId }
     }
 
     fun onClickCheckout() {
-        val isPickup = _bagItemScreenState.value.isPickupSelected
-        val deliveryAddress = _bagItemScreenState.value.deliveryAddress
-        if (!isPickup && deliveryAddress.isNullOrEmpty()) {
+        val orderMode = _bagItemScreenState.value.orderMode
+        if (orderMode is OrderMode.Delivery && orderMode.deliveryAddress.isNullOrEmpty()) {
             dialogManager.showDialog(
-                AlertDialogState(
-                    message = StringResource(R.string.missing_delivery_address_error),
-                    onDismiss = dialogManager::hideDialog
-                )
+                DismissibleDialogState(dialogMessage = StringResource(R.string.missing_delivery_address_error))
             )
             return
         }
 
         viewModelScope.launch {
 
-            orderRepository.checkoutOrder(isPickup, deliveryAddress).collectResource(
+            orderRepository.checkoutOrder(orderMode).collectResource(
                 onLoading = {
                     dialogManager.showDialog(LoadingDialogState(StringResource(R.string.placing_order)))
                 },
@@ -173,10 +174,7 @@ class BagViewModel @Inject constructor(
                 },
                 onError = {
                     dialogManager.showDialog(
-                        AlertDialogState(
-                            message = StringResource(R.string.generic_error_message),
-                            onDismiss = dialogManager::hideDialog
-                        )
+                        DismissibleDialogState(dialogMessage = StringResource(R.string.generic_error_message))
                     )
                 }
             )
@@ -193,7 +191,13 @@ class BagViewModel @Inject constructor(
     }
 
     fun onClickAddMoreItems() {
-        bagScreenState.value.venueId?.let { routeNavigator.navigateToAnotherTab(BottomNavTabs.BrowseTab, BottomNavScreens.Home.route, BottomNavScreens.VenueDetail.routeWithArgs(it)) }
+        bagScreenState.value.venueId?.let {
+            routeNavigator.navigateToAnotherTab(
+                BottomNavTabs.BrowseTab,
+                BottomNavScreens.Home.route,
+                BottomNavScreens.VenueDetail.routeWithArgs(it)
+            )
+        }
     }
 
     fun onRemoveCbCheckChanged(checked: Boolean, lineItemId: String) {

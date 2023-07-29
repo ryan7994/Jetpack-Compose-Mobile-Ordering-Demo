@@ -22,7 +22,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
@@ -39,10 +38,9 @@ import kotlinx.coroutines.launch
 @FlowPreview
 @Composable
 fun BagScreen(
-
+    bagViewModel: BagViewModel,
     editDeliveryAddressViewModel: EditDeliveryAddressViewModel
 ) {
-    val bagViewModel = hiltViewModel<BagViewModel>()
     BagLayout(
         bagScreenState = bagViewModel.bagScreenState.collectAsState().value,
         deliveryAddressState = editDeliveryAddressViewModel.deliveryAddressState.collectAsState().value,
@@ -72,7 +70,7 @@ fun BagLayout(
     onClickCancel: () -> Unit,
     onClickRemoveSelected: () -> Unit,
     onCheckChanged: (checked: Boolean, lineItemId: String) -> Unit,
-    onDeliveryOptionSelected: (DeliveryOption) -> Unit,
+    onDeliveryOptionSelected: (OrderModeId) -> Unit,
     onDeliveryAddressValueChange: (String) -> Unit,
     onClickSaveDeliveryAddress: () -> Unit,
     onClickBrowseRestaurants: () -> Unit,
@@ -99,9 +97,9 @@ fun BagLayout(
                 onValueChange = { onDeliveryAddressValueChange(it) },
                 onClickSave = {
                     onClickSaveDeliveryAddress()
-//                    scope.launch {
-//                        modalBottomSheetState.hide()
-//                    }
+                    scope.launch {
+                        modalBottomSheetState.hide()
+                    }
                 })
         },
         sheetState = modalBottomSheetState,
@@ -182,13 +180,10 @@ fun BagLayout(
                     DeliveryOptionToggle(onDeliveryOptionSelected = onDeliveryOptionSelected)
                     Spacer(modifier = Modifier.size(16.dp))
 
-                    if (bagScreenState.isPickupSelected) {
-                        MapCard(latLng = bagScreenState.restaurantPosition, bagScreenState.venueAddress)
-                    } else {
-                        DeliveryAddressCard(deliveryAddress = bagScreenState.deliveryAddress) {
-                            scope.launch {
-                                modalBottomSheetState.show()
-                            }
+
+                    OrderOption(orderMode = bagScreenState.orderMode) {
+                        scope.launch {
+                            modalBottomSheetState.show()
                         }
                     }
 
@@ -199,6 +194,18 @@ fun BagLayout(
                     Spacer(modifier = Modifier.size(24.dp))
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun OrderOption(orderMode: OrderMode, onClickAddEditAddress: () -> Unit) {
+    when(orderMode) {
+        is OrderMode.Delivery -> {
+            DeliveryAddressCard(deliveryAddress = orderMode.deliveryAddress, onClickAddEditAddress)
+        }
+        is OrderMode.Pickup -> {
+            MapCard(latLng = orderMode.restaurantPosition, orderMode.venueAddress)
         }
     }
 }
@@ -300,7 +307,7 @@ fun BagSummaryCard(
 
 @Composable
 fun DeliveryOptionToggle(
-    onDeliveryOptionSelected: (DeliveryOption) -> Unit
+    onDeliveryOptionSelected: (OrderModeId) -> Unit
 ) {
     val radius = remember { 8.dp }
     val selectedColor = ButtonDefaults.outlinedButtonColors(containerColor = CoralRed)
@@ -309,7 +316,7 @@ fun DeliveryOptionToggle(
     val unselectedTextColor = AppTheme.colors.darkTextColor
 
     var selectedDeliveryOption by rememberSaveable {
-        mutableStateOf(DeliveryOption.Pickup)
+        mutableStateOf(OrderModeId.PICKUP)
     }
 
     LaunchedEffect(selectedDeliveryOption) {
@@ -318,28 +325,28 @@ fun DeliveryOptionToggle(
 
     Row(modifier = Modifier.fillMaxWidth()) {
         OutlinedButton(
-            colors = if (selectedDeliveryOption == DeliveryOption.Pickup) selectedColor else unselectedColor,
+            colors = if (selectedDeliveryOption == OrderModeId.PICKUP) selectedColor else unselectedColor,
             shape = RoundedCornerShape(topStart = radius, bottomStart = radius),
-            onClick = { selectedDeliveryOption = DeliveryOption.Pickup },
+            onClick = { selectedDeliveryOption = OrderModeId.PICKUP },
             modifier = Modifier.weight(1f),
             border = BorderStroke(1.dp, Color.LightGray)
         ) {
             Text(
                 text = stringResource(R.string.pickup),
-                color = if (selectedDeliveryOption == DeliveryOption.Pickup) selectedTextColor else unselectedTextColor,
+                color = if (selectedDeliveryOption == OrderModeId.PICKUP) selectedTextColor else unselectedTextColor,
                 style = Typography.titleLarge
             )
         }
         OutlinedButton(
-            colors = if (selectedDeliveryOption == DeliveryOption.Delivery) selectedColor else unselectedColor,
+            colors = if (selectedDeliveryOption == OrderModeId.DELIVERY) selectedColor else unselectedColor,
             shape = RoundedCornerShape(topEnd = radius, bottomEnd = radius),
-            onClick = { selectedDeliveryOption = DeliveryOption.Delivery },
+            onClick = { selectedDeliveryOption = OrderModeId.DELIVERY },
             modifier = Modifier.weight(1f),
             border = BorderStroke(1.dp, Color.LightGray)
         ) {
             Text(
                 text = stringResource(R.string.delivery),
-                color = if (selectedDeliveryOption == DeliveryOption.Delivery) selectedTextColor else unselectedTextColor,
+                color = if (selectedDeliveryOption == OrderModeId.DELIVERY) selectedTextColor else unselectedTextColor,
                 style = Typography.titleLarge
             )
         }
@@ -489,14 +496,16 @@ fun BagItemRow(
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (bagListMode == BagListMode.Removing) {
-                Checkbox(
-                    onCheckedChange = { checked ->
-                        onCheckChanged(checked, bagItemRowDisplayModel.lineItemId)
-                    },
-                    checked = bagItemRowDisplayModel.forRemoval,
-                    colors = CheckboxDefaults.colors(checkedColor = CoralRed, checkmarkColor = Color.White)
-                )
+            if (bagListMode == BagListMode.REMOVING) {
+                CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
+                    Checkbox(
+                        onCheckedChange = { checked ->
+                            onCheckChanged(checked, bagItemRowDisplayModel.lineItemId)
+                        },
+                        checked = bagItemRowDisplayModel.forRemoval,
+                        colors = CheckboxDefaults.colors(checkedColor = CoralRed, checkmarkColor = Color.White)
+                    )
+                }
             } else {
                 Text(
                     text = bagItemRowDisplayModel.price,

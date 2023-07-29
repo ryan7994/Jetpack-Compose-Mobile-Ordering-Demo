@@ -46,7 +46,7 @@ object BagRoute : NavRoute<BagViewModel> {
     @Composable
     override fun Content(viewModel: BagViewModel) {
         BagScreen(
-//            bagViewModel = hiltViewModel(),
+            bagViewModel = hiltViewModel(),
             editDeliveryAddressViewModel = hiltViewModel()
         )
 

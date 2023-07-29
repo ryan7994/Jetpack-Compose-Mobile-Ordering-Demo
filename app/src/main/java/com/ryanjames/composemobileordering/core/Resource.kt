@@ -38,6 +38,13 @@ sealed class Resource<out T> {
     }
 }
 
+fun <T> Resource<T>.getOrNull(): T? {
+    if (this is Resource.Success) {
+        return this.data
+    }
+    return null
+}
+
 @OptIn(ExperimentalCoroutinesApi::class)
 inline fun <T, K> Flow<Resource<T>>.flatMapLatest(crossinline transform: suspend (T) -> Flow<Resource<K>>): Flow<Resource<K>> {
     return this.flatMapLatest { resource ->

@@ -4,7 +4,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryanjames.composemobileordering.R
-import com.ryanjames.composemobileordering.core.*
+import com.ryanjames.composemobileordering.core.EVENT_SUCCESSFUL_BAG_UPDATE
+import com.ryanjames.composemobileordering.core.Resource
+import com.ryanjames.composemobileordering.core.SnackbarContent
+import com.ryanjames.composemobileordering.core.SnackbarData
+import com.ryanjames.composemobileordering.core.SnackbarManager
+import com.ryanjames.composemobileordering.core.StringResource
 import com.ryanjames.composemobileordering.domain.LineItem
 import com.ryanjames.composemobileordering.domain.OrderSummaryLineItem
 import com.ryanjames.composemobileordering.domain.Product
@@ -13,8 +18,8 @@ import com.ryanjames.composemobileordering.repository.MenuRepository
 import com.ryanjames.composemobileordering.repository.OrderRepository
 import com.ryanjames.composemobileordering.repository.VenueRepository
 import com.ryanjames.composemobileordering.toTwoDigitString
-import com.ryanjames.composemobileordering.ui.core.AlertDialogState
 import com.ryanjames.composemobileordering.ui.core.DialogManager
+import com.ryanjames.composemobileordering.ui.core.DismissibleDialogState
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
 import com.ryanjames.composemobileordering.ui.core.TwoButtonsDialogState
 import com.ryanjames.composemobileordering.util.LineItemManager
@@ -74,15 +79,17 @@ class ProductDetailViewModel @Inject constructor(
                         is Resource.Success -> {
                             setupLineItemManager(product = resource.data, orderSummaryLineItem)
                         }
+
                         is Resource.Error -> {
-                            dialogManager.showDialog( AlertDialogState(
-                                message = StringResource(id = R.string.generic_error_message),
-                                onDismiss = {
-                                    dialogManager.hideDialog()
+                            dialogManager.showDialog(DismissibleDialogState(
+                                dialogMessage = StringResource(id = R.string.generic_error_message),
+                                onDismissDialog = {
+                                   // dialogManager.hideDialog()
                                     routeNavigator.popBackStack()
                                 }
                             ))
                         }
+
                         is Resource.Loading -> {
                             _productDetailScreenState.value = _productDetailScreenState.value.copy(loadingProductDetail = true)
                         }
@@ -117,8 +124,8 @@ class ProductDetailViewModel @Inject constructor(
             val currentOrderVenueId = venueRepository.getCurrentVenueId()
             if (currentOrderVenueId != null && currentOrderVenueId != venueId) {
                 val dialog = TwoButtonsDialogState(
-                    title = StringResource(R.string.other_items_title),
-                    message = StringResource(R.string.other_items_message),
+                    dialogTitle = StringResource(R.string.other_items_title),
+                    dialogMessage = StringResource(R.string.other_items_message),
                     positiveButton = StringResource(R.string.yes),
                     negativeButton = StringResource(R.string.no),
                     onClickNegativeBtn = { dialogManager.hideDialog() },
@@ -143,6 +150,7 @@ class ProductDetailViewModel @Inject constructor(
                     val loadingDialogLabel = if (isModifying) R.string.updating_item else R.string.adding_item_to_bag
                     dialogManager.showDialog(LoadingDialogState(StringResource(loadingDialogLabel)))
                 }
+
                 is Resource.Success -> {
                     dialogManager.hideDialog()
 
@@ -151,11 +159,13 @@ class ProductDetailViewModel @Inject constructor(
 
                     routeNavigator.popBackStack()
                 }
+
                 is Resource.Error -> {
-                    dialogManager.showDialog(AlertDialogState(
-                        message = StringResource(id = R.string.generic_error_message),
-                        onDismiss = { dialogManager.hideDialog() }
-                    ))
+                    dialogManager.showDialog(
+                        DismissibleDialogState(
+                            dialogMessage = StringResource(id = R.string.generic_error_message)
+                        )
+                    )
                 }
             }
         }

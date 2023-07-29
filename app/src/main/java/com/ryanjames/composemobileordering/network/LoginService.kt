@@ -37,7 +37,6 @@ class LoginService(
                 emit(Resource.Error.Custom(e, error = AppError(userDefinedErrorCode = ERROR_CODE_LOGIN_FAILURE)))
             }
         }.flowOn(Dispatchers.IO)
-
     }
 
 }

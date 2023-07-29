@@ -21,7 +21,18 @@ class DialogManagerImpl : DialogManager {
         get() = _alertDialogState.asStateFlow()
 
     override fun showDialog(state: AlertDialogState) {
-        _alertDialogState.update { state }
+        _alertDialogState.update {
+
+            if (state is DismissibleDialogState) {
+                val onDismissDialog = state.onDismissDialog
+                state.copy(onDismissDialog = {
+                    _alertDialogState.update { null }
+                    onDismissDialog?.let { it() }
+                })
+            } else {
+                state
+            }
+        }
     }
 
     override fun hideDialog() {

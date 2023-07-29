@@ -4,14 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryanjames.composemobileordering.R
 import com.ryanjames.composemobileordering.collectResource
-import com.ryanjames.composemobileordering.core.LoginManager
 import com.ryanjames.composemobileordering.core.StringResource
 import com.ryanjames.composemobileordering.features.login.LoginEvent.LoginErrorEvent
 import com.ryanjames.composemobileordering.network.LoginService
 import com.ryanjames.composemobileordering.network.model.Event
-import com.ryanjames.composemobileordering.ui.core.AlertDialogState
 import com.ryanjames.composemobileordering.ui.core.DialogManager
+import com.ryanjames.composemobileordering.ui.core.DismissibleDialogState
 import com.ryanjames.composemobileordering.ui.core.LoadingDialogState
+import com.ryanjames.composemobileordering.usecase.GetLoginStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,8 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val apiService: LoginService,
-    private val loginManager: LoginManager,
-    private val dialogManager: DialogManager
+    private val dialogManager: DialogManager,
+    getLoginStateUseCase: GetLoginStateUseCase
 ) : ViewModel(), DialogManager by dialogManager {
 
     private val _loginViewState = MutableStateFlow(LoginScreenState())
@@ -35,7 +35,7 @@ class LoginViewModel @Inject constructor(
         get() = _loginEvent
 
     init {
-        if (loginManager.isLoggedIn()) {
+        if (getLoginStateUseCase()) {
             _loginEvent.update { Event(LoginEvent.AutoLogin) }
         }
     }
@@ -62,40 +62,36 @@ class LoginViewModel @Inject constructor(
 
     private fun showIncorrectCredentialsDialog() {
         dialogManager.showDialog(
-            AlertDialogState(
-                title = StringResource(R.string.login_failed),
-                message = StringResource(R.string.no_match_username_password),
-                onDismiss = dialogManager::hideDialog
+            DismissibleDialogState(
+                dialogTitle = StringResource(R.string.login_failed),
+                dialogMessage = StringResource(R.string.no_match_username_password)
             )
         )
     }
 
     private fun showBlankUsernameDialog() {
         dialogManager.showDialog(
-            AlertDialogState(
-                title = StringResource(R.string.login_failed),
-                message = StringResource(R.string.username_empty),
-                onDismiss = dialogManager::hideDialog
+            DismissibleDialogState(
+                dialogTitle = StringResource(R.string.login_failed),
+                dialogMessage = StringResource(R.string.username_empty)
             )
         )
     }
 
     private fun showBlankPasswordDialog() {
         dialogManager.showDialog(
-            AlertDialogState(
-                title = StringResource(R.string.login_failed),
-                message = StringResource(R.string.password_empty),
-                onDismiss = dialogManager::hideDialog
+            DismissibleDialogState(
+                dialogTitle = StringResource(R.string.login_failed),
+                dialogMessage = StringResource(R.string.password_empty)
             )
         )
     }
 
     private fun showBlankUsernameAndPasswordDialog() {
         dialogManager.showDialog(
-            AlertDialogState(
-                title = StringResource(R.string.login_failed),
-                message = StringResource(R.string.username_and_password_empty),
-                onDismiss = dialogManager::hideDialog
+            DismissibleDialogState(
+                dialogTitle = StringResource(R.string.login_failed),
+                dialogMessage = StringResource(R.string.username_and_password_empty)
             )
         )
     }

@@ -1,9 +1,10 @@
 package com.ryanjames.composemobileordering.repository
 
 import com.ryanjames.composemobileordering.core.Resource
-import com.ryanjames.composemobileordering.domain.OrderSummaryLineItem
-import com.ryanjames.composemobileordering.domain.OrderSummary
 import com.ryanjames.composemobileordering.domain.LineItem
+import com.ryanjames.composemobileordering.domain.OrderSummary
+import com.ryanjames.composemobileordering.domain.OrderSummaryLineItem
+import com.ryanjames.composemobileordering.features.bag.OrderMode
 import kotlinx.coroutines.flow.Flow
 
 interface OrderRepository {
@@ -24,5 +25,5 @@ interface OrderRepository {
 
     suspend fun updateDeliveryAddress(address: String?)
 
-    fun checkoutOrder(pickup: Boolean, deliveryAddress: String?): Flow<Resource<OrderSummary>>
+    fun checkoutOrder(orderMode: OrderMode): Flow<Resource<OrderSummary>>
 }

@@ -13,9 +13,6 @@ class LoginManager @Inject constructor(private val sharedPreferences: SharedPref
     val logOutStateFlow: StateFlow<Event<Boolean>>
         get() = logOutFlow
 
-    fun isLoggedIn(): Boolean {
-        return sharedPreferences.getString(SharedPrefsKeys.KEY_AUTH_TOKEN, null) != null
-    }
 
     fun logOut() {
         logOutFlow.value = Event(true)

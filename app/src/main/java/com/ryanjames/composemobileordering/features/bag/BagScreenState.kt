@@ -3,28 +3,25 @@ package com.ryanjames.composemobileordering.features.bag
 import com.google.android.gms.maps.model.LatLng
 
 data class BagScreenState(
-    val bagItems: List<BagItemRowDisplayModel>,
-    val venueId: String?,
-    val venueName: String?,
-    val bagListMode: BagListMode,
-    val priceBreakdownState: PriceBreakdownState,
-    val restaurantPosition: LatLng = LatLng(0.0, 0.0),
-    val venueAddress: String = "",
-    val isPickupSelected: Boolean = true,
-    val deliveryAddress: String? = null,
+    val bagItems: List<BagItemRowDisplayModel> = listOf(),
+    val venueId: String? = null,
+    val venueName: String? = null,
+    val bagListMode: BagListMode = BagListMode.VIEWING,
+    val priceBreakdownState: PriceBreakdownState = PriceBreakdownState(),
+    val orderMode: OrderMode = OrderMode.Pickup(),
     val isLoading: Boolean = true
 ) {
     val isBagEmpty
         get() = bagItems.isEmpty()
 
     val btnRemoveState: ButtonState
-        get() = ButtonState(enabled = bagListMode == BagListMode.Viewing, visible = bagListMode == BagListMode.Viewing)
+        get() = ButtonState(enabled = bagListMode == BagListMode.VIEWING, visible = bagListMode == BagListMode.VIEWING)
 
     val btnCancelState: ButtonState
-        get() = ButtonState(enabled = bagListMode == BagListMode.Removing, visible = bagListMode == BagListMode.Removing)
+        get() = ButtonState(enabled = bagListMode == BagListMode.REMOVING, visible = bagListMode == BagListMode.REMOVING)
 
     val btnRemoveSelectedState: ButtonState
-        get() = ButtonState(enabled = bagItems.any { it.forRemoval }, visible = bagListMode == BagListMode.Removing)
+        get() = ButtonState(enabled = bagItems.any { it.forRemoval }, visible = bagListMode == BagListMode.REMOVING)
 }
 
 data class ButtonState(val enabled: Boolean, val visible: Boolean)
@@ -44,12 +41,20 @@ data class PriceBreakdownState(
     val total: String = ""
 )
 
-enum class DeliveryOption {
-    Pickup,
-    Delivery
+sealed class OrderMode {
+    data class Delivery(val deliveryAddress: String? = null) : OrderMode()
+    data class Pickup(
+        val venueAddress: String = "",
+        val restaurantPosition: LatLng = LatLng(0.0, 0.0),
+    ) : OrderMode()
+}
+
+enum class OrderModeId {
+    PICKUP,
+    DELIVERY
 }
 
 enum class BagListMode {
-    Viewing,
-    Removing
+    VIEWING,
+    REMOVING
 }
